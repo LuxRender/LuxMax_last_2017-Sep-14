@@ -1,0 +1,6 @@
+syntax: glob
+Shaders/LR_Matte/obj/
+LuxCam/obj/
+Shaders/LR_Light/obj/
+Shaders/LR_Template/obj/
+*.sdf
