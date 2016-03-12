@@ -1,5 +1,5 @@
 Latest precompiled version can be downloaded from:
-https://bitbucket.org/luxrender/luxmax_integrated/downloads
+https://bitbucket.org/luxrender/luxmax/downloads
 
 
 Please visit http://www.luxrender.net/wiki/Luxmax_integrated for latest information about Luxmax renderer.
