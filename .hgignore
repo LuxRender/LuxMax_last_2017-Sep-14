@@ -4,3 +4,5 @@ LuxCam/obj/
 Shaders/LR_Light/obj/
 Shaders/LR_Template/obj/
 *.sdf
+*.opensdf
+intermidiate/
