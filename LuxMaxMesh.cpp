@@ -275,11 +275,6 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 
 		::Mesh *p_trimesh = &p_triobj->mesh;
 
-		if (p_trimesh->getNumFaces() < 1)
-		{
-			//mprintf(L"Debug: Did not triangulate object : %s, numfaces < 1\n", currNode->GetName());
-			exit;
-		}
 		p_trimesh->checkNormals(true);
 		p_trimesh->buildNormals();
 
