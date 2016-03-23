@@ -77,27 +77,22 @@ LuxMaxMaterials::~LuxMaxMaterials()
 std::string LuxMaxMaterials::getTexturePathFromParamBlockID(int paramID, ::Mtl* mat)
 {
 	Texmap *tex;
-	Interval      ivalid;
-	std::string texPathString = "";
+	std::string path = "";
 
 	IParamBlock2 *pBlock = mat->GetParamBlock(0);
 	tex = pBlock->GetTexmap(paramID, GetCOREInterface()->GetTime(), 0);
+
 	if (tex != NULL)
 	{
 		BitmapTex *bmt = (BitmapTex*)tex;
-		BitmapInfo bi(bmt->GetMapName());
-		BMMGetFullFilename(&bi);
-		MaxSDK::AssetManagement::AssetUser BFile = bi.GetAsset();
-		texPathString = lmutil->ToNarrow(BFile.GetFullFilePath());
+
+		if (bmt != NULL)
+		{
+			//Non-Unicode string, we should fix this so that it does not crash with Chinese characters for example.
+			path = bmt->GetMap().GetFullFilePath().ToUTF8();
+		}
 	}
-	if (texPathString != "")
-	{
-		return texPathString;
-	}
-	else
-	{
-		return "";
-	}
+	return path;
 }
 
 std::string LuxMaxMaterials::getBumpTextureName(::Mtl* mat)
