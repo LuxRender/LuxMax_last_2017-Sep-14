@@ -257,7 +257,7 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 
 	BOOL fConvertedToTriObject = obj->CanConvertToType(triObjectClassID) && (p_triobj = (TriObject*)obj->ConvertToType(0, triObjectClassID)) != NULL;
 
-	if (!fConvertedToTriObject)
+	if (!fConvertedToTriObject || p_triobj->mesh.getNumFaces() < 1)
 	{
 		//mprintf(L"Debug: Did not triangulate object : %s\n", currNode->GetName());
 		exit;
@@ -267,6 +267,8 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 		//mprintf(L"Info: Creating mesh for object : %s\n", currNode->GetName());
 		const wchar_t *objName = L"";
 		std::string tmpName = lxmUtils->ToNarrow(currNode->GetName());
+		std::string nodeHandle = std::to_string(currNode->GetHandle());
+		tmpName.append(nodeHandle);
 		lxmUtils->removeUnwatedChars(tmpName);
 		std::wstring replacedObjName = std::wstring(tmpName.begin(), tmpName.end());
 		objName = replacedObjName.c_str();

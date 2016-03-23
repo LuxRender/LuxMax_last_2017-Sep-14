@@ -89,6 +89,8 @@ std::string LuxMaxMaterials::getTexturePathFromParamBlockID(int paramID, ::Mtl* 
 		if (bmt != NULL)
 		{
 			//Non-Unicode string, we should fix this so that it does not crash with Chinese characters for example.
+			// http://www.luxrender.net/mantis/view.php?id=1624#bugnotes
+
 			path = bmt->GetMap().GetFullFilePath().ToUTF8();
 		}
 	}
