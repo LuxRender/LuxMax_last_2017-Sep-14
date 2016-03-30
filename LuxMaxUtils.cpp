@@ -110,28 +110,28 @@ std::string LuxMaxUtils::ReplaceAll(std::string str, const std::string& from, co
 std::string LuxMaxUtils::removeUnwatedChars(std::string& str)
 {
 	str.erase(remove_if(str.begin(), str.end(), isspace), str.end());
-	replace(str, "#", "_");
-	replace(str, ".", "_");
-	replace(str, ",", "_");
-	replace(str, """", "_");
-	replace(str, "�", "_");
-	replace(str, "%25", "_");
-	replace(str, "&", "_");
-	replace(str, "/", "_");
-	replace(str, "(", "_");
-	replace(str, ")", "_");
-	replace(str, "=", "_");
-	replace(str, "?", "_");
-	replace(str, "+", "_");
-	replace(str, "\\", "_");
-	replace(str, "`", "_");
-	replace(str, "^", "_");
-	replace(str, "�", "_");
-	replace(str, "|", "_");
-	replace(str, "*", "_");
-	replace(str, "'", "_");
-	replace(str, ";", "_");
-	replace(str, ":", "_");
+	std::replace(str.begin(), str.end(), '.', '_');
+	std::replace(str.begin(), str.end(), '#', '_');
+	std::replace(str.begin(), str.end(), ',', '_');
+	std::replace(str.begin(), str.end(), '"', '_');
+	std::replace(str.begin(), str.end(), '�', '_');
+	std::replace(str.begin(), str.end(), ' ', '_');
+	std::replace(str.begin(), str.end(), '&', '_');
+	std::replace(str.begin(), str.end(), '/', '_');
+	std::replace(str.begin(), str.end(), '(', '_');
+	std::replace(str.begin(), str.end(), ')', '_');
+	std::replace(str.begin(), str.end(), '=', '_');
+	std::replace(str.begin(), str.end(), '?', '_');
+	std::replace(str.begin(), str.end(), '+', '_');
+	std::replace(str.begin(), str.end(), '\\', '_');
+	std::replace(str.begin(), str.end(), '`', '_');
+	std::replace(str.begin(), str.end(), '`', '_');
+	std::replace(str.begin(), str.end(), '^', '_');
+	std::replace(str.begin(), str.end(), '�', '_');
+	std::replace(str.begin(), str.end(), '|', '_');
+	std::replace(str.begin(), str.end(), '*', '_');
+	std::replace(str.begin(), str.end(), ':', '_');
+	std::replace(str.begin(), str.end(), ';', '_');
 
 	return str;
 }
