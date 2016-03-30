@@ -63,6 +63,7 @@ using namespace luxrays;
 #define LR_INTERNAL_MATTE_CLASSID Class_ID(0x31b54e60, 0x1de956e4)
 #define LR_INTERNAL_MATTELIGHT_CLASSID Class_ID(0x5d2f7ac1, 0x7dd93354)
 #define LR_INTERNAL_MAT_TEMPLATE_CLASSID Class_ID(0x64691d17, 0x288d50d9)
+#define STANDARDBITMAP_CLASSID Class_ID(576, 0)
 
 LuxMaxUtils * lmutil;
 
@@ -81,17 +82,24 @@ std::string LuxMaxMaterials::getTexturePathFromParamBlockID(int paramID, ::Mtl* 
 
 	IParamBlock2 *pBlock = mat->GetParamBlock(0);
 	tex = pBlock->GetTexmap(paramID, GetCOREInterface()->GetTime(), 0);
-
+	
 	if (tex != NULL)
 	{
-		BitmapTex *bmt = (BitmapTex*)tex;
-
-		if (bmt != NULL)
+		if (tex->ClassID() == STANDARDBITMAP_CLASSID)
 		{
-			//Non-Unicode string, we should fix this so that it does not crash with Chinese characters for example.
-			// http://www.luxrender.net/mantis/view.php?id=1624#bugnotes
+			BitmapTex *bmt = (BitmapTex*)tex;
 
-			path = bmt->GetMap().GetFullFilePath().ToUTF8();
+			if (bmt != NULL)
+			{
+				//Non-Unicode string, we should fix this so that it does not crash with Chinese characters for example.
+				// http://www.luxrender.net/mantis/view.php?id=1624#bugnotes
+
+				path = bmt->GetMap().GetFullFilePath().ToUTF8();
+			}
+		}
+		else
+		{
+			mprintf(L"ERROR : Unsupported texture in material: '%s' , named: '%s' , will not render texture. standard bitmap is supported.\n", mat->GetName(), tex->GetName());
 		}
 	}
 	return path;
