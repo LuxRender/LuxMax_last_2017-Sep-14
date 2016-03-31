@@ -283,8 +283,16 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 		int optcount = 0;
 
 		vertexPtr rawverts = CollectRawVerts(*p_trimesh, rawcount);
-		vertexPtr optverts = CreateOptimizeVertexList(rawverts, rawcount, optcount);
-		unsigned int* indices = CreateOptimizeFaceIndices(rawverts, rawcount, optverts, optcount);
+		vertexPtr optverts = rawverts;
+		//vertexPtr optverts = CreateOptimizeVertexList(rawverts, rawcount, optcount);
+		//unsigned int* indices = CreateOptimizeFaceIndices(rawverts, rawcount, optverts, optcount);
+		unsigned int* indices = new unsigned int[rawcount];
+		optcount = rawcount;
+		for (int i = 0; i < rawcount; i++)
+		{
+			indices[i] = i;
+		}
+
 		int numTriangles = p_trimesh->getNumFaces();
 
 		Point *p = Scene::AllocVerticesBuffer(optcount);
@@ -325,16 +333,16 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 
 		if (numUvs < 1) {
 			// Define the object - without UV
-			scene.DefineMesh(lxmUtils->ToNarrow(objName), optcount, numTriangles, p, vi, n, NULL, NULL, NULL);
+			scene.DefineMesh(lxmUtils->ToNarrow(objName), optcount, numTriangles, p, vi, n, uv, NULL, NULL);
 		}
 		else
 		{
 			// Define the object - with UV
-			scene.DefineMesh(lxmUtils->ToNarrow(objName), optcount, numTriangles, p, vi, n, uv, NULL, NULL);
+			scene.DefineMesh(lxmUtils->ToNarrow(objName), optcount, numTriangles, p, vi, n, NULL, NULL, NULL);
 		}
 
 		delete[] rawverts;
-		delete[] optverts;
+		//delete[] optverts;
 		delete[] indices;
 		//delete[] uv;
 
