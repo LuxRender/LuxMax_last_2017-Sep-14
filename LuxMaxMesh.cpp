@@ -283,16 +283,8 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 		int optcount = 0;
 
 		vertexPtr rawverts = CollectRawVerts(*p_trimesh, rawcount);
-		vertexPtr optverts = rawverts;
-		//vertexPtr optverts = CreateOptimizeVertexList(rawverts, rawcount, optcount);
-		//unsigned int* indices = CreateOptimizeFaceIndices(rawverts, rawcount, optverts, optcount);
-		unsigned int* indices = new unsigned int[rawcount];
-		optcount = rawcount;
-		for (int i = 0; i < rawcount; i++)
-		{
-			indices[i] = i;
-		}
-
+		vertexPtr optverts = CreateOptimizeVertexList(rawverts, rawcount, optcount);
+		unsigned int* indices = CreateOptimizeFaceIndices(rawverts, rawcount, optverts, optcount);
 		int numTriangles = p_trimesh->getNumFaces();
 
 		Point *p = Scene::AllocVerticesBuffer(optcount);
@@ -333,16 +325,16 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 
 		if (numUvs < 1) {
 			// Define the object - without UV
-			scene.DefineMesh(lxmUtils->ToNarrow(objName), optcount, numTriangles, p, vi, n, uv, NULL, NULL);
+			scene.DefineMesh(lxmUtils->ToNarrow(objName), optcount, numTriangles, p, vi, n, NULL, NULL, NULL);
 		}
 		else
 		{
 			// Define the object - with UV
-			scene.DefineMesh(lxmUtils->ToNarrow(objName), optcount, numTriangles, p, vi, n, NULL, NULL, NULL);
+			scene.DefineMesh(lxmUtils->ToNarrow(objName), optcount, numTriangles, p, vi, n, uv, NULL, NULL);
 		}
 
 		delete[] rawverts;
-		//delete[] optverts;
+		delete[] optverts;
 		delete[] indices;
 		//delete[] uv;
 
@@ -356,11 +348,23 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 
 		objString = "scene.objects.";
 		objString.append(lxmUtils->ToNarrow(objName));
-		objString.append(".ply = ");
+		objString.append(".shape = ");
 		objString.append(lxmUtils->ToNarrow(objName));
 		objString.append("\n");
 		props.SetFromString(objString);
 		objString = "";
+
+		//////Set the transformation matrix for the current mesh object.
+		//////the getMaxNodeTransform function returns the numbers for the matrix.
+		//////that is why we append it here.
+		//objString.append("scene.objects.");
+		//objString.append(lxmUtils->ToNarrow(objName));
+		//objString.append(".transformation = ");
+		//objString.append(lxmUtils->getMaxNodeTransform(currNode));
+		//objString.append("\n");
+		//props.SetFromString(objString);
+		//scene.Parse(props);
+		//objString = "";
 
 		Mtl *objmat = NULL;
 
@@ -455,15 +459,16 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 			objString = "";
 		}
 
-		//Set the transformation matrix for the current mesh object.
-		//the getMaxNodeTransform function returns the numbers for the matrix.
-		//that is why we append it here.
+		////Set the transformation matrix for the current mesh object.
+		////the getMaxNodeTransform function returns the numbers for the matrix.
+		////that is why we append it here.
 		objString.append("scene.objects.");
 		objString.append(lxmUtils->ToNarrow(objName));
 		objString.append(".transformation = ");
 		objString.append(lxmUtils->getMaxNodeTransform(currNode));
 		props.SetFromString(objString);
 		scene.Parse(props);
+
 	}
 }
 

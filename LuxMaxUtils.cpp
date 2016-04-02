@@ -180,7 +180,7 @@ std::string LuxMaxUtils::getMaxNodeTransform(INode* node)
 	tmpTrans.append(" ");
 	tmpTrans.append(floatToString(nodeTransformPos.GetTrans().z));
 	tmpTrans.append(" 1.0");
-
+	tmpTrans.append("\n");
 	return tmpTrans;
 }
 
