@@ -217,33 +217,30 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 		p_trimesh->buildNormals();
 
 		int numUvs = p_trimesh->getNumTVerts();
-		int rawcount = p_trimesh->numFaces * 3;
-		int optcount = 0;
-
-		vertexPtr rawverts = CollectRawVerts(*p_trimesh, rawcount);
-		vertexPtr optverts = rawverts;
-		unsigned int* indices = new unsigned int[rawcount];
-		optcount = rawcount;
-		for (int i = 0; i < rawcount; i++)
+		int vertCount = p_trimesh->numFaces * 3;
+		
+		vertexPtr rawverts = CollectRawVerts(*p_trimesh, vertCount);
+		unsigned int* indices = new unsigned int[vertCount];
+		for (int i = 0; i < vertCount; i++)
 		{
 			indices[i] = i;
 		}
 
 		int numTriangles = p_trimesh->getNumFaces();
 
-		Point *p = Scene::AllocVerticesBuffer(optcount);
+		Point *p = Scene::AllocVerticesBuffer(vertCount);
 		Triangle *vi = Scene::AllocTrianglesBuffer(numTriangles);
-		Normal *n = new Normal[optcount];
-		UV *uv = new UV[optcount];
+		Normal *n = new Normal[vertCount];
+		UV *uv = new UV[vertCount];
 
-		for (int vert = 0; vert < optcount; vert++)
+		for (int vert = 0; vert < vertCount; vert++)
 		{
-			p[vert] = Point(optverts[vert].p);
+			p[vert] = Point(rawverts[vert].p);
 		}
 
-		for (int norm = 0; norm < optcount; norm++)
+		for (int norm = 0; norm < vertCount; norm++)
 		{
-			::Point3 tmpNorm = optverts[norm].n;
+			::Point3 tmpNorm = rawverts[norm].n;
 			n[norm].x = tmpNorm.x;
 			n[norm].y = tmpNorm.y;
 			n[norm].z = tmpNorm.z;
@@ -259,21 +256,21 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 
 		if (numUvs > 0)
 		{
-			for (int u = 0; u < optcount; u++)
+			for (int u = 0; u < vertCount; u++)
 			{
-				uv[u].u = optverts[u].uv.x;
-				uv[u].v = optverts[u].uv.y * -1;
+				uv[u].u = rawverts[u].uv.x;
+				uv[u].v = rawverts[u].uv.y * -1;
 			}
 		}
 
 		if (numUvs > 1) {
 			// Define the object - with UV
-			scene.DefineMesh(lxmUtils->ToNarrow(objName), optcount, numTriangles, p, vi, n, uv, NULL, NULL);
+			scene.DefineMesh(lxmUtils->ToNarrow(objName), vertCount, numTriangles, p, vi, n, uv, NULL, NULL);
 		}
 		else
 		{
 			// Define the object - without UV
-			scene.DefineMesh(lxmUtils->ToNarrow(objName), optcount, numTriangles, p, vi, n, NULL, NULL, NULL);
+			scene.DefineMesh(lxmUtils->ToNarrow(objName), vertCount, numTriangles, p, vi, n, NULL, NULL, NULL);
 		}
 
 		delete[] rawverts;
