@@ -514,7 +514,12 @@ int LuxMax::Render(
 		for (int a = 0; maxscene->NumChildren() > a; a++)
 		{
 			INode* currNode = maxscene->GetChildNode(a);
+			bool doExport = true;
 
+			if (currNode->IsHidden(0,true))
+			{
+				doExport = false;
+			}
 			//prog->SetCurField(1);
 			renderProgTitle = (L"Translating object: %s", currNode->GetName());
 			prog->SetTitle(renderProgTitle);
@@ -525,7 +530,7 @@ int LuxMax::Render(
 			Object*	obj;
 			ObjectState os = currNode->EvalWorldState(GetCOREInterface()->GetTime());
 			obj = os.obj;
-			bool doExport = true;
+			
 
 			switch (os.obj->SuperClassID())
 			{
@@ -541,6 +546,8 @@ int LuxMax::Render(
 				break;
 			}
 
+			if (doExport)
+			{ 
 			case LIGHT_CLASS_ID:
 			{
 				//Properties props;
@@ -591,21 +598,22 @@ int LuxMax::Render(
 
 				break;
 			}
+			}
 
-			/*case CAMERA_CLASS_ID:
+			if (os.obj->ClassID() == XREFOBJ_CLASS_ID)
 			{
-			break;
-			}*/
-
-			case GEOMOBJECT_CLASS_ID:
-			{
-				if (doExport)
-				{
-					lxmMesh.createMesh(currNode, *scene);
-				}
-
+				mprintf(_T("\n There is a xref node in the scene, will not render yet. please merge scene. \n"));
 				break;
 			}
+
+			case GEOMOBJECT_CLASS_ID:
+				{
+					if (doExport)
+					{
+						lxmMesh.createMesh(currNode, *scene);
+					}
+					break;
+				}
 			}
 		}
 
@@ -779,7 +787,7 @@ IOResult LuxMax::Load(ILoad *iload) {
 			break;
 		case LENSRADIUS_CHUNKID:
 			if (IO_OK == iload->ReadWStringChunk(&buf))
-				halttimewstr = buf;
+				LensRadiusstr = buf;
 			break;
 		}
 		iload->CloseChunk();

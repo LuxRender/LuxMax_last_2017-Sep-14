@@ -81,7 +81,7 @@ class LuxMax : public Renderer {
 	public:
 		
 		TSTR FileName;
-		TSTR halttimewstr = L"60";
+		TSTR halttimewstr;
 		TSTR LensRadiusstr = L"0";
 		//string rendertype = "";
 		TSTR vbinterval = L"1";
