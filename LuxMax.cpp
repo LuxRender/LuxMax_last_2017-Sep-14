@@ -84,6 +84,7 @@ int rendertype = 4;
 int renderWidth = 0;
 int renderHeight = 0;
 bool renderingMaterialPreview = false;
+int vfbRefreshRateInt = 1;
 Scene *materialPreviewScene;// = new Scene();
 
 class LuxMaxClassDesc :public ClassDesc2 {
@@ -301,7 +302,7 @@ int LuxMax::Open(
 	UNREFERENCED_PARAMETER(numDefLights);
 	UNREFERENCED_PARAMETER(defaultLights);
 	UNREFERENCED_PARAMETER(hwnd);
-
+	
 	viewNode = vnode;
 	camPos = viewPar->affineTM;
 
@@ -325,11 +326,12 @@ static void DoRendering(RenderSession *session, RendProgressCallback *prog, Bitm
 	const u_int haltSpp = session->GetRenderConfig().GetProperties().Get(Property("batch.haltspp")(0)).Get<u_int>();
 	const float haltThreshold = session->GetRenderConfig().GetProperties().Get(Property("batch.haltthreshold")(-1.f)).Get<float>();
 	const wchar_t *state = NULL;
-
+	
 	char buf[512];
 	const Properties &stats = session->GetStats();
+	
 	for (;;) {
-		boost::this_thread::sleep(boost::posix_time::millisec(1000));
+		boost::this_thread::sleep(boost::posix_time::seconds(vfbRefreshRateInt));
 
 		session->UpdateStats();
 		const double elapsedTime = stats.Get("stats.renderengine.time").Get<double>();
@@ -411,7 +413,7 @@ int LuxMax::Render(
 	UNREFERENCED_PARAMETER(frp);
 	UNREFERENCED_PARAMETER(t);
 	UNREFERENCED_PARAMETER(prog);
-
+	
 	using namespace std;
 	using namespace luxrays;
 	using namespace luxcore;
@@ -624,9 +626,10 @@ int LuxMax::Render(
 				lxmLights.exportDefaultSkyLight(scene);
 			}
 		}
-
+		
 		std::string tmpFilename = FileName.ToCStr();
 		int halttime = (int)_wtof(halttimewstr);
+		vfbRefreshRateInt = (int)_wtof(vbinterval);
 
 		if (tmpFilename != NULL)
 		{
@@ -743,6 +746,7 @@ void LuxMax::Close(HWND hwnd, RendProgressCallback* prog) {
 RefTargetHandle LuxMax::Clone(RemapDir &remap) {
 	LuxMax *newRend = new LuxMax;
 	newRend->FileName = FileName;
+	newRend->halttimewstr = halttimewstr;
 	BaseClone(this, newRend, remap);
 	return newRend;
 }
@@ -754,6 +758,7 @@ void LuxMax::ResetParams(){
 #define FILENAME_CHUNKID 001
 #define HALTTIME_CHUNKID 002
 #define LENSRADIUS_CHUNKID 003
+#define VFBREFRESHRATE_CHUNKID 004
 
 IOResult LuxMax::Save(ISave *isave) {
 	if (_tcslen(FileName) > 0) {
@@ -764,6 +769,9 @@ IOResult LuxMax::Save(ISave *isave) {
 
 	isave->BeginChunk(HALTTIME_CHUNKID);
 	isave->WriteWString(halttimewstr);
+	isave->EndChunk();
+	isave->BeginChunk(VFBREFRESHRATE_CHUNKID);
+	isave->WriteWString(vbinterval);
 	isave->EndChunk();
 	isave->BeginChunk(LENSRADIUS_CHUNKID);
 	isave->WriteWString(LensRadiusstr);
@@ -785,6 +793,13 @@ IOResult LuxMax::Load(ILoad *iload) {
 			if (IO_OK == iload->ReadWStringChunk(&buf))
 				halttimewstr = buf;
 			break;
+		case VFBREFRESHRATE_CHUNKID:
+		{
+			if (IO_OK == iload->ReadWStringChunk(&buf))
+				vbinterval = buf;
+			break;
+
+		}
 		case LENSRADIUS_CHUNKID:
 			if (IO_OK == iload->ReadWStringChunk(&buf))
 				LensRadiusstr = buf;

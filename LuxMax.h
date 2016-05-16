@@ -82,9 +82,9 @@ class LuxMax : public Renderer {
 		
 		TSTR FileName;
 		TSTR halttimewstr;
+		TSTR vbinterval;
 		TSTR LensRadiusstr = L"0";
 		//string rendertype = "";
-		TSTR vbinterval = L"1";
 		bool defaultlightchk = true;
 		bool defaultlightauto = true;
 
