@@ -504,9 +504,10 @@ int LuxMax::Render(
 	else
 
 	{
+		
 		Scene *scene = new Scene();
 		//In the camera 'export' function we check for supported camera, it returns false if something is not right.
-		if (!lxmCamera.exportCamera((float)_wtof(LensRadiusstr), *scene))
+		if (!lxmCamera.exportCamera((float)atof(LensRadiusstr.ToCStr()), *scene))
 		{
 			return false;
 		}
@@ -630,7 +631,7 @@ int LuxMax::Render(
 		std::string tmpFilename = FileName.ToCStr();
 		int halttime = (int)_wtof(halttimewstr);
 		vfbRefreshRateInt = (int)_wtof(vbinterval);
-
+		
 		if (tmpFilename != NULL)
 		{
 			mprintf(_T("\nRendering to: %s \n"), FileName.ToMSTR());
@@ -747,6 +748,7 @@ RefTargetHandle LuxMax::Clone(RemapDir &remap) {
 	LuxMax *newRend = new LuxMax;
 	newRend->FileName = FileName;
 	newRend->halttimewstr = halttimewstr;
+	newRend->LensRadiusstr = LensRadiusstr;
 	BaseClone(this, newRend, remap);
 	return newRend;
 }

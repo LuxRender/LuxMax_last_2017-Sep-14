@@ -16,6 +16,7 @@
 * limitations under the License.                                          *
 ***************************************************************************/
 
+#include <iostream>
 #include "LuxMaxpch.h"
 #include "resource.h"
 #include "LuxMax.h"
@@ -27,6 +28,7 @@
 extern HINSTANCE hInstance;
 static INT_PTR CALLBACK LuxMaxParamDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+
 class LuxMaxParamDlg : public RendParamDlg {
 public:
 	LuxMax *rend;
@@ -35,18 +37,20 @@ public:
 	//HWND hDlg;
 	BOOL prog;
 	HFONT hFont;
-	ISpinnerControl* depthSpinner;
+	
 	TSTR workFileName;
 	TSTR vbintervalWstr;
 	//int workRenderType;
 	int halttime;
-	TSTR halttimewstr = L"30";
-	float LensRadius;
-	TSTR LensRadiusstr = L"0";
+	TSTR halttimewstr;// = L"30";
+	//float LensRadius;
+	TSTR LensRadiusWstr = L"33";
+	float LensRadiusFloatTmp = 0.0f;
 	int  rendertype;
 	//TSTR vbinterval = L"1";
 	bool defaultlightchk = true;
 	bool defaultlightauto = true;
+	ISpinnerControl *depthSpinner = NULL;
 
 	LuxMaxParamDlg(LuxMax *r, IRendParams *i, BOOL prog);
 	~LuxMaxParamDlg();
@@ -54,6 +58,7 @@ public:
 	void DeleteThis() { delete this; }
 	void InitParamDialog(HWND hWnd);
 	void InitProgDialog(HWND hWnd);
+	void InitDepthDialog(HWND hWnd);
 	void ReleaseControls() {}
 	BOOL FileBrowse();
 
@@ -82,6 +87,8 @@ INT_PTR LuxMaxParamDlg::WndProc(
 				dlg->InitProgDialog(hWnd);
 			else
 				dlg->InitParamDialog(hWnd);
+			//init the depth tab gui
+				dlg->InitDepthDialog(hWnd);
 		}
 		break;
 
@@ -194,12 +201,7 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 				dlg->vbintervalWstr = GetWindowText(hwndOutput);
 				break;
 			}
-			case IDC_CAMERA_DEPTH:
-			{
-				HWND hwndOutputB = GetDlgItem(hWnd, IDC_CAMERA_DEPTH);
-				dlg->LensRadiusstr = GetWindowText(hwndOutputB);
-				break;
-			}
+
 			case IDC_RENDERTYPE:
 			{
 				switch (HIWORD(wParam))
@@ -248,33 +250,30 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 						break;
 					}
 				}
-
-				//MessageBox(0, L"Set new render typr.", L"TEST", MB_OK);
-				//dlg->defaultlightchk = GetCheckBox(hWnd, IDC_CHECK_DEFAULT_LIGHT)
 				break;
 			}
 			case IDC_CHECK_DEFAULT_LIGHT:
 			{
 				dlg->defaultlightchk = (GetCheckBox(hWnd, IDC_CHECK_DEFAULT_LIGHT) != 0);
-				//dlg->defaultlightchk = GetCheckBox(hWnd, IDC_CHECK_DEFAULT_LIGHT)
 				break;
 			}
 			case IDC_CHECK_DEFUALT_LIGHT_DISABLE:
 			{
 				dlg->defaultlightauto = (GetCheckBox(hWnd, IDC_CHECK_DEFUALT_LIGHT_DISABLE) != 0);
-				//dlg->defaultlightauto = GetCheckBox(hWnd, IDC_CHECK_DEFUALT_LIGHT_DISABLE)
 				break;
 			}
-			//case IDC_ANGLE_SPINNER: // A specific spinner ID.
-				//angle = ((ISpinnerControl *)lParam)->GetFVal();
-				//break;
 		}
 
 		}
-		
+
 		case CC_SPINNER_CHANGE:
-		{
-		}
+			switch (LOWORD(wParam)) { // Switch on ID
+			case IDC_LENSRADIUS_SPIN: // A specific spinner ID.
+				dlg->LensRadiusFloatTmp = ((ISpinnerControl *)lParam)->GetFVal();
+				break;
+			};
+			break;
+
 		break;
 	}
 	if (dlg) return dlg->WndProc(hWnd, msg, wParam, lParam);
@@ -327,54 +326,38 @@ LuxMaxParamDlg::LuxMaxParamDlg(
 void LuxMaxParamDlg::InitParamDialog(HWND hWnd) {
 	workFileName = rend->FileName;
 	halttimewstr = rend->halttimewstr;
-	LensRadiusstr = rend->LensRadiusstr;
 	rendertype = rend->renderType;
 	defaultlightchk = rend->defaultlightchk;
 	defaultlightauto = rend->defaultlightauto;
 	vbintervalWstr = rend->vbinterval;
-
-	// Setup the spinner controls for raytrace depth
-	depthSpinner = GetISpinner(GetDlgItem(hWnd, IDC_LENSRADIUS_SPIN));
-	//depthSpinner->LinkToEdit(GetDlgItem(hWnd,IDC_LENSRADIUS),EDITTYPE_FLOAT);
-	//depthSpinner2->SetLimits(0.0f, 10.0f, false);
-
-
-	//depthSpinner = GetISpinner(GetDlgItem(hWnd, IDC_LENSRADIUS_SPIN));
-	//depthSpinner->LinkToEdit(GetDlgItem(hWnd, IDC_LENSRADIUS), EDITTYPE_INT);
-	//depthSpinner->SetLimits(0, 25, TRUE);
-	//depthSpinner->SetValue(rend->LxRenderParams.lenser, FALSE);
-
-	SetDlgItemText(hWnd, IDC_FILENAME, workFileName);
 
 	HWND hwndOutput = GetDlgItem(hWnd, IDC_HALTTIME);
 	SetWindowText(hwndOutput, rend->halttimewstr);
 
 	hwndOutput = GetDlgItem(hWnd, IDC_VBINTERVAL);
 	SetWindowText(hwndOutput, rend->vbinterval);
-	//SetWindowText(GetDlgItem(hWnd, IDC_VBINTERVAL), rend->vbinterval);
+}
 
-	 hwndOutput = GetDlgItem(hWnd, IDC_CAMERA_DEPTH);
-	 SetWindowText(hwndOutput, rend->LensRadiusstr);
+void LuxMaxParamDlg::InitDepthDialog(HWND hWnd)
+{
+	depthSpinner = GetISpinner(GetDlgItem(hWnd, IDC_LENSRADIUS_SPIN));
+	if (depthSpinner != NULL)
+	{
+		depthSpinner->LinkToEdit(GetDlgItem(hWnd, IDC_LENSRADIUS), EDITTYPE_FLOAT);
+		depthSpinner->SetLimits(0, 100, false);
+		depthSpinner->SetValue((float)_wtof(rend->LensRadiusstr), TRUE);
+		ReleaseISpinner(depthSpinner);
+	}
 }
 
 void LuxMaxParamDlg::InitProgDialog(HWND hWnd) {
-	SetDlgItemText(hWnd, IDC_FILENAME, rend->FileName.data());
-
-	HWND hwndOutput = GetDlgItem(hWnd, IDC_HALTTIME);
-	SetWindowText(hwndOutput, rend->halttimewstr.data());
-
-	hwndOutput = GetDlgItem(hWnd, IDC_VBINTERVAL);
-	SetWindowText(hwndOutput, rend->vbinterval.data());
-
-	hwndOutput = GetDlgItem(hWnd, IDC_CAMERA_DEPTH);
-	SetWindowText(hwndOutput, rend->LensRadiusstr.data());
 }
 
 void LuxMaxParamDlg::AcceptParams() {
 	rend->FileName = workFileName;
 	rend->renderType = rendertype;
 	rend->halttimewstr = halttimewstr;
-	rend->LensRadiusstr = LensRadiusstr;
+	rend->LensRadiusstr = std::to_wstring(LensRadiusFloatTmp).c_str();
 	rend->vbinterval = vbintervalWstr;
 	rend->defaultlightchk = defaultlightchk;
 	rend->defaultlightauto = defaultlightauto;
