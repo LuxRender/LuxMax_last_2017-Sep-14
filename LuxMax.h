@@ -84,6 +84,10 @@ class LuxMax : public Renderer {
 		TSTR halttimewstr;
 		TSTR vbinterval;
 		TSTR LensRadiusstr; // = L"0";
+		//int FilterIndex;
+		TSTR FilterIndexWstr;
+		TSTR FilterXWidthWst;
+		TSTR FilterYWidthWst;
 		//float LensRadiusfloat;
 		//string rendertype = "";
 		bool defaultlightchk = true;

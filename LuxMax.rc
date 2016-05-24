@@ -98,29 +98,27 @@ FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     GROUPBOX        "",-1,5,3,272,93
     LTEXT           "Filter Type:",-1,13,15,54,8
-    EDITTEXT        IDC_SOBOL_Depth,69,31,49,14,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "Filter width :",-1,13,33,52,8
-    EDITTEXT        IDC_SOBOL_Depth2,211,30,49,14,ES_AUTOHSCROLL | ES_NUMBER | WS_DISABLED
-    LTEXT           "Sharpness :",-1,148,33,52,8
-    EDITTEXT        IDC_SOBOL_Depth3,69,50,49,14,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "Halt threshold :",-1,13,53,52,8
-    EDITTEXT        IDC_SOBOL_Depth4,211,50,49,14,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "Cover satler step :",-1,148,52,62,8
-    EDITTEXT        IDC_SOBOL_Depth5,69,69,49,14,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "Halt samples :",-1,13,72,52,8
-    EDITTEXT        IDC_SOBOL_Depth6,211,69,49,14,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "Halt time :",-1,148,71,52,8
+    LTEXT           "Filter X width :",-1,13,33,52,8
+    LTEXT           "Filter Y width:",-1,115,34,46,8
     COMBOBOX        IDC_FILTERS_TYPE_COMBO,69,12,191,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_FILTERXWIDTH,"CustEdit",WS_TABSTOP,61,32,36,11
+    CONTROL         "",IDC_FILTERXWIDTH_SPIN,"SpinnerControl",0x0,98,32,9,11
+    CONTROL         "",IDC_FILTERYWIDTH,"CustEdit",WS_TABSTOP,160,32,36,11
+    CONTROL         "",IDC_FILTERYWIDTH_SPIN,"SpinnerControl",0x0,197,32,9,11
+    LTEXT           "Guassian filter Alpha:",-1,13,49,68,8
+    CONTROL         "",IDC_FILTER_GUASSIAN_ALPHA,"CustEdit",WS_TABSTOP,83,47,36,11
+    CONTROL         "",IDC_FILTER_GUASSIAN_ALPHA_SPIN,"SpinnerControl",0x0,121,47,9,11
 END
 
 IDD_DEPTH DIALOGEX 0, 0, 281, 49
 STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",-1,5,3,272,41
-    LTEXT           "Lens radius :",-1,13,13,52,8
+    GROUPBOX        "",IDC_STATIC,5,3,272,41
+    LTEXT           "Lens radius :",IDC_STATIC,13,13,52,8
     CONTROL         "",IDC_LENSRADIUS,"CustEdit",WS_TABSTOP,61,11,36,11
     CONTROL         "",IDC_LENSRADIUS_SPIN,"SpinnerControl",0x0,98,11,9,11
+    LTEXT           "Focus plane is the camera target.",IDC_STATIC,109,14,126,8
 END
 
 

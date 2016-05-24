@@ -47,10 +47,16 @@ public:
 	TSTR LensRadiusWstr = L"33";
 	float LensRadiusFloatTmp = 0.0f;
 	int  rendertype;
+	int filterIndex;
+	float filterXvalue;
+	float filterYvalue;
+	float filterGuassianAlpha;
 	//TSTR vbinterval = L"1";
 	bool defaultlightchk = true;
 	bool defaultlightauto = true;
 	ISpinnerControl *depthSpinner = NULL;
+	ISpinnerControl *filterXSpinner = NULL;
+	ISpinnerControl *filterYSpinner = NULL;
 
 	LuxMaxParamDlg(LuxMax *r, IRendParams *i, BOOL prog);
 	~LuxMaxParamDlg();
@@ -59,6 +65,7 @@ public:
 	void InitParamDialog(HWND hWnd);
 	void InitProgDialog(HWND hWnd);
 	void InitDepthDialog(HWND hWnd);
+	void InitFilterDialog(HWND hWnd);
 	void ReleaseControls() {}
 	BOOL FileBrowse();
 
@@ -86,9 +93,11 @@ INT_PTR LuxMaxParamDlg::WndProc(
 			if (dlg->prog)
 				dlg->InitProgDialog(hWnd);
 			else
+				dlg->InitFilterDialog(hWnd);
 				dlg->InitParamDialog(hWnd);
 			//init the depth tab gui
 				dlg->InitDepthDialog(hWnd);
+				
 		}
 		break;
 
@@ -143,15 +152,18 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 		SendDlgItemMessage(hWnd, IDC_COMBO2, CB_ADDSTRING, 0, (LPARAM)L"Metropolis");
 		SendDlgItemMessage(hWnd, IDC_COMBO2, CB_SELECTSTRING, 0, (LPARAM)L"Sobol");
 
+		//Add filters to the dropdown.
+		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"None");
 		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Blackman Harris");
-		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Catmall rom");
-		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Triangle");
-		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Sinc");
-		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Mitchell");
-		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Gaussian");
 		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Box");
-		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_SELECTSTRING, 0, (LPARAM)L"Mitchell");
-
+		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Catmall rom");
+		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Gaussian");
+		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Mitchell");
+		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Mitchell ss");
+		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Sinc");
+		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Triangle");
+		//SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_SELECTSTRING, 0, (LPARAM)L"Box");
+		
 		SendDlgItemMessage(hWnd, IDC_COMBO_FILM_OUTPUT_TYPE, CB_ADDSTRING, 0, (LPARAM)L"RGBA_TONEMAPPED");
 		SendDlgItemMessage(hWnd, IDC_COMBO_FILM_OUTPUT_TYPE, CB_ADDSTRING, 0, (LPARAM)L"RGB_TONEMAPPED");
 		SendDlgItemMessage(hWnd, IDC_COMBO_FILM_OUTPUT_TYPE, CB_SELECTSTRING, 0, (LPARAM)L"RGBA_TONEMAPPED");
@@ -202,15 +214,31 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 				break;
 			}
 
+			case IDC_FILTERS_TYPE_COMBO:
+			{
+				switch (HIWORD(wParam))
+				{
+					case CBN_SELCHANGE:
+					{
+						HWND filterCombo = GetDlgItem(hWnd, IDC_FILTERS_TYPE_COMBO);
+						dlg->filterIndex = ComboBox_GetCurSel(filterCombo);
+						mprintf(_T("\n Selected filter index %i \n"), dlg->filterIndex);
+						SetFocus(hWnd);
+						break;
+					}
+				}
+				break;
+			}
+
 			case IDC_RENDERTYPE:
 			{
 				switch (HIWORD(wParam))
 				{
 					case CBN_SELCHANGE:
 					{
-						
 						//dlg->rendertype = SendMessage((HWND)lParam, CB_GETCURSEL, 0, 0);
 						HWND comboCtl = GetDlgItem(hWnd, IDC_RENDERTYPE);
+
 						//int itemindex = ComboBox_GetCurSel(comboCtl);
 						dlg->rendertype = ComboBox_GetCurSel(comboCtl);
 						mprintf(_T("\n Selected renderengine index %i \n"), dlg->rendertype);
@@ -268,9 +296,21 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 
 		case CC_SPINNER_CHANGE:
 			switch (LOWORD(wParam)) { // Switch on ID
-			case IDC_LENSRADIUS_SPIN: // A specific spinner ID.
-				dlg->LensRadiusFloatTmp = ((ISpinnerControl *)lParam)->GetFVal();
-				break;
+				case IDC_LENSRADIUS_SPIN:
+				{
+					dlg->LensRadiusFloatTmp = ((ISpinnerControl *)lParam)->GetFVal();
+					break;
+				}
+				case IDC_FILTERXWIDTH_SPIN:
+				{
+					dlg->filterXvalue = ((ISpinnerControl*)lParam)->GetFVal();
+					break;
+				}
+				case IDC_FILTERYWIDTH_SPIN:
+				{
+					dlg->filterYvalue = ((ISpinnerControl*)lParam)->GetFVal();
+					break;
+				}
 			};
 			break;
 
@@ -330,12 +370,17 @@ void LuxMaxParamDlg::InitParamDialog(HWND hWnd) {
 	defaultlightchk = rend->defaultlightchk;
 	defaultlightauto = rend->defaultlightauto;
 	vbintervalWstr = rend->vbinterval;
+	filterIndex = (int)_wtoi(rend->FilterIndexWstr);
+
 
 	HWND hwndOutput = GetDlgItem(hWnd, IDC_HALTTIME);
 	SetWindowText(hwndOutput, rend->halttimewstr);
 
 	hwndOutput = GetDlgItem(hWnd, IDC_VBINTERVAL);
 	SetWindowText(hwndOutput, rend->vbinterval);
+
+	hwndOutput = GetDlgItem(hWnd, IDC_FILTERS_TYPE_COMBO);
+	ComboBox_SetCurSel(hwndOutput,filterIndex);
 }
 
 void LuxMaxParamDlg::InitDepthDialog(HWND hWnd)
@@ -347,6 +392,29 @@ void LuxMaxParamDlg::InitDepthDialog(HWND hWnd)
 		depthSpinner->SetLimits(0, 100, false);
 		depthSpinner->SetValue((float)_wtof(rend->LensRadiusstr), TRUE);
 		ReleaseISpinner(depthSpinner);
+	}
+
+	
+}
+
+void LuxMaxParamDlg::InitFilterDialog(HWND hWnd)
+{
+	filterXSpinner = GetISpinner(GetDlgItem(hWnd, IDC_FILTERXWIDTH_SPIN));
+	if (filterXSpinner != NULL)
+	{
+		filterXSpinner->LinkToEdit(GetDlgItem(hWnd, IDC_FILTERXWIDTH), EDITTYPE_FLOAT);
+		filterXSpinner->SetLimits(0, 10, false);
+		filterXSpinner->SetValue((float)_wtof(rend->FilterXWidthWst), TRUE);
+		ReleaseISpinner(filterXSpinner);
+	}
+
+	filterYSpinner = GetISpinner(GetDlgItem(hWnd, IDC_FILTERYWIDTH_SPIN));
+	if (filterYSpinner != NULL)
+	{
+		filterYSpinner->LinkToEdit(GetDlgItem(hWnd, IDC_FILTERYWIDTH), EDITTYPE_FLOAT);
+		filterYSpinner->SetLimits(0, 10, false);
+		filterYSpinner->SetValue((float)_wtof(rend->FilterYWidthWst), TRUE);
+		ReleaseISpinner(filterYSpinner);
 	}
 }
 
@@ -361,6 +429,9 @@ void LuxMaxParamDlg::AcceptParams() {
 	rend->vbinterval = vbintervalWstr;
 	rend->defaultlightchk = defaultlightchk;
 	rend->defaultlightauto = defaultlightauto;
+	rend->FilterIndexWstr = std::to_wstring(filterIndex).c_str();
+	rend->FilterXWidthWst = std::to_wstring(filterXvalue).c_str();
+	rend->FilterYWidthWst = std::to_wstring(filterYvalue).c_str();
 }
 
 RendParamDlg * LuxMax::CreateParamDialog(IRendParams *ir, BOOL prog) {

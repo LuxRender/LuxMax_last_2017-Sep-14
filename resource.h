@@ -45,11 +45,16 @@
 #define IDC_ANGLESPIN                   1014
 #define IDC_LENSRADIUS_SPIN             1014
 #define IDC_VBINTERVAL                  1015
+#define IDC_FILTERYWIDTH                1015
 #define IDC_CHECK1                      1016
 #define IDC_SOBOL_Depth                 1016
+#define IDC_FILTERYWIDTH_SPIN           1016
 #define IDC_OUTPUTSCENE                 1017
 #define IDC_SOBOL_Depth2                1017
+#define IDC_FILTER_GUASSIAN_ALPHA       1017
 #define IDC_RENDERTYPE                  1018
+#define IDC_FILTERYWIDTH_SPIN2          1018
+#define IDC_FILTER_GUASSIAN_ALPHA_SPIN  1018
 #define IDC_SOBOL_Depth3                1019
 #define IDC_SOBOL_Depth4                1020
 #define IDC_SOBOL_Depth5                1021
@@ -57,7 +62,8 @@
 #define IDC_FILTERS_TYPE_COMBO          1024
 #define IDC_CAMERA_BLUR                 1029
 #define IDC_CAMERA_DEPTH                1029
-#define IDC_SPIN1                       1030
+#define IDC_FILTERXWIDTH                1031
+#define IDC_FILTERXWIDTH_SPIN           1032
 
 // Next default values for new objects
 // 
@@ -65,7 +71,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        107
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1031
+#define _APS_NEXT_CONTROL_VALUE         1033
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

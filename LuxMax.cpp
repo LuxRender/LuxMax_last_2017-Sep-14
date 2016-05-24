@@ -749,6 +749,9 @@ RefTargetHandle LuxMax::Clone(RemapDir &remap) {
 	newRend->FileName = FileName;
 	newRend->halttimewstr = halttimewstr;
 	newRend->LensRadiusstr = LensRadiusstr;
+	newRend->FilterIndexWstr = FilterIndexWstr;
+	newRend->FilterXWidthWst = FilterXWidthWst;
+	newRend->FilterYWidthWst = FilterYWidthWst;
 	BaseClone(this, newRend, remap);
 	return newRend;
 }
@@ -761,6 +764,9 @@ void LuxMax::ResetParams(){
 #define HALTTIME_CHUNKID 002
 #define LENSRADIUS_CHUNKID 003
 #define VFBREFRESHRATE_CHUNKID 004
+#define FILTERINDEX_CHUNKID 005
+#define FILTERXWIDTH_CHUNKID 006
+#define FILTERYWIDTH_CHUNKID 007
 
 IOResult LuxMax::Save(ISave *isave) {
 	if (_tcslen(FileName) > 0) {
@@ -777,6 +783,15 @@ IOResult LuxMax::Save(ISave *isave) {
 	isave->EndChunk();
 	isave->BeginChunk(LENSRADIUS_CHUNKID);
 	isave->WriteWString(LensRadiusstr);
+	isave->EndChunk();
+	isave->BeginChunk(FILTERINDEX_CHUNKID);
+	isave->WriteWString(FilterIndexWstr);
+	isave->EndChunk();
+	isave->BeginChunk(FILTERXWIDTH_CHUNKID);
+	isave->WriteWString(FilterXWidthWst);
+	isave->EndChunk();
+	isave->BeginChunk(FILTERYWIDTH_CHUNKID);
+	isave->WriteWString(FilterYWidthWst);
 	isave->EndChunk();
 	return IO_OK;
 }
@@ -803,10 +818,30 @@ IOResult LuxMax::Load(ILoad *iload) {
 
 		}
 		case LENSRADIUS_CHUNKID:
+		{
 			if (IO_OK == iload->ReadWStringChunk(&buf))
 				LensRadiusstr = buf;
 			break;
 		}
+		case FILTERINDEX_CHUNKID:
+		{
+			if (IO_OK == iload->ReadWStringChunk(&buf))
+				FilterIndexWstr = buf;
+				break;
+		}
+		case FILTERXWIDTH_CHUNKID:
+		{
+			if (IO_OK == iload->ReadWStringChunk(&buf))
+				FilterXWidthWst = buf;
+			break;
+		}
+		case FILTERYWIDTH_CHUNKID:
+		{
+			if (IO_OK == iload->ReadWStringChunk(&buf))
+				FilterYWidthWst = buf;
+			break;
+		}
+	}
 		iload->CloseChunk();
 		if (res != IO_OK)
 			return res;
