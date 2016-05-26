@@ -156,12 +156,9 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"None");
 		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Blackman Harris");
 		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Box");
-		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Catmall rom");
 		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Gaussian");
 		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Mitchell");
 		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Mitchell ss");
-		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Sinc");
-		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Triangle");
 		//SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_SELECTSTRING, 0, (LPARAM)L"Box");
 		
 		SendDlgItemMessage(hWnd, IDC_COMBO_FILM_OUTPUT_TYPE, CB_ADDSTRING, 0, (LPARAM)L"RGBA_TONEMAPPED");

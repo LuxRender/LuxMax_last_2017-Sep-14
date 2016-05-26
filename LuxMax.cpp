@@ -86,6 +86,7 @@ int renderHeight = 0;
 bool renderingMaterialPreview = false;
 int vfbRefreshRateInt = 1;
 Scene *materialPreviewScene;// = new Scene();
+int filterIndex;
 
 class LuxMaxClassDesc :public ClassDesc2 {
 public:
@@ -642,7 +643,7 @@ int LuxMax::Render(
 
 		string tmprendtype = "PATHCPU";
 		rendertype = renderType;
-
+		
 		switch (rendertype)
 		{
 		case 0:
@@ -670,7 +671,34 @@ int LuxMax::Render(
 			tmprendtype = "RTPATHOCL";
 			break;
 		}
-		mprintf(_T("\n Renderengine type is %i \n"), rendertype);
+
+		std::string filterName = "";
+
+		switch (((int)_wtoi(FilterIndexWstr)))
+		{
+		case 0:
+			filterName = "NONE";
+			break;
+		case 1:
+			filterName = "BLACKMANHARRIS";
+			break;
+		case 2:
+			filterName = "BOX";
+			break;
+		case 3:
+			filterName = "GAUSSIAN";
+			break;
+		case 4:
+			filterName = "MITCHELL";
+			break;
+		case 5:
+			filterName = "MITCHELL_SS";
+			break;
+
+			break;
+		}
+		//mprintf(_T("\n Renderengine type is %i \n"), rendertype);
+		//mprintf(_T("\n Render session filter index: %i \n"), (int)_wtoi(FilterIndexWstr));
 
 		RenderConfig *config = new RenderConfig(
 			//filesaver
@@ -678,7 +706,7 @@ int LuxMax::Render(
 			//Property("filesaver.directory")("C:/tmp/filesaveroutput/") <<
 			//Property("filesaver.renderengine.type")("engine") <<
 			//Filesaver
-
+			
 			Property("renderengine.type")(tmprendtype) <<
 			Property("sampler.type")("SOBOL") <<
 			//Property("sampler.type")("METROPOLIS") <<
@@ -692,12 +720,15 @@ int LuxMax::Render(
 			Property("film.imagepipeline.1.type")("GAMMA_CORRECTION") <<
 			Property("film.height")(renderHeight) <<
 			Property("film.width")(renderWidth) <<
+			Property("film.filter.type")(filterName)<<
+			Property("film.filter.xwidth")((int)_wtof(FilterXWidthWst)) <<
+			Property("film.filter.ywidth")((int)_wtof(FilterYWidthWst)) <<
 			Property("film.imagepipeline.1.value")(1.0f),
 			scene);
 		RenderSession *session = new RenderSession(config);
 
 		session->Start();
-
+		
 		//We need to stop the rendering immidiately if debug output is selsected.
 
 		DoRendering(session, prog, tobm);
