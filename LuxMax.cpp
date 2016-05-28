@@ -642,36 +642,52 @@ int LuxMax::Render(
 		renderHeight = GetCOREInterface11()->GetRendHeight();
 
 		string tmprendtype = "PATHCPU";
-		rendertype = renderType;
+		rendertype = (int)_wtoi(RenderTypeWstr);
 		
 		switch (rendertype)
 		{
-		case 0:
-			tmprendtype = "BIASPATHCPU";
-			break;
-		case 1:
-			tmprendtype = "BIASPATHOCL";
-			break;
-		case 2:
-			tmprendtype = "BIDIRCPU";
-			break;
-		case 3:
-			tmprendtype = "BIDIRVMCPU";
-			break;
-		case 4:
-			tmprendtype = "PATHCPU";
-			break;
-		case 5:
-			tmprendtype = "PATHOCL";
-			break;
-		case 6:
-			tmprendtype = "RTBIASPATHOCL";
-			break;
-		case 7:
-			tmprendtype = "RTPATHOCL";
-			break;
+			case 0:
+			{
+				tmprendtype = "BIASPATHCPU";
+				break;
+			}
+			case 1:
+			{
+				tmprendtype = "BIASPATHOCL";
+				break;
+			}
+			case 2:
+			{
+				tmprendtype = "BIDIRCPU";
+				break;
+			}
+			case 3:
+			{
+				tmprendtype = "BIDIRVMCPU";
+				break;
+			}
+			case 4:
+			{
+				tmprendtype = "PATHCPU";
+				break;
+			}
+			case 5:
+			{
+				tmprendtype = "PATHOCL";
+				break;
+			}
+			case 6:
+			{
+				tmprendtype = "RTBIASPATHOCL";
+				break;
+			}
+			case 7:
+			{
+				tmprendtype = "RTPATHOCL";
+				break;
+			}
 		}
-
+		
 		std::string filterName = "";
 
 		switch (((int)_wtoi(FilterIndexWstr)))
@@ -697,8 +713,6 @@ int LuxMax::Render(
 
 			break;
 		}
-		//mprintf(_T("\n Renderengine type is %i \n"), rendertype);
-		//mprintf(_T("\n Render session filter index: %i \n"), (int)_wtoi(FilterIndexWstr));
 
 		RenderConfig *config = new RenderConfig(
 			//filesaver
@@ -783,6 +797,8 @@ RefTargetHandle LuxMax::Clone(RemapDir &remap) {
 	newRend->FilterIndexWstr = FilterIndexWstr;
 	newRend->FilterXWidthWst = FilterXWidthWst;
 	newRend->FilterYWidthWst = FilterYWidthWst;
+	newRend->RenderTypeWstr = RenderTypeWstr;
+
 	BaseClone(this, newRend, remap);
 	return newRend;
 }
@@ -798,6 +814,7 @@ void LuxMax::ResetParams(){
 #define FILTERINDEX_CHUNKID 005
 #define FILTERXWIDTH_CHUNKID 006
 #define FILTERYWIDTH_CHUNKID 007
+#define RENDERTYPE_CHUNKID 8
 
 IOResult LuxMax::Save(ISave *isave) {
 	if (_tcslen(FileName) > 0) {
@@ -823,6 +840,9 @@ IOResult LuxMax::Save(ISave *isave) {
 	isave->EndChunk();
 	isave->BeginChunk(FILTERYWIDTH_CHUNKID);
 	isave->WriteWString(FilterYWidthWst);
+	isave->EndChunk();
+	isave->BeginChunk(RENDERTYPE_CHUNKID);
+	isave->WriteWString(RenderTypeWstr);
 	isave->EndChunk();
 	return IO_OK;
 }
@@ -872,6 +892,12 @@ IOResult LuxMax::Load(ILoad *iload) {
 				FilterYWidthWst = buf;
 			break;
 		}
+		case RENDERTYPE_CHUNKID:
+		{
+			if (IO_OK == iload->ReadWStringChunk(&buf))
+				RenderTypeWstr = buf;
+		}
+
 	}
 		iload->CloseChunk();
 		if (res != IO_OK)

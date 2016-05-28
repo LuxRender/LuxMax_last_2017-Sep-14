@@ -47,6 +47,8 @@ public:
 	TSTR LensRadiusWstr = L"33";
 	float LensRadiusFloatTmp = 0.0f;
 	int  rendertype;
+	TSTR rendertypeWstr;
+
 	int filterIndex;
 	float filterXvalue;
 	float filterYvalue;
@@ -223,6 +225,7 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 						SetFocus(hWnd);
 						break;
 					}
+					
 				}
 				break;
 			}
@@ -363,11 +366,11 @@ LuxMaxParamDlg::LuxMaxParamDlg(
 void LuxMaxParamDlg::InitParamDialog(HWND hWnd) {
 	workFileName = rend->FileName;
 	halttimewstr = rend->halttimewstr;
-	rendertype = rend->renderType;
 	defaultlightchk = rend->defaultlightchk;
 	defaultlightauto = rend->defaultlightauto;
 	vbintervalWstr = rend->vbinterval;
 	filterIndex = (int)_wtoi(rend->FilterIndexWstr);
+	rendertype = (int)_wtoi(rend->RenderTypeWstr);
 
 
 	HWND hwndOutput = GetDlgItem(hWnd, IDC_HALTTIME);
@@ -378,6 +381,9 @@ void LuxMaxParamDlg::InitParamDialog(HWND hWnd) {
 
 	hwndOutput = GetDlgItem(hWnd, IDC_FILTERS_TYPE_COMBO);
 	ComboBox_SetCurSel(hwndOutput,filterIndex);
+
+	hwndOutput = GetDlgItem(hWnd, IDC_RENDERTYPE);
+	ComboBox_SetCurSel(hwndOutput, rendertype);
 }
 
 void LuxMaxParamDlg::InitDepthDialog(HWND hWnd)
@@ -420,7 +426,7 @@ void LuxMaxParamDlg::InitProgDialog(HWND hWnd) {
 
 void LuxMaxParamDlg::AcceptParams() {
 	rend->FileName = workFileName;
-	rend->renderType = rendertype;
+	//rend->renderType = rendertype;
 	rend->halttimewstr = halttimewstr;
 	rend->LensRadiusstr = std::to_wstring(LensRadiusFloatTmp).c_str();
 	rend->vbinterval = vbintervalWstr;
@@ -429,6 +435,7 @@ void LuxMaxParamDlg::AcceptParams() {
 	rend->FilterIndexWstr = std::to_wstring(filterIndex).c_str();
 	rend->FilterXWidthWst = std::to_wstring(filterXvalue).c_str();
 	rend->FilterYWidthWst = std::to_wstring(filterYvalue).c_str();
+	rend->RenderTypeWstr = std::to_wstring(rendertype).c_str();
 }
 
 RendParamDlg * LuxMax::CreateParamDialog(IRendParams *ir, BOOL prog) {

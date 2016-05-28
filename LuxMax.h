@@ -88,12 +88,13 @@ class LuxMax : public Renderer {
 		TSTR FilterIndexWstr;
 		TSTR FilterXWidthWst;
 		TSTR FilterYWidthWst;
+		TSTR RenderTypeWstr;
 		//float LensRadiusfloat;
 		//string rendertype = "";
 		bool defaultlightchk = true;
 		bool defaultlightauto = true;
 
-		int renderType = 4;
+		//int renderType = 4;
 		MaxSDK::Util::TextFile::Writer *file;
 		INode *sceneNode;
 		INode *viewNode;

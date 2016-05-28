@@ -37,7 +37,5 @@ public:
 	std::string floatToString(float number);
 	std::string getMaxNodeTransform(INode* node);
 	float GetMeterMult();
-	//luxrays::Properties getNodeTransform(INode* node);
-	
 };
 
