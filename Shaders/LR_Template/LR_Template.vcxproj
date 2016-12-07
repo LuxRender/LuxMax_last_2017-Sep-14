@@ -18,7 +18,7 @@
     <ProjectName>LR_Template</ProjectName>
     <ProjectGuid>{49CB98BD-0438-4F04-B308-ABAE7EB7B4F6}</ProjectGuid>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <MaxSDK>C:\Program Files\Autodesk\3ds Max 2016 SDK\maxsdk</MaxSDK>
+    <MaxSDK>C:\Program Files\Autodesk\3ds Max 2017 SDK\maxsdk</MaxSDK>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Hybrid|x64'">
@@ -50,7 +50,7 @@
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(MaxSdkLib);%(AdditionalLibraryDirectories);C:\Program Files\Autodesk\3ds Max 2016 SDK\maxsdk\lib\x64\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(MaxSdkLib);%(AdditionalLibraryDirectories);C:\Program Files\Autodesk\3ds Max 2017 SDK\maxsdk\lib\x64\Release</AdditionalLibraryDirectories>
       <AdditionalDependencies>bmm.lib; core.lib; geom.lib; gfx.lib; mesh.lib; maxutil.lib; maxscrpt.lib; manipsys.lib; paramblk2.lib;;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>LR_Template.def</ModuleDefinitionFile>
     </Link>

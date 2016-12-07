@@ -77,7 +77,10 @@ using namespace luxcore;
 using namespace luxrays;
 
 extern BOOL FileExists(const TCHAR *filename);
-float* pixels;
+
+//std::unique_ptr<int[]>
+
+
 
 bool defaultlightset = true;
 int rendertype = 4;
@@ -95,12 +98,15 @@ public:
 	virtual Class_ID 		ClassID() { return REND_CLASS_ID; }
 	virtual const TCHAR* 	Category() { return _T(""); }
 	virtual void			ResetClassParams(BOOL fileReset) { UNREFERENCED_PARAMETER(fileReset); }
+	
+	
 };
 
 ClassDesc2* GetRendDesc() {
 	static LuxMaxInternalClassDesc srendCD;
 	return &srendCD;
 }
+
 
 /*enum { lens_params };
 enum { lensradius_spin };
@@ -320,13 +326,14 @@ int LuxMaxInternal::Open(
 	return 1;
 }
 
+
 static void DoRendering(RenderSession *session, RendProgressCallback *prog, Bitmap *tobm) {
 	const u_int haltTime = session->GetRenderConfig().GetProperties().Get(Property("batch.halttime")(0)).Get<u_int>();
 	const u_int haltSpp = session->GetRenderConfig().GetProperties().Get(Property("batch.haltspp")(0)).Get<u_int>();
 	const float haltThreshold = session->GetRenderConfig().GetProperties().Get(Property("batch.haltthreshold")(-1.f)).Get<float>();
 	const wchar_t *state = NULL;
-
-	char buf[512];
+	
+	//char buf[512];
 	const Properties &stats = session->GetStats();
 	for (;;) {
 		boost::this_thread::sleep(boost::posix_time::millisec(1000));
@@ -361,7 +368,7 @@ static void DoRendering(RenderSession *session, RendProgressCallback *prog, Bitm
 		renderHeight = tobm->Height();
 		int pixelArraySize = renderWidth * renderHeight * 3;
 
-		pixels = new float[pixelArraySize]();
+		float* pixels = new float[pixelArraySize]();
 
 		session->GetFilm().GetOutput(session->GetFilm().OUTPUT_RGB_TONEMAPPED, pixels, 0);
 
@@ -381,20 +388,16 @@ static void DoRendering(RenderSession *session, RendProgressCallback *prog, Bitm
 				col64.b = (WORD)floorf(pixels[i + 2] * 65535.f + .5f);
 
 				tobm->PutPixels(h, w, 1, &col64);
-
+				
 				i += 3;
 			}
 		}
 		tobm->RefreshWindow(NULL);
-
-		SLG_LOG(buf);
+		
+		col64 = NULL;
+		delete[] pixels;
+		//SLG_LOG(buf);
 	}
-
-	int pixelArraySize = renderWidth * renderHeight * 3;
-
-	pixels = new float[pixelArraySize]();
-
-	session->GetFilm().GetOutput(session->GetFilm().OUTPUT_RGB_TONEMAPPED, pixels, 0);
 }
 
 int LuxMaxInternal::Render(
@@ -462,39 +465,16 @@ int LuxMaxInternal::Render(
 			Property("film.imagepipeline.1.value")(1.0f),
 			materialPreviewScene);
 		RenderSession *session = new RenderSession(config);
-
+		
 		session->Start();
 
 		DoRendering(session, prog, tobm);
 		session->Stop();
 
-		int i = 0;
-
-		BMM_Color_64 col64;
-		col64.r = 0;
-		col64.g = 0;
-		col64.b = 0;
-		//fill in the pixels
-		for (int w = renderHeight; w > 0; w--)
-		{
-			for (int h = 0; h < renderWidth; h++)
-			{
-				col64.r = (WORD)floorf(pixels[i] * 65535.f + .5f);
-				col64.g = (WORD)floorf(pixels[i + 1] * 65535.f + .5f);
-				col64.b = (WORD)floorf(pixels[i + 2] * 65535.f + .5f);
-
-				tobm->PutPixels(h, w, 1, &col64);
-
-				i += 3;
-			}
-		}
-		tobm->RefreshWindow(NULL);
-
-		pixels = NULL;
 		delete session;
 		delete config;
 		delete materialPreviewScene;
-
+		
 		SLG_LOG("Done.");
 
 		return 1;
@@ -686,34 +666,9 @@ int LuxMaxInternal::Render(
 
 		session->Start();
 
-		//We need to stop the rendering immidiately if debug output is selsected.
-
 		DoRendering(session, prog, tobm);
 		session->Stop();
 
-		int i = 0;
-
-		BMM_Color_64 col64;
-		col64.r = 0;
-		col64.g = 0;
-		col64.b = 0;
-		//fill in the pixels
-		for (int w = renderHeight; w > 0; w--)
-		{
-			for (int h = 0; h < renderWidth; h++)
-			{
-				col64.r = (WORD)floorf(pixels[i] * 65535.f + .5f);
-				col64.g = (WORD)floorf(pixels[i + 1] * 65535.f + .5f);
-				col64.b = (WORD)floorf(pixels[i + 2] * 65535.f + .5f);
-
-				tobm->PutPixels(h, w, 1, &col64);
-
-				i += 3;
-			}
-		}
-		tobm->RefreshWindow(NULL);
-
-		pixels = NULL;
 		delete session;
 		delete config;
 		delete scene;
@@ -731,6 +686,7 @@ void LuxMaxInternal::Close(HWND hwnd, RendProgressCallback* prog) {
 		delete file;
 	file = NULL;
 }
+
 
 RefTargetHandle LuxMaxInternal::Clone(RemapDir &remap) {
 	LuxMaxInternal *newRend = new LuxMaxInternal;
@@ -854,3 +810,4 @@ void LuxRenderParams::SetDefaults()
 	//nAntiAliasLevel = 0x00;
 	//bReflectEnv = FALSE;
 }
+

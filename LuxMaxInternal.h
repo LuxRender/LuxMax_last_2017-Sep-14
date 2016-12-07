@@ -18,11 +18,11 @@
 
 #ifndef LUXMAXINTERNAL__H
 #define LUXMAXINTERNAL__H
+#include <render.h>
 #include "maxtextfile.h"
 #include <iostream>
 #include <string>
 #include <luxcore/luxcore.h>
-
 #define REND_CLASS_ID Class_ID(98,0);
 
 // Render parameters. Add whatever parameters you need here.
@@ -99,6 +99,22 @@ class LuxMaxInternal : public Renderer {
 		int nlts,nobs;
 		//LuxRenderParams LxRenderParams;
 		LuxMaxInternal() { file = NULL; sceneNode = NULL; viewNode = NULL; anyLights = FALSE; nlts = nobs = 0; }
+		virtual Renderer::PauseSupport IsPauseSupported() const override { return Renderer::PauseSupport::Legacy; }
+		//virtual void StopRendering() override;
+		virtual void StopRendering() override   {}
+		virtual bool IsStopSupported() const override { return false; }
+		//		virtual PauseSupport IsPauseSupported() const override;
+		virtual void PauseRendering() override {}
+		virtual void ResumeRendering() override {}
+		virtual bool HasRequirement(Requirement requirement) override { return false; }
+		virtual IInteractiveRender* GetIInteractiveRender() override { return nullptr; }
+		virtual void GetVendorInformation(MSTR& info) const override {}
+		virtual void GetPlatformInformation(MSTR& info) const override {}
+		virtual bool CompatibleWithAnyRenderElement() const override { return false; }
+		virtual bool CompatibleWithRenderElement(IRenderElement& pIRenderElement) const override { return false; }
+
+
+
 		int Open(
 			INode *scene,     	// root node of scene to render
 			INode *vnode,     	// view node (camera or light), or NULL
