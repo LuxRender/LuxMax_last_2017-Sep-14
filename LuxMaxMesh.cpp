@@ -403,8 +403,6 @@ void LuxMaxMesh::createMeshesInGroup(INode *currNode, luxcore::Scene &scene)
 	{
 		INode *groupChild;
 		groupChild = currNode->GetChildNode(i);
-		LuxMaxMesh *groupMesh;
-
 		// If the child is a grouphead it means it's a group inside a group
 		// so we send the node back in and loop further down into the groups.
 		if (groupChild->IsGroupHead())
@@ -413,7 +411,7 @@ void LuxMaxMesh::createMeshesInGroup(INode *currNode, luxcore::Scene &scene)
 		}
 		else
 		{
-			groupMesh->createMesh(groupChild, scene);
+			createMesh(groupChild, scene);
 		}
 	}
 }
