@@ -18,7 +18,7 @@
 #define LR_Matte_CLASS_ID	Class_ID(0x31b54e60, 0x1de956e4)
 
 
-#define NUM_SUBMATERIALS 1 // TODO: number of sub-materials supported by this plug-in
+#define NUM_SUBMATERIALS 3 // TODO: number of sub-materials supported by this plug-in
 #define NUM_SUBTEXTURES 2
 #define Num_REF 3
 // Reference Indexes
@@ -304,11 +304,26 @@ RefTargetHandle LR_Matte::GetReference(int i)
 	//mprintf(_T("\n GetReference Nubmer is <><><><>: %i \n"), i);
 	switch (i)
 	{
-		//case 0: return subtexture[i]; break;
-		case 1: return pblock; break;
-		//case 2: return subtexture[i-2]; break;
-		default: return subtexture[i-2]; break;
+	case 0: return submtl[i]; break;
+	case 1: return pblock; break;
+	default: return subtexture[i - 2]; break;
 	}
+	//if ((i >= 0) && (i < NUM_SUBMATERIALS))
+	//	return submtl[i];
+	//else if (i == PBLOCK_REF)
+	//	return pblock;
+	//else
+	//	return nullptr;
+
+	//switch (i)
+	//{
+	//	//case 0: return subtexture[i]; break;
+	//	case 1: return pblock; break;
+	//	//case 2: return subtexture[i-2]; break;
+
+	//		//For some stupid reason it crashes here.
+	//	default: return pblock; break; //return subtexture[i-2]; break;
+	//}
 }
 
 void LR_Matte::SetReference(int i, RefTargetHandle rtarg)

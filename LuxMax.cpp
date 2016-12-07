@@ -328,11 +328,11 @@ static void DoRendering(RenderSession *session, RendProgressCallback *prog, Bitm
 	const float haltThreshold = session->GetRenderConfig().GetProperties().Get(Property("batch.haltthreshold")(-1.f)).Get<float>();
 	const wchar_t *state = NULL;
 	
-	char buf[512];
+	//char buf[512];
 	const Properties &stats = session->GetStats();
 	
 	for (;;) {
-		boost::this_thread::sleep(boost::posix_time::seconds(vfbRefreshRateInt));
+		boost::this_thread::sleep(boost::posix_time::millisec(1000));
 
 		session->UpdateStats();
 		const double elapsedTime = stats.Get("stats.renderengine.time").Get<double>();
@@ -364,7 +364,7 @@ static void DoRendering(RenderSession *session, RendProgressCallback *prog, Bitm
 		renderHeight = tobm->Height();
 		int pixelArraySize = renderWidth * renderHeight * 3;
 
-		pixels = new float[pixelArraySize]();
+		float* pixels = new float[pixelArraySize]();
 
 		session->GetFilm().GetOutput(session->GetFilm().OUTPUT_RGB_TONEMAPPED, pixels, 0);
 
@@ -390,14 +390,10 @@ static void DoRendering(RenderSession *session, RendProgressCallback *prog, Bitm
 		}
 		tobm->RefreshWindow(NULL);
 
-		SLG_LOG(buf);
+		col64 = NULL;
+		delete[] pixels;
+		//SLG_LOG(buf);
 	}
-
-	int pixelArraySize = renderWidth * renderHeight * 3;
-
-	pixels = new float[pixelArraySize]();
-
-	session->GetFilm().GetOutput(session->GetFilm().OUTPUT_RGB_TONEMAPPED, pixels, 0);
 }
 
 int LuxMax::Render(
@@ -470,36 +466,6 @@ int LuxMax::Render(
 
 		DoRendering(session, prog, tobm);
 		session->Stop();
-
-		int i = 0;
-
-		BMM_Color_64 col64;
-		col64.r = 0;
-		col64.g = 0;
-		col64.b = 0;
-		//fill in the pixels
-		for (int w = renderHeight; w > 0; w--)
-		{
-			for (int h = 0; h < renderWidth; h++)
-			{
-				col64.r = (WORD)floorf(pixels[i] * 65535.f + .5f);
-				col64.g = (WORD)floorf(pixels[i + 1] * 65535.f + .5f);
-				col64.b = (WORD)floorf(pixels[i + 2] * 65535.f + .5f);
-
-				tobm->PutPixels(h, w, 1, &col64);
-
-				i += 3;
-			}
-		}
-		tobm->RefreshWindow(NULL);
-
-		pixels = NULL;
-		delete session;
-		delete config;
-		delete materialPreviewScene;
-
-		SLG_LOG("Done.");
-
 		return 1;
 	}
 	else
@@ -742,42 +708,8 @@ int LuxMax::Render(
 		RenderSession *session = new RenderSession(config);
 
 		session->Start();
-		
-		//We need to stop the rendering immidiately if debug output is selsected.
-
 		DoRendering(session, prog, tobm);
 		session->Stop();
-
-		int i = 0;
-
-		BMM_Color_64 col64;
-		col64.r = 0;
-		col64.g = 0;
-		col64.b = 0;
-		//fill in the pixels
-		for (int w = renderHeight; w > 0; w--)
-		{
-			for (int h = 0; h < renderWidth; h++)
-			{
-				col64.r = (WORD)floorf(pixels[i] * 65535.f + .5f);
-				col64.g = (WORD)floorf(pixels[i + 1] * 65535.f + .5f);
-				col64.b = (WORD)floorf(pixels[i + 2] * 65535.f + .5f);
-
-				tobm->PutPixels(h, w, 1, &col64);
-
-				i += 3;
-			}
-		}
-		tobm->RefreshWindow(NULL);
-
-		pixels = NULL;
-		delete session;
-		delete config;
-		delete scene;
-
-		SLG_LOG("Done.");
-
-		return 1;
 	}
 }
 
