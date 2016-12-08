@@ -279,7 +279,6 @@ void LR_Template::Reset()
 
 ParamDlg* LR_Template::CreateParamDlg(HWND hwMtlEdit, IMtlParams *imp)
 {
-	ExecuteMAXScriptScript(L"mental_ray_Preferences.mrExtensionsActive = false");
 	IAutoMParamDlg* masterDlg = GetLR_TemplateDesc()->CreateParamDlgs(hwMtlEdit, imp, this);
 	// TODO: Set param block user dialog if necessary
 	return masterDlg;
