@@ -619,17 +619,20 @@ int LuxMax::Render(
 			}
 			case 1:
 			{
-				tmprendtype = "BIASPATHOCL";
+				//tmprendtype = "BIASPATHOCL";
+				tmprendtype = "BIDIRCPU";
 				break;
 			}
 			case 2:
 			{
-				tmprendtype = "BIDIRCPU";
+				//tmprendtype = "BIDIRCPU";
+				tmprendtype = "BIDIRVMCPU";
 				break;
 			}
 			case 3:
 			{
-				tmprendtype = "BIDIRVMCPU";
+				//tmprendtype = "BIDIRVMCPU";
+				tmprendtype = "LIGHTCPU";
 				break;
 			}
 			case 4:
@@ -639,17 +642,17 @@ int LuxMax::Render(
 			}
 			case 5:
 			{
-				tmprendtype = "PATHOCL";
+				//tmprendtype = "PATHOCL";
 				break;
 			}
 			case 6:
 			{
-				tmprendtype = "RTBIASPATHOCL";
+				//tmprendtype = "RTBIASPATHOCL";
 				break;
 			}
 			case 7:
 			{
-				tmprendtype = "RTPATHOCL";
+				//tmprendtype = "RTPATHOCL";
 				break;
 			}
 		}
