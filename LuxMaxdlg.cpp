@@ -222,7 +222,7 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 					{
 						HWND filterCombo = GetDlgItem(hWnd, IDC_FILTERS_TYPE_COMBO);
 						dlg->filterIndex = ComboBox_GetCurSel(filterCombo);
-						mprintf(_T("\n Selected filter index %i \n"), dlg->filterIndex);
+						//mprintf(_T("\n Selected filter index %i \n"), dlg->filterIndex);
 						SetFocus(hWnd);
 						break;
 					}
@@ -242,7 +242,7 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 
 						//int itemindex = ComboBox_GetCurSel(comboCtl);
 						dlg->rendertype = ComboBox_GetCurSel(comboCtl);
-						mprintf(_T("\n Selected renderengine index %i \n"), dlg->rendertype);
+						//mprintf(_T("\n Selected renderengine index %i \n"), dlg->rendertype);
 						//dlg->rendertype = ComboBox_GetItemData(comboCtl, sel);
 						//sel = ComboBox_GetItemData(comboCtl, sel);
 						//mprintf(_T("\n Selected renderengine sel %i \n"), sel);

@@ -253,16 +253,16 @@ static void CreateBox(Scene *scene, const string &objName, const string &meshNam
 
 Mtl * matPrevNodesEnum(INode * inode)
 {
-	for (int c = 0; c < inode->NumberOfChildren(); c++)
-	{
-		Mtl * mat = matPrevNodesEnum(inode->GetChildNode(c));
-		if (mat)
-		{
-			//mprintf(_T("\nMaterial Name: %s\n", mat->GetName()));
-			lxmMaterials.exportMaterial(mat, *materialPreviewScene);
-			return mat;
-		}
-	}
+	//for (int c = 0; c < inode->NumberOfChildren(); c++)
+	//{
+	//	Mtl * mat = matPrevNodesEnum(inode->GetChildNode(c));
+	//	if (mat)
+	//	{
+	//		//mprintf(_T("\nMaterial Name: %s\n", mat->GetName()));
+	//		lxmMaterials.exportMaterial(mat, *materialPreviewScene);
+	//		return mat;
+	//	}
+	//}
 
 	ObjectState ostate = inode->EvalWorldState(0);
 	if (ostate.obj->SuperClassID() == GEOMOBJECT_CLASS_ID)
@@ -282,7 +282,6 @@ Mtl * matPrevNodesEnum(INode * inode)
 
 			return inode->GetMtl();
 		}
-
 	return NULL;
 }
 
@@ -332,7 +331,7 @@ static void DoRendering(RenderSession *session, RendProgressCallback *prog, Bitm
 	const Properties &stats = session->GetStats();
 	
 	for (;;) {
-		boost::this_thread::sleep(boost::posix_time::millisec(1000));
+		//boost::this_thread::sleep(boost::posix_time::millisec(1000));
 
 		session->UpdateStats();
 		const double elapsedTime = stats.Get("stats.renderengine.time").Get<double>();
@@ -357,6 +356,7 @@ static void DoRendering(RenderSession *session, RendProgressCallback *prog, Bitm
 
 		state = (L"Rendering ....");
 		prog->SetTitle(state);
+
 		bool renderabort = prog->Progress(elapsedTime + 1, haltTime);
 		if (renderabort == false)
 			break;
@@ -439,7 +439,7 @@ int LuxMax::Render(
 		materialPreviewScene->Parse(
 			Property("scene.camera.lookat.orig")(previewCameraDistance, previewCameraDistance, previewCameraDistance) <<
 			Property("scene.camera.lookat.target")(0.f, 0.f, 0.f) <<
-			Property("scene.camera.fieldofview")(60.f)
+			Property("scene.camera.fieldofview")(35.f)
 			);
 
 		//Instead of the preview sky light, we should fetch max's internal lights for material previews.
@@ -534,7 +534,8 @@ int LuxMax::Render(
 				else
 				{
 					defaultlightset = false;
-					mprintf(_T("\n Default Light Deactive Automaticlly %i \n"));
+					//mprintf(_T("\n Default Light Deactive Automaticlly %i \n"));
+					OutputDebugStringW(L"Default Light deactivate automatically.");
 				}
 
 				if (os.obj->ClassID() == OMNI_CLASSID)
@@ -561,7 +562,8 @@ int LuxMax::Render(
 				{
 					if (defaultlightchk == true)
 					{
-						mprintf(_T("\n There is No Suported light in scene %i \n"));
+						//mprintf(_T("\n There is No Suported light in scene %i \n"));
+						OutputDebugStringW(L"No supported light in the scene.");
 						defaultlightset = true;
 					}
 				}
@@ -572,7 +574,8 @@ int LuxMax::Render(
 
 			if (os.obj->ClassID() == XREFOBJ_CLASS_ID)
 			{
-				mprintf(_T("\n There is a xref node in the scene, will not render yet. please merge scene. \n"));
+				//mprintf(_T("\n There is a xref node in the scene, will not render yet. please merge scene. \n"));
+				OutputDebugStringW(L"Xref is unsupported, merge scene instead.");
 				break;
 			}
 
@@ -599,10 +602,12 @@ int LuxMax::Render(
 		int halttime = (int)_wtof(halttimewstr);
 		vfbRefreshRateInt = (int)_wtof(vbinterval);
 		
-		if (tmpFilename != NULL)
-		{
-			mprintf(_T("\nRendering to: %s \n"), FileName.ToMSTR());
-		}
+		//if (tmpFilename != NULL)
+		//{
+			//mprintf(_T("\nRendering to: %s \n"), FileName.ToMSTR());
+			//OutputDebugStringW(L"\nRendering to: ");
+			//OutputDebugStringW(tmpFilename);
+		//}
 
 		renderWidth = GetCOREInterface11()->GetRendWidth();
 		renderHeight = GetCOREInterface11()->GetRendHeight();

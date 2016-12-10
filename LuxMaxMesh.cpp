@@ -211,6 +211,9 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 		std::wstring replacedObjName = std::wstring(tmpName.begin(), tmpName.end());
 		objName = replacedObjName.c_str();
 
+		OutputDebugStringW(L"\nLuxMaxMesh -> Exporting Object: ");
+		OutputDebugStringW(objName);
+
 		::Mesh *p_trimesh = &p_triobj->mesh;
 
 		p_trimesh->checkNormals(true);
@@ -298,6 +301,8 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 		{
 			//TODO: Call a function here that causes it to create a 'dummy' material
 			//inside the material lib..
+			OutputDebugStringW(L"\nLuxMaxMesh -> Creating fallback material for object: ");
+			OutputDebugStringW(objName);
 
 			objString.append("scene.materials.undefined");
 			objString.append(".type");
@@ -310,7 +315,7 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 
 			::std::string tmpMatStr;
 			tmpMatStr.append("scene.materials.undefined.kd");
-			mprintf(L"Creating fallback material for undefined material.\n");
+			//mprintf(L"Creating fallback material for undefined material.\n");
 			scene.Parse(
 				Property(tmpMatStr)(float(0.5), float(0.5), float(0.5)) <<
 				Property("")("")
@@ -335,6 +340,13 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 			lxmUtils->removeUnwatedChars(tmpMatName);
 			std::wstring replacedMaterialName = std::wstring(tmpMatName.begin(), tmpMatName.end());
 			matName = replacedMaterialName.c_str();
+			
+			if (tmpMatName == "")
+			{
+				matName = L"fallbackmaterial";
+			}
+
+			
 
 			objmat = currNode->GetMtl();
 			int numsubs = 0;
@@ -347,12 +359,24 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 			{
 				if (lxmMaterials->isSupportedMaterial(objmat))
 				{
+					OutputDebugStringW(L"\nLuxMaxMesh -> Creating supported material for object: ");
+					OutputDebugStringW(objName);
+					OutputDebugStringW(L"\nLuxMaxMesh -> Material name:");
+					OutputDebugStringW(matName);
+
 					lxmMaterials->exportMaterial(objmat, scene);
 				}
 				else
 				{
+					OutputDebugStringW(L"\nLuxMaxMesh -> Creating fallback material for object: ");
+					OutputDebugStringW(objName);
+					OutputDebugStringW(L"\nMaterial name:");
+					OutputDebugStringW(matName);
+
+					matName = L"fallbackmaterial";
 					objString.append("scene.materials.");
-					objString.append(lxmUtils->ToNarrow(matName));
+					//objString.append(lxmUtils->ToNarrow(matName));
+					objString.append("fallbackmaterial");
 					objString.append(".type");
 
 					scene.Parse(
@@ -363,9 +387,10 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 
 					::std::string tmpMatStr;
 					tmpMatStr.append("scene.materials.");
-					tmpMatStr.append(lxmUtils->ToNarrow(matName));
+					//tmpMatStr.append(lxmUtils->ToNarrow(matName));
+					tmpMatStr.append("fallbackmaterial");
 					tmpMatStr.append(".kd");
-					mprintf(L"Creating fallback material for unsupported material: %s\n", matName);
+					//mprintf(L"Creating fallback material for unsupported material: %s\n", matName);
 					scene.Parse(
 						Property(tmpMatStr)(float(0.5), float(0.5), float(0.5)) <<
 						Property("")("")

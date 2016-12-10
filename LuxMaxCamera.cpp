@@ -100,7 +100,7 @@ bool LuxMaxCamera::exportCamera(float lensRadius, luxcore::Scene &scene)
 		if (aspectratio < 1)
 			FOV = 2.0f * ((180 / PI) *(atan(tan((PI / 180)*(FOV / 2.0f)) / aspectratio)));
 
-		mprintf(L"Rendering with camera: : %s\n", camNode->GetName());
+		//mprintf(L"Rendering with camera: : %s\n", camNode->GetName());
 		scene.Parse(
 			Property("scene.camera.lookat.orig")(camTrans.x, camTrans.y, camTrans.z) <<
 			Property("scene.camera.lookat.target")(targetPos.GetTrans().x, targetPos.GetTrans().y, targetPos.GetTrans().z) <<

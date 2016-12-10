@@ -99,7 +99,8 @@ std::string LuxMaxMaterials::getTexturePathFromParamBlockID(int paramID, ::Mtl* 
 		}
 		else
 		{
-			mprintf(L"ERROR : Unsupported texture in material: '%s' , named: '%s' , will not render texture. standard bitmap is supported.\n", mat->GetName(), tex->GetName());
+			OutputDebugStringW(L"\nUnsupported texture map in material: ");//mprintf(L"ERROR : Unsupported texture in material: '%s' , named: '%s' , will not render texture. standard bitmap is supported.\n", mat->GetName(), tex->GetName());
+			OutputDebugStringW(mat->GetName());
 		}
 	}
 	return path;
@@ -211,11 +212,24 @@ Point3 LuxMaxMaterials::getMaterialDiffuseColor(::Mtl* mat)
 void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 {
 	const wchar_t *matName = L"";
+	
 	matName = mat->GetName();
+
+
 	std::string tmpMatName = lmutil->ToNarrow(matName);
+	if (tmpMatName == "")
+	{
+		tmpMatName = "undefinedMaterial";
+		matName = L"undefinedMaterial";
+	}
+
 	lmutil->removeUnwatedChars(tmpMatName);
 	std::wstring replacedMaterialName = std::wstring(tmpMatName.begin(), tmpMatName.end());
 	matName = replacedMaterialName.c_str();
+
+	OutputDebugStringW(L"\nLuxMaxMaterials.cpp -> Exporting material: ");
+	OutputDebugStringW(matName);
+	OutputDebugStringW(L"\n");
 
 	std::string objString = "";
 	objString.append("scene.materials.");
@@ -297,11 +311,14 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 	}
 	else if (mat->ClassID() == LR_INTERNAL_MATTELIGHT_CLASSID)
 	{
-		mprintf(_T("\n Creating Emission material %i \n"));
+		OutputDebugStringW(L"\n Creating Emission material\n");
 		scene.Parse(
 			luxrays::Property(objString)("matte") <<
 			luxrays::Property("")("")
 			);
+
+	//	Check why it crashes, it might not be the light material, it could be something else.
+
 
 		::Point3 diffcol;
 		diffcol = getMaterialDiffuseColor(mat);
@@ -310,7 +327,7 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 		tmpMatStr.append("scene.materials.");
 		tmpMatStr.append(lmutil->ToNarrow(matName));
 		tmpMatStr.append(".emission");
-
+		
 		scene.Parse(
 			luxrays::Property(tmpMatStr)(float(diffcol.x), float(diffcol.y), float(diffcol.z)) <<
 			luxrays::Property("")("")
@@ -324,14 +341,14 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 			luxrays::Property("")("")
 			);
 
-		mprintf(_T("\n Creating Cheker material %i \n"));
+		//mprintf(_T("\n Creating Cheker material %i \n"));
 		scene.Parse(
 			luxrays::Property("scene.textures.check.type")("checkerboard2d") <<
 			luxrays::Property("scene.textures.check.texture1")("0.7 0.0 0.0") <<
 			luxrays::Property("scene.textures.check.texture2")("0.7 0.7 0.0") <<
 			luxrays::Property("scene.textures.check.mapping.uvscale")(16.0f, 16.0f)
 			);
-		mprintf(_T("\n Creating Cheker 01 %i \n"));
+		//mprintf(_T("\n Creating Cheker 01 %i \n"));
 	}
 	else if (mat->ClassID() == LR_INTERNAL_MAT_TEMPLATE_CLASSID || (mat->ClassID() == LR_INTERNAL_MATTE_CLASSID))
 	{
@@ -416,7 +433,8 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 		::std::string tmpMatStr;
 		tmpMatStr.append("scene.materials." + lmutil->ToNarrow(matName) + ".kd");
 
-		scene.Parse(
+		//luxrays::Property(tmpMatStr)(float(0.5), float(0.5), float(0.5)) <<
+		scene.Parse(	
 			luxrays::Property(tmpMatStr)(float(diffcol.x), float(diffcol.y), float(diffcol.z)) <<
 			luxrays::Property("")("")
 			);
@@ -426,6 +444,11 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 
 bool LuxMaxMaterials::isSupportedMaterial(::Mtl* mat)
 {
+	if (mat->GetName() == L"")
+	{
+		OutputDebugStringW(L"LuxMaxMaterials.cpp -> IsSupportedMaterial: False - Material has no name.");
+		return false;
+	}
 	if (mat->ClassID() == LR_INTERNAL_MATTE_CLASSID)
 	{
 		return true;
