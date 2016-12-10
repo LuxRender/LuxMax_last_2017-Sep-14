@@ -92,9 +92,12 @@ INT_PTR LuxMaxParamDlg::WndProc(
 		DLSetWindowLongPtr(hWnd, lParam);
 		if (dlg)
 		{
-			if (dlg->prog)
-				dlg->InitProgDialog(hWnd);
-			else
+			// Enable this to get a dialog at the render progress screen.
+			// Currently disabled because the dialog has no functionality yet. - no reason to show it.
+			//if (dlg->prog)
+				//dlg->InitProgDialog(hWnd);
+			//else
+
 				dlg->InitFilterDialog(hWnd);
 				dlg->InitParamDialog(hWnd);
 			//init the depth tab gui
@@ -328,13 +331,16 @@ LuxMaxParamDlg::LuxMaxParamDlg(
 	rend = r;
 	ir = i;
 	this->prog = prog;
+	
+	//Enable this to add dialog at the 'render' panel during rendering.
+	//Disabled for now since we do not have any useful info there.
 	if (prog) {
-		hPanel = ir->AddRollupPage(
-			hInstance,
-			MAKEINTRESOURCE(IDD_RENDER_PROG),
-			LuxMaxParamDlgProc,
-			GetString(IDS_VRENDTITLE),
-			(LPARAM)this);
+	//	hPanel = ir->AddRollupPage(
+		//	hInstance,
+		//	MAKEINTRESOURCE(IDD_RENDER_PROG),
+		//	LuxMaxParamDlgProc,
+		//	GetString(IDS_VRENDTITLE),
+		//	(LPARAM)this);
 	}
 	else {
 		hPanel = ir->AddRollupPage(
