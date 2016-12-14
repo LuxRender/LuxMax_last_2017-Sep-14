@@ -105,6 +105,15 @@ class LuxMax : public Renderer {
 		int nlts,nobs;
 		//LuxRenderParams LxRenderParams;
 		LuxMax() { file = NULL; sceneNode = NULL; viewNode = NULL; anyLights = FALSE; nlts = nobs = 0; }
+		
+		virtual RefResult NotifyRefChanged(
+			const Interval		&changeInt,
+			RefTargetHandle		 hTarget,
+			PartID				&partID,
+			RefMessage			 message,
+			BOOL				 propagate
+			);
+
 		//for 3dsmax 2017 SDK
 		virtual Renderer::PauseSupport IsPauseSupported() const override { return Renderer::PauseSupport::Legacy; }
 		//virtual void StopRendering() override;
@@ -154,13 +163,7 @@ class LuxMax : public Renderer {
 		IOResult Save(ISave *isave);
 		IOResult Load(ILoad *iload);
 
-		virtual RefResult NotifyRefChanged (
-			const Interval		&changeInt, 
-			RefTargetHandle		 hTarget, 
-			PartID				&partID,  
-			RefMessage			 message, 
-			BOOL				 propagate
-			);
+
 	};
 
 
