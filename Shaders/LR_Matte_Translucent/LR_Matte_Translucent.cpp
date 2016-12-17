@@ -19,8 +19,8 @@
 
 
 #define NUM_SUBMATERIALS 3 // TODO: number of sub-materials supported by this plug-in
-#define NUM_SUBTEXTURES 2
-#define Num_REF 3
+#define NUM_SUBTEXTURES 3
+#define Num_REF 4
 // Reference Indexes
 // 
 #define PBLOCK_REF 1
@@ -193,12 +193,12 @@ static ParamBlockDesc2 LR_Matte_Translucent_param_blk (
 		p_ui,			TYPE_SINGLECHEKBOX,		IDC_BUMP_MAP_ON,
 		p_end,
 
-		mtl_translucent_map, _T("mtl_TranslucentMap"), TYPE_TEXMAP, P_OWNERS_REF, "Translucent Map",
-		p_refno, 3,
-		p_subtexno, 1,
+	mtl_translucent_map, _T("mtl_TranslucentMap"), TYPE_TEXMAP, P_OWNERS_REF, "Translucent Map",
+		p_refno, 4,
+		p_subtexno, 2,
 		p_ui, TYPE_TEXMAPBUTTON, IDC_TRANCLUCENT_MAP,
 		p_end,
-		mtl_translucent_map_on, _T("mtl_translucent_map_on"), TYPE_BOOL, 0, "Translucent Map Status",
+	mtl_translucent_map_on, _T("mtl_translucent_map_on"), TYPE_BOOL, 0, "Translucent Map Status",
 		p_default, TRUE,
 		p_ui, TYPE_SINGLECHEKBOX, IDC_TRANSLUCENT_MAP_ON,
 		p_end,
@@ -327,7 +327,7 @@ RefTargetHandle LR_Matte_Translucent::GetReference(int i)
 
 void LR_Matte_Translucent::SetReference(int i, RefTargetHandle rtarg)
 {
-	//mprintf(_T("\n SetReference Nubmer is ------->>>>: %i \n"), i);
+	mprintf(_T("\n SetReference Nubmer is ------->>>>: %i \n"), i);
 	switch (i)
 	{
 		//case 0: subtexture[i] = (Texmap *)rtarg; break;
@@ -442,7 +442,7 @@ TSTR LR_Matte_Translucent::GetSubMtlTVName(int i)
 
 Texmap* LR_Matte_Translucent::GetSubTexmap(int i)
 {
-	//mprintf(_T("\n GetSubTexmap Nubmer ::::::::::::===>>>  is : Get %i \n"), i);
+	mprintf(_T("\n GetSubTexmap Nubmer ::::::::::::===>>>  is : Get %i \n"), i);
 	if ((i >= 0) && (i < NUM_SUBTEXTURES))
 		return subtexture[i];
 	return
@@ -451,18 +451,28 @@ Texmap* LR_Matte_Translucent::GetSubTexmap(int i)
 
 void LR_Matte_Translucent::SetSubTexmap(int i, Texmap* tx)
 {
-	//mprintf(_T("\n SetSubTexmap Nubmer ============>>>  is : %i \n"), i);
+	mprintf(_T("\n SetSubTexmap Nubmer ============>>>  is : %i \n"), i);
 	ReplaceReference(i +2, tx);
 	if (i == 0)
 	{
 		LR_Matte_Translucent_param_blk.InvalidateUI(mtl_diffuse_map);
 		mapValid.SetEmpty();
 	}
-	else
+	if (i == 1)
+		{
+			LR_Matte_Translucent_param_blk.InvalidateUI(mtl_bump_map);
+			mapValid.SetEmpty();
+		}
+	if (i == 2)
 	{
-		LR_Matte_Translucent_param_blk.InvalidateUI(mtl_bump_map);
+		LR_Matte_Translucent_param_blk.InvalidateUI(mtl_translucent_map);
 		mapValid.SetEmpty();
 	}
+//	else
+//	{
+//		LR_Matte_Translucent_param_blk.InvalidateUI(mtl_bump_map);
+//		mapValid.SetEmpty();
+//	}
 }
 
 TSTR LR_Matte_Translucent::GetSubTexmapSlotName(int i)
@@ -473,6 +483,8 @@ TSTR LR_Matte_Translucent::GetSubTexmapSlotName(int i)
 			return _T("Diffuse Map");
 		case 1:
 			return _T("Bump Map");
+		case 2:
+			return _T("Translucent Map");
 		default:
 			return _T("Diffuse Map");
 	}
