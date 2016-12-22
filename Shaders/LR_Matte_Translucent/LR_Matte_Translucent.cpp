@@ -159,6 +159,7 @@ enum
 	mtl_bump_map_on,
 	mtl_translucent_map,
 	mtl_translucent_map_on,
+	mtl_translucent_color,
 };
 
 
@@ -203,6 +204,10 @@ static ParamBlockDesc2 LR_Matte_Translucent_param_blk (
 		p_ui, TYPE_SINGLECHEKBOX, IDC_TRANSLUCENT_MAP_ON,
 		p_end,
 
+		mtl_translucent_color, _T("TranslucentColor"), TYPE_RGBA, P_ANIMATABLE, "Translucent color",
+		p_default, Color(0.5f, 0.5f, 0.5f),
+		p_ui, TYPE_COLORSWATCH, IDC_TRANSLUCENT_COLOR,
+		p_end,
 	p_end
 	);
 
@@ -327,7 +332,7 @@ RefTargetHandle LR_Matte_Translucent::GetReference(int i)
 
 void LR_Matte_Translucent::SetReference(int i, RefTargetHandle rtarg)
 {
-	mprintf(_T("\n SetReference Nubmer is ------->>>>: %i \n"), i);
+	//mprintf(_T("\n SetReference Nubmer is ------->>>>: %i \n"), i);
 	switch (i)
 	{
 		//case 0: subtexture[i] = (Texmap *)rtarg; break;
@@ -442,7 +447,7 @@ TSTR LR_Matte_Translucent::GetSubMtlTVName(int i)
 
 Texmap* LR_Matte_Translucent::GetSubTexmap(int i)
 {
-	mprintf(_T("\n GetSubTexmap Nubmer ::::::::::::===>>>  is : Get %i \n"), i);
+	//mprintf(_T("\n GetSubTexmap Nubmer ::::::::::::===>>>  is : Get %i \n"), i);
 	if ((i >= 0) && (i < NUM_SUBTEXTURES))
 		return subtexture[i];
 	return
@@ -451,7 +456,7 @@ Texmap* LR_Matte_Translucent::GetSubTexmap(int i)
 
 void LR_Matte_Translucent::SetSubTexmap(int i, Texmap* tx)
 {
-	mprintf(_T("\n SetSubTexmap Nubmer ============>>>  is : %i \n"), i);
+	//mprintf(_T("\n SetSubTexmap Nubmer ============>>>  is : %i \n"), i);
 	ReplaceReference(i +2, tx);
 	if (i == 0)
 	{

@@ -30,6 +30,8 @@
 #define IDC_SAMP_MAP                    1492
 #define IDC_DIFFUSE_MAP                 1492
 #define IDC_EDIT2                       1493
+#define IDC_SAMP_COLOR4                 1493
+#define IDC_TRANSLUCENT_COLOR           1493
 #define IDC_EDIT4                       1495
 #define IDC_SPIN                        1496
 #define IDC_MTL1                        1497

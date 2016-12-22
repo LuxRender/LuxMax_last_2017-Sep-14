@@ -64,6 +64,7 @@ using namespace luxrays;
 #define LR_INTERNAL_MATTELIGHT_CLASSID Class_ID(0x5d2f7ac1, 0x7dd93354)
 #define LR_INTERNAL_MAT_TEMPLATE_CLASSID Class_ID(0x64691d17, 0x288d50d9)
 #define STANDARDBITMAP_CLASSID Class_ID(576, 0)
+#define LR_MATTE_TRANSLUCENT_CLASSID Class_ID(0x31b26e70, 0x2de454e4)
 
 LuxMaxUtils * lmutil;
 
@@ -149,7 +150,9 @@ std::string LuxMaxMaterials::getTextureName(int paramID, ::Mtl* mat)
 
 		if (tex->GetName() != NULL)
 		{
-			return tex->GetName().ToCStr();
+			std::string tmpTexName = tex->GetName().ToCStr();
+			lmutil->removeUnwatedChars(tmpTexName);
+			return tmpTexName;
 		}
 		else
 		{
@@ -178,6 +181,22 @@ std::string LuxMaxMaterials::getMaterialDiffuseTexturePath(::Mtl* mat)
 		// 4 is diffuse, 6 is bumpmap
 		return getTexturePathFromParamBlockID(4, mat);
 	}
+	if ((mat->ClassID() == LR_MATTE_TRANSLUCENT_CLASSID))
+	{
+		// 4 is diffuse, 6 is bumpmap
+		return getTexturePathFromParamBlockID(4, mat);
+	}
+}
+
+Point3 LuxMaxMaterials::getMaterialColor(int pblockIndex ,::Mtl* mat)
+{
+	std::string objString;
+	::Point3 diffcolor;
+	Interval      ivalid;
+	IParamBlock2 *pBlock = mat->GetParamBlock(0);
+	pBlock->GetValue(pblockIndex, GetCOREInterface()->GetTime(), diffcolor, ivalid);
+
+	return diffcolor;
 }
 
 Point3 LuxMaxMaterials::getMaterialDiffuseColor(::Mtl* mat)
@@ -205,7 +224,11 @@ Point3 LuxMaxMaterials::getMaterialDiffuseColor(::Mtl* mat)
 	{
 		diffcolor = mat->GetDiffuse(0);
 	}
-
+	if (mat->ClassID() == LR_MATTE_TRANSLUCENT_CLASSID)
+	{
+		diffcolor = mat->GetDiffuse(0);
+	}
+		 
 	return diffcolor;
 }
 
@@ -420,6 +443,76 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 		prop.SetFromString(tmpTexString);
 		scene.Parse(prop);
 	}
+	else if (mat->ClassID() == LR_MATTE_TRANSLUCENT_CLASSID)
+	{
+		OutputDebugStringW(_T("\nCreating matte translucent material.\n"));
+		luxrays::Properties prop;
+		::Point3 diffcol;
+		diffcol = getMaterialDiffuseColor(mat);
+
+		std::string tmpmat;
+		tmpmat.append(currmat + ".type = mattetranslucent");
+		tmpmat.append("\n");
+		//if (getMaterialDiffuseTexturePath(mat) == "")
+		if (getTexturePathFromParamBlockID(4,mat) == "")
+		{
+			tmpmat.append(currmat + ".kr = " + std::to_string(diffcol.x) + " " + std::to_string(diffcol.y) + " " + std::to_string(diffcol.z));
+			tmpmat.append("\n");
+		}else
+		{
+			std::string krTexName = getTextureName(4, mat);
+			tmpmat.append("scene.textures." + krTexName + ".type = imagemap");
+			tmpmat.append("\n");
+			tmpmat.append("scene.textures." + krTexName + ".file = " + "\"" + getTexturePathFromParamBlockID(4,mat) + "\"");
+			tmpmat.append("\n");
+			tmpmat.append("scene.materials." + lmutil->ToNarrow(matName) + ".kr = " + krTexName);
+			tmpmat.append("\n");
+		}
+			
+		if (getTexturePathFromParamBlockID(8, mat) == "")
+		{
+			diffcol = getMaterialColor(10, mat);
+			tmpmat.append(currmat + ".kt = " + std::to_string(diffcol.x) + " " + std::to_string(diffcol.y) + " " + std::to_string(diffcol.z));
+			tmpmat.append("\n");
+		
+		}else
+		{
+			std::string kdTexName = getTextureName(8, mat);
+			tmpmat.append("scene.textures." + kdTexName + ".type = imagemap");
+			tmpmat.append("\n");
+			tmpmat.append("scene.textures." + kdTexName + ".file = " + "\"" + getTexturePathFromParamBlockID(8,mat)+ "\"");
+			tmpmat.append("\n");
+			tmpmat.append("scene.materials." + lmutil->ToNarrow(matName) + ".kd = " + kdTexName);
+			tmpmat.append("\n");
+		}
+
+		prop.SetFromString(tmpmat);
+		scene.Parse(prop);
+
+		/*scene.Parse(
+			luxrays::Property(objString)("mattetranslucent") <<
+			luxrays::Property("")("")
+			);
+		::Point3 diffcol;
+		diffcol = getMaterialDiffuseColor(mat);
+		::std::string tmpMatStr;
+
+		tmpMatStr.append("scene.materials." + lmutil->ToNarrow(matName) + ".kr");
+		
+		scene.Parse(
+			luxrays::Property(tmpMatStr)(float(diffcol.x), float(diffcol.y), float(diffcol.z)) <<
+			luxrays::Property("")("")
+			);
+		tmpMatStr = "";
+
+		tmpMatStr.append("scene.materials." + lmutil->ToNarrow(matName) + ".kt");
+		scene.Parse(
+			luxrays::Property(tmpMatStr)(float(1.0), float(0), float(0)) <<
+			luxrays::Property("")("")
+			);
+		tmpMatStr = "";*/
+
+	}
 	else	//Parse as matte material.
 	{
 		OutputDebugStringW(_T("\nCreating fallback material.\n"));
@@ -470,6 +563,10 @@ bool LuxMaxMaterials::isSupportedMaterial(::Mtl* mat)
 		return true;
 	}
 	else if (mat->ClassID() == LR_INTERNAL_MAT_TEMPLATE_CLASSID)
+	{
+		return true;
+	}
+	else if (mat->ClassID() == LR_MATTE_TRANSLUCENT_CLASSID)
 	{
 		return true;
 	}
