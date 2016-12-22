@@ -453,7 +453,7 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 		std::string tmpmat;
 		tmpmat.append(currmat + ".type = mattetranslucent");
 		tmpmat.append("\n");
-		//if (getMaterialDiffuseTexturePath(mat) == "")
+
 		if (getTexturePathFromParamBlockID(4,mat) == "")
 		{
 			tmpmat.append(currmat + ".kr = " + std::to_string(diffcol.x) + " " + std::to_string(diffcol.y) + " " + std::to_string(diffcol.z));
@@ -488,30 +488,6 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 
 		prop.SetFromString(tmpmat);
 		scene.Parse(prop);
-
-		/*scene.Parse(
-			luxrays::Property(objString)("mattetranslucent") <<
-			luxrays::Property("")("")
-			);
-		::Point3 diffcol;
-		diffcol = getMaterialDiffuseColor(mat);
-		::std::string tmpMatStr;
-
-		tmpMatStr.append("scene.materials." + lmutil->ToNarrow(matName) + ".kr");
-		
-		scene.Parse(
-			luxrays::Property(tmpMatStr)(float(diffcol.x), float(diffcol.y), float(diffcol.z)) <<
-			luxrays::Property("")("")
-			);
-		tmpMatStr = "";
-
-		tmpMatStr.append("scene.materials." + lmutil->ToNarrow(matName) + ".kt");
-		scene.Parse(
-			luxrays::Property(tmpMatStr)(float(1.0), float(0), float(0)) <<
-			luxrays::Property("")("")
-			);
-		tmpMatStr = "";*/
-
 	}
 	else	//Parse as matte material.
 	{
@@ -526,7 +502,6 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 		::std::string tmpMatStr;
 		tmpMatStr.append("scene.materials." + lmutil->ToNarrow(matName) + ".kd");
 
-		//luxrays::Property(tmpMatStr)(float(0.5), float(0.5), float(0.5)) <<
 		scene.Parse(	
 			luxrays::Property(tmpMatStr)(float(diffcol.x), float(diffcol.y), float(diffcol.z)) <<
 			luxrays::Property("")("")
