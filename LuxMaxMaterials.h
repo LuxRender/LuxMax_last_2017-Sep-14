@@ -43,6 +43,7 @@ public:
 	Point3 getMaterialColor(int pblockIndex, ::Mtl* mat);
 	bool isSupportedMaterial(::Mtl* mat);
 	std::string getTexturePathFromParamBlockID(int id, ::Mtl* mat);
+	std::string getFloatFromParamBlockID(int paramID, ::Mtl* mat);
 	
 };
 

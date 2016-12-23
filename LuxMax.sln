@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LR_Template", "Shaders\LR_T
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LR_Matte_Translucent", "Shaders\LR_Matte_Translucent\LR_Matte_Translucent.vcxproj", "{BE11700A-2243-4E2C-9BDF-349FCC986316}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LR_Rough_Matte", "Shaders\LR_Rough_Matte\LR_Rough_Matte.vcxproj", "{3C32887B-8A05-443B-A5A4-D0098D910DA3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -125,6 +127,21 @@ Global
 		{BE11700A-2243-4E2C-9BDF-349FCC986316}.Release|Win32.ActiveCfg = Release|x64
 		{BE11700A-2243-4E2C-9BDF-349FCC986316}.Release|x64.ActiveCfg = Release|x64
 		{BE11700A-2243-4E2C-9BDF-349FCC986316}.Release|x64.Build.0 = Release|x64
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3}.Debug|Mixed Platforms.ActiveCfg = Debug|x64
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3}.Debug|Mixed Platforms.Build.0 = Debug|x64
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3}.Debug|Win32.ActiveCfg = Debug|x64
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3}.Debug|x64.ActiveCfg = Debug|x64
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3}.Debug|x64.Build.0 = Debug|x64
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3}.Hybrid|Mixed Platforms.ActiveCfg = Hybrid|x64
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3}.Hybrid|Mixed Platforms.Build.0 = Hybrid|x64
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3}.Hybrid|Win32.ActiveCfg = Hybrid|x64
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3}.Hybrid|x64.ActiveCfg = Hybrid|x64
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3}.Hybrid|x64.Build.0 = Hybrid|x64
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3}.Release|Mixed Platforms.ActiveCfg = Release|x64
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3}.Release|Mixed Platforms.Build.0 = Release|x64
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3}.Release|Win32.ActiveCfg = Release|x64
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3}.Release|x64.ActiveCfg = Release|x64
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -135,5 +152,6 @@ Global
 		{6671F0BA-6FB8-4F35-8392-0676D05113A8} = {6B67AD0E-EFFA-45D9-B2F9-9C71ED1FB765}
 		{49CB98BD-0438-4F04-B308-ABAE7EB7B4F6} = {6B67AD0E-EFFA-45D9-B2F9-9C71ED1FB765}
 		{BE11700A-2243-4E2C-9BDF-349FCC986316} = {6B67AD0E-EFFA-45D9-B2F9-9C71ED1FB765}
+		{3C32887B-8A05-443B-A5A4-D0098D910DA3} = {6B67AD0E-EFFA-45D9-B2F9-9C71ED1FB765}
 	EndGlobalSection
 EndGlobal
