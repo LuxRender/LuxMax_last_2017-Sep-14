@@ -1,0 +1,151 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PANEL DIALOGEX 0, 0, 205, 182
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_KD_COLOR,"ColorSwatch",WS_TABSTOP,72,12,35,12
+    CONTROL         "",IDC_KD_MAP,"CustButton",WS_TABSTOP,114,12,84,13
+    CONTROL         "Custom1",IDC_KS_MAP,"CustButton",WS_TABSTOP,114,30,84,13
+    CONTROL         "",IDC_KS_COLOR,"ColorSwatch",WS_TABSTOP,72,30,35,12
+    LTEXT           "Specular (ks)",IDC_STATIC,0,30,48,8
+    LTEXT           "Diffuse (kd)",IDC_STATIC,0,12,37,8
+    CONTROL         "",IDC_SIGMA,"CustEdit",NOT WS_VISIBLE | WS_TABSTOP,138,168,36,11
+    CONTROL         "",IDC_SIGMA_SPIN,"SpinnerControl",NOT WS_VISIBLE,174,168,9,11
+    CONTROL         "Custom1",IDC_UROUGHNESS_MAP,"CustButton",WS_TABSTOP,114,48,84,13
+    LTEXT           "U roughness",IDC_STATIC,0,54,48,8
+    CONTROL         "Custom1",IDC_VROUGHNESS_MAP,"CustButton",WS_TABSTOP,114,66,84,13
+    LTEXT           "V roughness",IDC_STATIC,0,72,48,8
+    CONTROL         "Custom1",IDC_KA_MAP,"CustButton",WS_TABSTOP,114,84,84,13
+    LTEXT           "coefficient of\nabsorption (Ka)",IDC_STATIC,0,90,60,18
+    CONTROL         "Custom1",IDC_D_MAP,"CustButton",WS_TABSTOP,114,114,84,13
+    LTEXT           "Depth",IDC_STATIC,0,120,24,8
+    CONTROL         "",IDC_D,"CustEdit",WS_TABSTOP,72,114,30,11
+    CONTROL         "",IDC_D_SPIN,"SpinnerControl",0x0,102,114,9,11
+    LTEXT           "Index \n(overrides specular)",IDC_STATIC,0,138,66,18
+    CONTROL         "",IDC_INDEX,"CustEdit",WS_TABSTOP,72,132,30,11
+    CONTROL         "",IDC_INDEX_SPIN,"SpinnerControl",0x0,102,132,9,11
+    LTEXT           "Multibounce",IDC_STATIC,0,162,66,8
+    CONTROL         "",IDC_MULTIBOUNCE_ON,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,72,162,10,10
+    CONTROL         "",IDC_UROUGHNESS,"CustEdit",WS_TABSTOP,66,48,30,11
+    CONTROL         "",IDC_UROUGHNESS_SPIN,"SpinnerControl",0x0,102,48,9,11
+    CONTROL         "",IDC_VROUGHNESS,"CustEdit",WS_TABSTOP,66,66,30,11
+    CONTROL         "",IDC_VROUGHNESS_SPIN,"SpinnerControl",0x0,102,66,9,11
+    CONTROL         "",IDC_KA,"CustEdit",WS_TABSTOP,72,84,30,11
+    CONTROL         "",IDC_KA_SPIN,"SpinnerControl",0x0,102,84,9,11
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_PANEL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 195
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 175
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_LIBDESCRIPTION      "LuxMax Integrated Shaders"
+    IDS_CATEGORY            "LRI Shaders"
+    IDS_CLASS_NAME          "LR_Glossy2"
+    IDS_PARAMS              "Parameters"
+    IDS_SPIN                "Spin"
+    IDS_COLOR               "Color"
+    IDS_MTL1                "Material"
+    IDS_DIFFUSE_MAP_ON      "Diffuse map status"
+    IDS_DIFFUSE_MAP         "Diffuse Map"
+    IDS_COLOR2              "Ambient Color"
+    IDS_COLOR3              "Specular Color"
+    IDS_SPIN2               "Opacity"
+    IDS_SPIN4               "Shine"
+    IDS_SPIN6               "Wire Size"
+    IDS_BUMP_MAP            "Bump Map"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_BUMP_MAP_ON         "Bump map status"
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

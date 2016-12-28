@@ -44,6 +44,7 @@ public:
 	bool isSupportedMaterial(::Mtl* mat);
 	std::string getTexturePathFromParamBlockID(int id, ::Mtl* mat);
 	std::string getFloatFromParamBlockID(int paramID, ::Mtl* mat);
+	std::string LuxMaxMaterials::getIntFromParamBlockID(int paramID, ::Mtl* mat);
 	
 };
 
