@@ -1,0 +1,141 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PANEL DIALOGEX 0, 0, 205, 110
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_KD_COLOR,"ColorSwatch",WS_TABSTOP,72,12,35,12
+    CONTROL         "",IDC_KD_MAP,"CustButton",WS_TABSTOP,114,12,84,13
+    LTEXT           "Kd",IDC_STATIC,0,12,10,8
+    CONTROL         "Custom1",IDC_P1_MAP,"CustButton",WS_TABSTOP,114,30,84,13
+    LTEXT           "P1",IDC_STATIC,0,30,24,8
+    CONTROL         "",IDC_P1,"CustEdit",WS_TABSTOP,60,30,36,11
+    CONTROL         "",IDC_P1_SPIN,"SpinnerControl",0x0,96,30,9,11
+    CONTROL         "Custom1",IDC_P2_MAP,"CustButton",WS_TABSTOP,114,48,84,13
+    LTEXT           "P2",IDC_STATIC,0,48,24,8
+    CONTROL         "",IDC_P2,"CustEdit",WS_TABSTOP,60,48,36,11
+    CONTROL         "",IDC_P2_SPIN,"SpinnerControl",0x0,96,48,9,11
+    CONTROL         "Custom1",IDC_P3_MAP,"CustButton",WS_TABSTOP,114,66,84,13
+    LTEXT           "P3",IDC_STATIC,0,66,24,8
+    CONTROL         "",IDC_P3,"CustEdit",WS_TABSTOP,60,66,36,11
+    CONTROL         "",IDC_P3_SPIN,"SpinnerControl",0x0,96,66,9,11
+    CONTROL         "Custom1",IDC_THICKNESS_MAP,"CustButton",WS_TABSTOP,114,84,84,13
+    LTEXT           "Thickness",IDC_STATIC,0,84,48,8
+    CONTROL         "",IDC_THICKNESS,"CustEdit",WS_TABSTOP,60,84,36,11
+    CONTROL         "",IDC_THICKNESS_SPIN,"SpinnerControl",0x0,96,84,9,11
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_PANEL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 195
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_LIBDESCRIPTION      "LuxMax Integrated Shaders"
+    IDS_CATEGORY            "LRI Shaders"
+    IDS_CLASS_NAME          "LR_Velvet"
+    IDS_PARAMS              "Parameters"
+    IDS_SPIN                "Spin"
+    IDS_COLOR               "Color"
+    IDS_MTL1                "Material"
+    IDS_DIFFUSE_MAP_ON      "Diffuse map status"
+    IDS_DIFFUSE_MAP         "Diffuse Map"
+    IDS_COLOR2              "Ambient Color"
+    IDS_COLOR3              "Specular Color"
+    IDS_SPIN2               "Opacity"
+    IDS_SPIN4               "Shine"
+    IDS_SPIN6               "Wire Size"
+    IDS_BUMP_MAP            "Bump Map"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_BUMP_MAP_ON         "Bump map status"
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

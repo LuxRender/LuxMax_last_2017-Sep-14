@@ -69,6 +69,7 @@ using namespace luxrays;
 #define LR_ROUGH_MATTE_CLASSID Class_ID(0x34b56e70, 0x7de894e5)
 #define LR_GLOSSY2_CLASSID Class_ID(0x67b86e70, 0x7de456e1)
 #define LR_ROUGHGLASS_CLASSID Class_ID(0x56b76e70, 0x8de321e5)
+#define LR_VELVET_CLASSID Class_ID(0x59b79e53, 0x2de567e3)
 
 LuxMaxUtils * lmutil;
 
@@ -726,21 +727,6 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 		tmpmat.append(currmat + ".type = roughglass");
 		tmpmat.append("\n");
 
-		/*
-	0		kr,
-	1		kr_map,
-	2		kt,
-	3		kt_map,
-	4		interiorior,
-	5		interiorior_map,
-	6		exteriorior,
-	7		exteriorior_map,
-	8		uroughness,
-	9		uroughness_map,
-	10		vroughness,
-	11		vroughness_map,
-		*/
-
 		if (getTexturePathFromParamBlockID(1, mat) == "")
 		{
 			::Point3 kr;
@@ -842,11 +828,104 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 			tmpmat.append("\n");
 		}
 
-
 		prop.SetFromString(tmpmat);
 		scene.Parse(prop);
 
 
+	}
+	else if (mat->ClassID() == LR_VELVET_CLASSID)
+	{
+		OutputDebugStringW(_T("\nCreating Velvet material.\n"));
+		luxrays::Properties prop;
+
+
+		std::string tmpmat;
+		tmpmat.append(currmat + ".type = velvet");
+		tmpmat.append("\n");
+			
+		if (getTexturePathFromParamBlockID(1, mat) == "")
+		{
+			::Point3 kd;
+			kd = getMaterialColor(0, mat);
+			tmpmat.append(currmat + ".kd = " + std::to_string(kd.x) + " " + std::to_string(kd.y) + " " + std::to_string(kd.z));
+			tmpmat.append("\n");
+		}
+		else
+		{
+			std::string kd_map = getTextureName(1, mat);
+			tmpmat.append("scene.textures." + kd_map + ".type = imagemap");
+			tmpmat.append("\n");
+			tmpmat.append("scene.textures." + kd_map + ".file = " + "\"" + getTexturePathFromParamBlockID(1, mat) + "\"");
+			tmpmat.append("\n");
+			tmpmat.append("scene.materials." + lmutil->ToNarrow(matName) + ".kd = " + kd_map);
+			tmpmat.append("\n");
+		}
+
+		if (getTexturePathFromParamBlockID(3, mat) == "")
+		{
+			tmpmat.append("scene.materials." + lmutil->ToNarrow(matName) + ".p1 = " + getFloatFromParamBlockID(2, mat));
+			tmpmat.append("\n");
+		}
+		else
+		{
+			std::string p1_map = getTextureName(3, mat);
+			tmpmat.append("scene.textures." + p1_map + ".type = imagemap");
+			tmpmat.append("\n");
+			tmpmat.append("scene.textures." + p1_map + ".file = " + "\"" + getTexturePathFromParamBlockID(3, mat) + "\"");
+			tmpmat.append("\n");
+			tmpmat.append("scene.materials." + lmutil->ToNarrow(matName) + ".p1 = " + p1_map);
+			tmpmat.append("\n");
+		}
+
+		if (getTexturePathFromParamBlockID(5, mat) == "")
+		{
+			tmpmat.append("scene.materials." + lmutil->ToNarrow(matName) + ".p1 = " + getFloatFromParamBlockID(4, mat));
+			tmpmat.append("\n");
+		}
+		else
+		{
+			std::string p2_map = getTextureName(5, mat);
+			tmpmat.append("scene.textures." + p2_map + ".type = imagemap");
+			tmpmat.append("\n");
+			tmpmat.append("scene.textures." + p2_map + ".file = " + "\"" + getTexturePathFromParamBlockID(5, mat) + "\"");
+			tmpmat.append("\n");
+			tmpmat.append("scene.materials." + lmutil->ToNarrow(matName) + ".p2 = " + p2_map);
+			tmpmat.append("\n");
+		}
+
+		if (getTexturePathFromParamBlockID(7, mat) == "")
+		{
+			tmpmat.append("scene.materials." + lmutil->ToNarrow(matName) + ".p3 = " + getFloatFromParamBlockID(6, mat));
+			tmpmat.append("\n");
+		}
+		else
+		{
+			std::string p3_map = getTextureName(7, mat);
+			tmpmat.append("scene.textures." + p3_map + ".type = imagemap");
+			tmpmat.append("\n");
+			tmpmat.append("scene.textures." + p3_map + ".file = " + "\"" + getTexturePathFromParamBlockID(7, mat) + "\"");
+			tmpmat.append("\n");
+			tmpmat.append("scene.materials." + lmutil->ToNarrow(matName) + ".p3 = " + p3_map);
+			tmpmat.append("\n");
+		}
+
+		if (getTexturePathFromParamBlockID(9, mat) == "")
+		{
+			tmpmat.append("scene.materials." + lmutil->ToNarrow(matName) + ".thickness = " + getFloatFromParamBlockID(8, mat));
+			tmpmat.append("\n");
+		}
+		else
+		{
+			std::string thickness_map = getTextureName(9, mat);
+			tmpmat.append("scene.textures." + thickness_map + ".type = imagemap");
+			tmpmat.append("\n");
+			tmpmat.append("scene.textures." + thickness_map + ".file = " + "\"" + getTexturePathFromParamBlockID(9, mat) + "\"");
+			tmpmat.append("\n");
+			tmpmat.append("scene.materials." + lmutil->ToNarrow(matName) + ".thickness = " + thickness_map);
+			tmpmat.append("\n");
+		}
+		prop.SetFromString(tmpmat);
+		scene.Parse(prop);
 	}
 	else	//Parse as matte material.
 	{
@@ -913,6 +992,10 @@ bool LuxMaxMaterials::isSupportedMaterial(::Mtl* mat)
 		return true;
 	}
 	else if (mat->ClassID() == LR_ROUGHGLASS_CLASSID)
+	{
+		return true;
+	}
+	else if(mat->ClassID() == LR_VELVET_CLASSID)
 	{
 		return true;
 	}
