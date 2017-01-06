@@ -36,7 +36,6 @@
 #define IDC_VROUGHNESS                  1021
 #define IDC_VROUGHNESS_SPIN             1022
 #define IDC_KA                          1023
-#define IDC_INDEX_SPIN2                 1024
 #define IDC_KA_SPIN                     1024
 #define IDC_COLOR                       1456
 #define IDC_EDIT                        1490
@@ -49,6 +48,7 @@
 #define IDC_SAMP_COLOR4                 1493
 #define IDC_TRANSLUCENT_COLOR           1493
 #define IDC_KS_COLOR                    1493
+#define IDC_KD_COLOR2                   1494
 #define IDC_EDIT4                       1495
 #define IDC_SPIN                        1496
 #define IDC_MTL1                        1497

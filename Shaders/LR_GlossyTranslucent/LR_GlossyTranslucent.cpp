@@ -18,8 +18,8 @@
 #define LR_GlossyTranslucent_CLASS_ID	Class_ID(0x24b19e11, 0x1de467e3)
 
 
-#define NUM_SUBMATERIALS 3 // TODO: number of sub-materials supported by this plug-in
-#define NUM_SUBTEXTURES 3
+#define NUM_SUBMATERIALS 14 // TODO: number of sub-materials supported by this plug-in
+#define NUM_SUBTEXTURES 14
 #define Num_REF 4
 // Reference Indexes
 // 
@@ -149,18 +149,36 @@ enum { LR_GlossyTranslucent_params };
 //TODO: Add enums for various parameters
 enum 
 {
-	pb_spin,
-	mtl_mat1,
-	mtl_mat1_on,
-	prm_color,
-	mtl_diffuse_map,
-	mtl_diffuse_map_on,
-	mtl_bump_map,
-	mtl_bump_map_on,
-	mtl_translucent_map,
-	mtl_translucent_map_on,
-	mtl_translucent_color,
-	mtl_sigma_float,
+	kd, /* color */
+	kd_map, /* texture */
+	kt, /* color*/
+	kt_map, /* texture */
+	ks, /*color */
+	ks_map, /*texture*/
+	ks_bf, /*color */
+	ks_bf_map, /*texture*/
+	uroughness, /*float*/
+	uroughness_map, /*texture*/
+	uroughness_bf, /*float*/
+	uroughness_bf_map, /*texture*/
+	vroughness,/*float*/
+	vroughness_map, /*texture*/
+	vroughness_bf, /*float*/
+	vroughness_bf_map, /*texture*/
+	ka,
+	ka_map,
+	ka_bf,
+	ka_bf_map,
+	d,
+	d_map,
+	d_bf,
+	d_bf_map,
+	index,
+	index_map,
+	index_bf,
+	index_bf_map,
+	multibounce,
+	multibounce_bf,
 };
 
 
@@ -171,50 +189,181 @@ static ParamBlockDesc2 LR_GlossyTranslucent_param_blk (
 	//rollout
 	IDD_PANEL, IDS_PARAMS, 0, 0, NULL,
 	// params
-	prm_color,			_T("color"),			TYPE_RGBA,	P_ANIMATABLE,		IDS_COLOR,
-		p_default,		Color(0.5f, 0.5f, 0.5f),
-		p_ui,			TYPE_COLORSWATCH,		IDC_SAMP_COLOR,
-		p_end,
-	mtl_diffuse_map,	_T("mtl_DiffuseMap"),	TYPE_TEXMAP,	P_OWNERS_REF,	IDS_DIFFUSE_MAP,
-		p_refno,		2,
-		p_subtexno,		0,
-		p_ui,			TYPE_TEXMAPBUTTON,		IDC_DIFFUSE_MAP,
-		p_end,
-	mtl_diffuse_map_on,		_T("mtl_diffuse_map_on"),		TYPE_BOOL,		0,	IDS_DIFFUSE_MAP_ON,
-		p_default,		TRUE,
-		p_ui,			TYPE_SINGLECHEKBOX,		IDC_DIFFUSE_MAP_ON,
-		p_end,
+
+	kd, _T("kd"), TYPE_RGBA, P_ANIMATABLE, "kd",
+	p_default, Color(0.5f, 0.5f, 0.5f),
+	p_ui, TYPE_COLORSWATCH, IDC_KD_COLOR,
+	p_end,
+
+	kd_map, _T("kd_map"), TYPE_TEXMAP, P_OWNERS_REF, "kd_map",
+	p_refno, 2,
+	p_subtexno, 0,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_KD_MAP,
+	p_end,
+
+	kt, _T("kt"), TYPE_RGBA, P_ANIMATABLE, "kt",
+	p_default, Color(0.5f, 0.5f, 0.5f),
+	p_ui, TYPE_COLORSWATCH, IDC_KT_COLOR,
+	p_end,
+
+	kt_map, _T("kt_map"), TYPE_TEXMAP, P_OWNERS_REF, "kt_map",
+	p_refno, 3,
+	p_subtexno, 1,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_KT_MAP,
+	p_end,
+
+	ks, _T("ks"), TYPE_RGBA, P_ANIMATABLE, "ks",
+	p_default, Color(0.5f, 0.5f, 0.5f),
+	p_ui, TYPE_COLORSWATCH, IDC_KS_COLOR,
+	p_end,
+
+	ks_map, _T("ks_map"), TYPE_TEXMAP, P_OWNERS_REF, "ks_map",
+	p_refno, 4,
+	p_subtexno, 2,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_KS_MAP,
+	p_end,
+
+	ks_bf, _T("ks_bf"), TYPE_RGBA, P_ANIMATABLE, "ks_bf",
+	p_default, Color(0.5f, 0.5f, 0.5f),
+	p_ui, TYPE_COLORSWATCH, IDC_KS_BF_COLOR,
+	p_end,
+
+	ks_bf_map, _T("ks_bf_map"), TYPE_TEXMAP, P_OWNERS_REF, "ks_bf_map",
+	p_refno, 5,
+	p_subtexno, 3,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_KS_BF_MAP,
+	p_end,
+
+	uroughness, _T("uroughness"), TYPE_FLOAT, P_ANIMATABLE, "uroughness",
+	p_default, 0.1f,
+	p_range, 0.0f, 999.0f,
+	p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_UROUGHNESS, IDC_UROUGHNESS_SPIN, 0.0f,
+	p_end,
+
+	uroughness_map, _T("uroughness_map"), TYPE_TEXMAP, P_OWNERS_REF, "uroughness_map",
+	p_refno, 6,
+	p_subtexno, 4,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_UROUGHNESS_MAP,
+	p_end,
+
+	uroughness_bf, _T("uroughness_bf"), TYPE_FLOAT, P_ANIMATABLE, "uroughness_bf",
+	p_default, 0.1f,
+	p_range, 0.0f, 999.0f,
+	p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_UROUGHNESS_BF, IDC_UROUGHNESS_BF_SPIN, 0.0f,
+	p_end,
+
+	uroughness_bf_map, _T("uroughness_bf_map"), TYPE_TEXMAP, P_OWNERS_REF, "uroughness_bf_map",
+	p_refno, 7,
+	p_subtexno, 5,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_UROUGHNESS_BF_MAP,
+	p_end,
+
+	vroughness, _T("vuroughness"), TYPE_FLOAT, P_ANIMATABLE, "vroughness",
+	p_default, 0.1f,
+	p_range, 0.0f, 999.0f,
+	p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_VROUGHNESS, IDC_VROUGHNESS_SPIN, 0.0f,
+	p_end,
+
+	vroughness_map, _T("vroughness_map"), TYPE_TEXMAP, P_OWNERS_REF, "vroughness_map",
+	p_refno, 8,
+	p_subtexno, 6,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_VROUGHNESS_MAP,
+	p_end,
+
+	vroughness_bf, _T("vroughness_bf"), TYPE_FLOAT, P_ANIMATABLE, "vroughness_bf",
+	p_default, 0.1f,
+	p_range, 0.0f, 999.0f,
+	p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_VROUGHNESS_BF, IDC_VROUGHNESS_BF_SPIN, 0.0f,
+	p_end,
+
+	vroughness_bf_map, _T("vroughness_bf_map"), TYPE_TEXMAP, P_OWNERS_REF, "vroughness_bf_map",
+	p_refno, 9,
+	p_subtexno, 7,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_VROUGHNESS_BF_MAP,
+	p_end,
 	
-		mtl_bump_map,		_T("mtl_BumpMap"),		TYPE_TEXMAP,	P_OWNERS_REF,	IDS_BUMP_MAP,
-		p_refno,		3,
-		p_subtexno,		1,
-		p_ui,			TYPE_TEXMAPBUTTON,		IDC_BUMP_MAP,
-		p_end,
-	mtl_bump_map_on,		_T("mtl_bump_map_on"),		TYPE_BOOL,		0,		IDS_BUMP_MAP_ON,
-		p_default,		TRUE,
-		p_ui,			TYPE_SINGLECHEKBOX,		IDC_BUMP_MAP_ON,
-		p_end,
+	ka, _T("ka"), TYPE_FLOAT, P_ANIMATABLE, "ka",
+	p_default, 0.1f,
+	p_range, 0.0f, 999.0f,
+	p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_KA, IDC_KA_SPIN, 0.0f,
+	p_end,
 
-	mtl_translucent_map, _T("mtl_TranslucentMap"), TYPE_TEXMAP, P_OWNERS_REF, "Translucent Map",
-		p_refno, 4,
-		p_subtexno, 2,
-		p_ui, TYPE_TEXMAPBUTTON, IDC_TRANCLUCENT_MAP,
-		p_end,
-	mtl_translucent_map_on, _T("mtl_translucent_map_on"), TYPE_BOOL, 0, "Translucent Map Status",
-		p_default, TRUE,
-		p_ui, TYPE_SINGLECHEKBOX, IDC_TRANSLUCENT_MAP_ON,
-		p_end,
+	ka_map, _T("ka_map"), TYPE_TEXMAP, P_OWNERS_REF, "ka_map",
+	p_refno, 10,
+	p_subtexno, 8,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_KA_MAP,
+	p_end,
 
-		mtl_translucent_color, _T("TranslucentColor"), TYPE_RGBA, P_ANIMATABLE, "Translucent color",
-		p_default, Color(0.5f, 0.5f, 0.5f),
-		p_ui, TYPE_COLORSWATCH, IDC_TRANSLUCENT_COLOR,
-		p_end,
+	ka_bf, _T("ka_bf"), TYPE_FLOAT, P_ANIMATABLE, "ka_bf",
+	p_default, 0.1f,
+	p_range, 0.0f, 999.0f,
+	p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_KA_BF, IDC_KA_BF_SPIN, 0.0f,
+	p_end,
 
-		mtl_sigma_float, _T("sigma"), TYPE_FLOAT, P_ANIMATABLE, IDC_SIGMA_SPIN,
-		p_default, 0.0f,
-		p_range, 0.0f, 360.0f,
-		p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_SIGMA, IDC_SIGMA_SPIN, 0.0f,
-		p_end,
+	ka_bf_map, _T("ka_bf_map"), TYPE_TEXMAP, P_OWNERS_REF, "ka_bf_map",
+	p_refno, 11,
+	p_subtexno, 9,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_KA_BF_MAP,
+	p_end,
+
+	d, _T("d"), TYPE_FLOAT, P_ANIMATABLE, "d",
+	p_default, 0.0f,
+	p_range, 0.0f, 999.0f,
+	p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_D, IDC_D_SPIN, 0.0f,
+	p_end,
+
+	d_map, _T("d_map"), TYPE_TEXMAP, P_OWNERS_REF, "d_map",
+	p_refno, 12,
+	p_subtexno, 10,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_D_MAP,
+	p_end,
+	
+	d_bf, _T("d_bf"), TYPE_FLOAT, P_ANIMATABLE, "d_bf",
+	p_default, 0.0f,
+	p_range, 0.0f, 999.0f,
+	p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_D_BF, IDC_D_BF_SPIN, 0.0f,
+	p_end,
+
+	d_bf_map, _T("d_bf_map"), TYPE_TEXMAP, P_OWNERS_REF, "d_bf_map",
+	p_refno, 13,
+	p_subtexno, 11,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_D_BF_MAP,
+	p_end,
+	
+	index, _T("index"), TYPE_FLOAT, P_ANIMATABLE, "index",
+	p_default, 0.0f,
+	p_range, 0.0f, 999.0f,
+	p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_INDEX, IDC_INDEX_SPIN, 0.0f,
+	p_end,
+
+	index_map, _T("index_map"), TYPE_TEXMAP, P_OWNERS_REF, "index_map",
+	p_refno, 14,
+	p_subtexno, 12,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_INDEX_MAP,
+	p_end,
+
+	index_bf, _T("index_bf"), TYPE_FLOAT, P_ANIMATABLE, "index_bf",
+	p_default, 0.0f,
+	p_range, 0.0f, 999.0f,
+	p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_INDEX_BF, IDC_INDEX_BF_SPIN, 0.0f,
+	p_end,
+
+	index_bf_map, _T("index_bf_map"), TYPE_TEXMAP, P_OWNERS_REF, "index_bf_map",
+	p_refno, 15,
+	p_subtexno, 13,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_INDEX_BF_MAP,
+	p_end,
+	
+	multibounce, _T("multibounce"), TYPE_BOOL, 0, IDC_MULTIBOUNCE,
+	p_default, FALSE,
+	p_ui, TYPE_SINGLECHEKBOX, IDC_MULTIBOUNCE,
+	p_end,
+
+	multibounce_bf, _T("multibounce_bf"), TYPE_BOOL, 0, IDC_MULTIBOUNCE_BF,
+	p_default, FALSE,
+	p_ui, TYPE_SINGLECHEKBOX, IDC_MULTIBOUNCE_BF,
+	p_end,
+
 	p_end
 	);
 
@@ -431,7 +580,7 @@ void LR_GlossyTranslucent::SetSubMtl(int i, Mtl* m)
 	ReplaceReference(i , m);
 	if (i == 0)
 	{
-		LR_GlossyTranslucent_param_blk.InvalidateUI(mtl_mat1);
+		LR_GlossyTranslucent_param_blk.InvalidateUI(kd);
 		mapValid.SetEmpty();
 	}
 }
@@ -467,38 +616,114 @@ void LR_GlossyTranslucent::SetSubTexmap(int i, Texmap* tx)
 	ReplaceReference(i +2, tx);
 	if (i == 0)
 	{
-		LR_GlossyTranslucent_param_blk.InvalidateUI(mtl_diffuse_map);
+		LR_GlossyTranslucent_param_blk.InvalidateUI(kd_map);
 		mapValid.SetEmpty();
 	}
 	if (i == 1)
-		{
-			LR_GlossyTranslucent_param_blk.InvalidateUI(mtl_bump_map);
-			mapValid.SetEmpty();
-		}
-	if (i == 2)
 	{
-		LR_GlossyTranslucent_param_blk.InvalidateUI(mtl_translucent_map);
+		LR_GlossyTranslucent_param_blk.InvalidateUI(kt_map);
 		mapValid.SetEmpty();
 	}
-//	else
-//	{
-//		LR_GlossyTranslucent_param_blk.InvalidateUI(mtl_bump_map);
-//		mapValid.SetEmpty();
-//	}
+	if (i == 2)
+	{
+		LR_GlossyTranslucent_param_blk.InvalidateUI(ks_map);
+		mapValid.SetEmpty();
+	}
+	if (i == 3)
+	{
+		LR_GlossyTranslucent_param_blk.InvalidateUI(ks_bf_map);
+		mapValid.SetEmpty();
+	}
+	if (i == 4)
+	{
+		LR_GlossyTranslucent_param_blk.InvalidateUI(uroughness_map);
+		mapValid.SetEmpty();
+	}
+	if (i == 5)
+	{
+		LR_GlossyTranslucent_param_blk.InvalidateUI(uroughness_bf_map);
+		mapValid.SetEmpty();
+	}
+	if (i == 6)
+	{
+		LR_GlossyTranslucent_param_blk.InvalidateUI(vroughness_map);
+		mapValid.SetEmpty();
+	}
+	if (i == 7)
+	{
+		LR_GlossyTranslucent_param_blk.InvalidateUI(vroughness_bf_map);
+		mapValid.SetEmpty();
+	}
+	if (i == 8)
+	{
+		LR_GlossyTranslucent_param_blk.InvalidateUI(ka_map);
+		mapValid.SetEmpty();
+	}
+	if (i == 9)
+	{
+		LR_GlossyTranslucent_param_blk.InvalidateUI(ka_bf_map);
+		mapValid.SetEmpty();
+	}
+	if (i == 10)
+	{
+		LR_GlossyTranslucent_param_blk.InvalidateUI(d_map);
+		mapValid.SetEmpty();
+	}
+	if (i == 11)
+	{
+		LR_GlossyTranslucent_param_blk.InvalidateUI(d_bf_map);
+		mapValid.SetEmpty();
+	}
+	if (i == 12)
+	{
+		LR_GlossyTranslucent_param_blk.InvalidateUI(index_map);
+		mapValid.SetEmpty();
+	}
+	if (i == 13)
+	{
+		LR_GlossyTranslucent_param_blk.InvalidateUI(index_bf_map);
+		mapValid.SetEmpty();
+	}
+
+	//mapValid.SetEmpty();
 }
 
 TSTR LR_GlossyTranslucent::GetSubTexmapSlotName(int i)
 {
 	switch (i)
 	{
-		case 0:
-			return _T("Diffuse Map");
+	default:
+		return _T("kd");
+
+		//case 0:
+		//	return _T("kd");
 		case 1:
-			return _T("Bump Map");
+			return _T("kt");
 		case 2:
-			return _T("Translucent Map");
-		default:
-			return _T("Diffuse Map");
+			return _T("ks");
+		case 3:
+			return _T("ks_bf");
+		case 4:
+			return _T("uroughness");
+		case 5:
+			return _T("uroughness_bf");
+		case 6:
+			return _T("vroughness");
+		case 7:
+			return _T("vroughness_bf");
+		case 8:
+			return _T("ka");
+		case 9:
+			return _T("ka_bf");
+		case 10:
+			return _T("d");
+		case 11:
+			return _T("d_bf");
+		case 12:
+			return _T("index");
+		case 13:
+			return _T("index_bf");
+		
 	}
 }
 
@@ -629,7 +854,7 @@ Color LR_GlossyTranslucent::GetAmbient(int mtlNum, BOOL backFace)
 {
 	Point3 p;
 	//TimeValue t; //Zero for first frame //GetCOREInterface()->GetTime() for every frame
-	pblock->GetValue(prm_color, GetCOREInterface()->GetTime(), p, ivalid);
+	pblock->GetValue(kd, GetCOREInterface()->GetTime(), p, ivalid);
 	return submtl[0] ? submtl[0]->GetAmbient(mtlNum, backFace) : Color(p.x, p.y, p.z);//Bound(Color(p.x, p.y, p.z));
 }
 
@@ -637,14 +862,14 @@ Color LR_GlossyTranslucent::GetDiffuse(int mtlNum, BOOL backFace)
 {
 	Point3 p;
 	//TimeValue t; //Zero for first frame //GetCOREInterface()->GetTime() for every frame
-	pblock->GetValue(prm_color, 0, p, ivalid);
+	pblock->GetValue(kd, 0, p, ivalid);
 	return submtl[0] ? submtl[0]->GetDiffuse(mtlNum, backFace) : Color(p.x, p.y, p.z);
 }
 
 Color LR_GlossyTranslucent::GetSpecular(int mtlNum, BOOL backFace)
 {
 	Point3 p;
-	pblock->GetValue(prm_color, 0, p, ivalid);
+	pblock->GetValue(kd, 0, p, ivalid);
 	return submtl[0] ? submtl[0]->GetSpecular(mtlNum,backFace): Color(p.x, p.y, p.z);
 }
 

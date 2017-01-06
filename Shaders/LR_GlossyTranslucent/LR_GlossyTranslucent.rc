@@ -24,18 +24,66 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Dialog
 //
 
-IDD_PANEL DIALOGEX 0, 0, 205, 86
+IDD_PANEL DIALOGEX 0, 0, 205, 339
 STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    CONTROL         "",IDC_SAMP_COLOR,"ColorSwatch",WS_TABSTOP,72,12,35,12
-    CONTROL         "",IDC_DIFFUSE_MAP,"CustButton",WS_TABSTOP,114,12,84,13
-    CONTROL         "Custom1",IDC_TRANCLUCENT_MAP,"CustButton",WS_TABSTOP,114,30,84,13
-    CONTROL         "",IDC_TRANSLUCENT_COLOR,"ColorSwatch",WS_TABSTOP,72,30,35,12
-    LTEXT           "Sigma",IDC_STATIC,0,30,24,8
-    LTEXT           "Diffuse",IDC_STATIC,0,12,30,8
-    CONTROL         "",IDC_SIGMA,"CustEdit",WS_TABSTOP,24,30,36,11
-    CONTROL         "",IDC_SIGMA_SPIN,"SpinnerControl",0x0,60,30,9,11
+    CONTROL         "",IDC_KD_COLOR,"ColorSwatch",WS_TABSTOP,60,12,35,12
+    CONTROL         "",IDC_KD_MAP,"CustButton",WS_TABSTOP,102,12,96,13
+    CONTROL         "",IDC_MULTIBOUNCE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,66,270,10,10
+    LTEXT           "Mutlibounce",IDC_STATIC,0,270,60,8
+    LTEXT           "Kd",IDC_KD,0,12,54,8
+    CONTROL         "",IDC_KT_COLOR,"ColorSwatch",WS_TABSTOP,60,30,35,12
+    CONTROL         "",IDC_KT_MAP,"CustButton",WS_TABSTOP,102,30,96,13
+    LTEXT           "Kt",IDC_KT,0,30,54,8
+    CONTROL         "",IDC_KS_COLOR,"ColorSwatch",WS_TABSTOP,60,48,35,12
+    CONTROL         "",IDC_KS_MAP,"CustButton",WS_TABSTOP,102,48,96,13
+    LTEXT           "Ks",IDC_KS,0,48,54,8
+    CONTROL         "",IDC_KS_BF_COLOR,"ColorSwatch",WS_TABSTOP,60,66,35,12
+    CONTROL         "",IDC_KS_BF_MAP,"CustButton",WS_TABSTOP,102,66,96,13
+    LTEXT           "Ks bf",IDC_KS_BF,0,66,54,8
+    CONTROL         "",IDC_UROUGHNESS_MAP,"CustButton",WS_TABSTOP,102,84,96,13
+    LTEXT           "U Roughness",IDC_STATIC,0,84,44,8
+    CONTROL         "",IDC_UROUGHNESS_SPIN,"SpinnerControl",0x0,90,84,9,11
+    CONTROL         "",IDC_UROUGHNESS,"CustEdit",WS_TABSTOP,60,84,30,11
+    CONTROL         "",IDC_UROUGHNESS_BF_MAP,"CustButton",WS_TABSTOP,102,102,96,13
+    LTEXT           "U Roughness Bf",IDC_STATIC,0,102,53,8
+    CONTROL         "",IDC_UROUGHNESS_BF_SPIN,"SpinnerControl",0x0,90,102,9,11
+    CONTROL         "",IDC_UROUGHNESS_BF,"CustEdit",WS_TABSTOP,60,102,30,11
+    CONTROL         "",IDC_VROUGHNESS_MAP,"CustButton",WS_TABSTOP,102,120,96,13
+    LTEXT           "V Roughness",IDC_STATIC,0,120,44,8
+    CONTROL         "",IDC_VROUGHNESS_SPIN,"SpinnerControl",0x0,90,120,9,11
+    CONTROL         "",IDC_VROUGHNESS,"CustEdit",WS_TABSTOP,60,120,30,11
+    CONTROL         "",IDC_VROUGHNESS_BF_MAP,"CustButton",WS_TABSTOP,102,138,96,13
+    LTEXT           "V Roughness Bf",IDC_STATIC,0,138,52,8
+    CONTROL         "",IDC_VROUGHNESS_BF_SPIN,"SpinnerControl",0x0,90,138,9,11
+    CONTROL         "",IDC_VROUGHNESS_BF,"CustEdit",WS_TABSTOP,60,138,30,11
+    CONTROL         "Custom1",IDC_KA_MAP,"CustButton",WS_TABSTOP,102,156,96,13
+    LTEXT           "Ka",IDC_STATIC,0,156,42,12
+    CONTROL         "",IDC_KA,"CustEdit",WS_TABSTOP,60,156,30,11
+    CONTROL         "",IDC_KA_SPIN,"SpinnerControl",0x0,90,156,9,11
+    CONTROL         "Custom1",IDC_KA_BF_MAP,"CustButton",WS_TABSTOP,102,174,96,13
+    LTEXT           "Ka bf",IDC_STATIC,0,174,42,12
+    CONTROL         "",IDC_KA_BF,"CustEdit",WS_TABSTOP,60,174,30,11
+    CONTROL         "",IDC_KA_BF_SPIN,"SpinnerControl",0x0,90,174,9,11
+    CONTROL         "Custom1",IDC_D_MAP,"CustButton",WS_TABSTOP,102,192,96,13
+    LTEXT           "D",IDC_STATIC,0,192,42,12
+    CONTROL         "",IDC_D,"CustEdit",WS_TABSTOP,60,192,30,11
+    CONTROL         "",IDC_D_SPIN,"SpinnerControl",0x0,90,192,9,11
+    CONTROL         "Custom1",IDC_D_BF_MAP,"CustButton",WS_TABSTOP,102,210,96,13
+    LTEXT           "D bf",IDC_STATIC,0,210,42,12
+    CONTROL         "",IDC_D_BF,"CustEdit",WS_TABSTOP,60,210,30,11
+    CONTROL         "",IDC_D_BF_SPIN,"SpinnerControl",0x0,90,210,9,11
+    CONTROL         "Custom1",IDC_INDEX_MAP,"CustButton",WS_TABSTOP,102,228,96,13
+    LTEXT           "Index",IDC_STATIC,0,228,42,12
+    CONTROL         "",IDC_INDEX,"CustEdit",WS_TABSTOP,60,228,30,11
+    CONTROL         "",IDC_INDEX_SPIN,"SpinnerControl",0x0,90,228,9,11
+    CONTROL         "Custom1",IDC_INDEX_BF_MAP,"CustButton",WS_TABSTOP,102,246,96,13
+    LTEXT           "Index bf",IDC_STATIC,0,246,42,12
+    CONTROL         "",IDC_INDEX_BF,"CustEdit",WS_TABSTOP,60,246,30,11
+    CONTROL         "",IDC_INDEX_BF_SPIN,"SpinnerControl",0x0,90,246,9,11
+    CONTROL         "",IDC_MULTIBOUNCE_BF,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,66,282,10,10
+    LTEXT           "Mutlibounce bf",IDC_STATIC,0,282,60,8
 END
 
 
@@ -52,7 +100,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 195
         TOPMARGIN, 7
-        BOTTOMMARGIN, 79
+        BOTTOMMARGIN, 332
     END
 END
 #endif    // APSTUDIO_INVOKED
