@@ -243,6 +243,7 @@ BEGIN
     IDS_SAMPLER             "Image Sampler"
     IDS_FILTERS             "Image Filter"
     IDS_DEPTH               "Depth Of Field"
+    IDS_CLASS_NAME          "Lr_Matte"
 END
 
 #endif    // English (United States) resources

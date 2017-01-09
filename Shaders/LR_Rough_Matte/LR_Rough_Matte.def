@@ -1,4 +1,4 @@
-LIBRARY LR_Matte_Translucent.dlt
+LIBRARY LR_Rough_Matte.dlt
 EXPORTS
    LibDescription       @1       PRIVATE
    LibNumberClasses     @2       PRIVATE

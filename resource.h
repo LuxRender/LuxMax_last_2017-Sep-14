@@ -18,6 +18,7 @@
 #define IDS_SAMPLER                     11
 #define IDS_FILTERS                     12
 #define IDS_DEPTH                       13
+#define IDS_CLASS_NAME                  14
 #define IDD_DIALOG1                     101
 #define IDD_RENDER_PARAMS               171
 #define IDD_RENDER_PROG                 176
