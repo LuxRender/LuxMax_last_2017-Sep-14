@@ -264,7 +264,7 @@ Mtl * matPrevNodesEnum(INode * inode)
 	//	}
 	//}
 
-	ObjectState ostate = inode->EvalWorldState(0);
+	ObjectState ostate = inode->EvalWorldState(GetCOREInterface()->GetTime());
 	if (ostate.obj->SuperClassID() == GEOMOBJECT_CLASS_ID)
 		if (ostate.obj->CanConvertToType(triObjectClassID))
 		{
@@ -354,8 +354,10 @@ static void DoRendering(RenderSession *session, RendProgressCallback *prog, Bitm
 		//	stats.Get("stats.dataset.trianglecount").Get<double>() / 1000.0);
 		//mprintf(_T("Elapsed time %i\n"), int(elapsedTime));
 
-		state = (L"Rendering ....");
-		prog->SetTitle(state);
+		wchar_t passWstr[16];
+		wsprintf(passWstr, L"Rendering pass:%d", pass);
+		prog->SetTitle(passWstr);
+		
 
 		bool renderabort = prog->Progress(elapsedTime + 1, haltTime);
 		if (renderabort == false)

@@ -41,6 +41,7 @@ public:
 	//void LuxMaxMaterials::defineTexture(BitmapTex* bmTex, luxcore::Scene &scene, std::string textureName);
 	Point3 getMaterialDiffuseColor(::Mtl* mat);
 	Point3 getMaterialColor(int pblockIndex, ::Mtl* mat);
+	std::string getLightEmission(::Mtl* mat);
 	bool isSupportedMaterial(::Mtl* mat);
 	std::string getTexturePathFromParamBlockID(int id, ::Mtl* mat);
 	std::string getFloatFromParamBlockID(int paramID, ::Mtl* mat);

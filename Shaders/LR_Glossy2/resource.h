@@ -21,7 +21,35 @@
 #define IDS_SPIN6                       14
 #define IDS_BUMP_MAP                    15
 #define IDS_BUMP_MAP_ON                 16
+#define IDS_EMISSION                    17
+#define IDS_EMISSION_MAP                18
+#define IDS_EMISSION_POWER              19
+#define IDS_EMISSION_EFFICENCY          20
+#define IDS_EMISSION_MAPFILE            21
+#define IDS_EMISSION_GAMMA              22
+#define IDS_EMISSION_IESFILE            23
+#define IDS_FLIPZ                       24
+#define IDS_EMISSION_SAMPLES            25
+#define IDS_EMISSION_MAP_WIDTH          26
+#define IDS_EMISSION_MAP_HEIGHT         27
+#define IDS_EMISSION_ID                 28
+#define IDC_ENABLEEMISSION              29
+#define IDS_ENABLEEMISSION              29
+#define IDS_MULTIBOUNCE                 30
+#define IDS_INDEX                       31
+#define IDS_DMAP                        32
+#define IDS_KA                          33
+#define IDS_KAMAP                       34
+#define IDS_VROUGHNESS                  35
+#define IDS_VROUGHNESSMAP               36
+#define IDS_D                           37
 #define IDD_PANEL                       101
+#define IDS_UROUGHNESS                  101
+#define IDS_UROUGHNESSMAP               102
+#define IDS_KSMAP                       103
+#define IDS_KS                          104
+#define IDS_KDMAP                       105
+#define IDS_KD                          106
 #define IDC_CLOSEBUTTON                 1000
 #define IDC_DOSTUFF                     1000
 #define IDC_SIGMA                       1013
@@ -37,6 +65,20 @@
 #define IDC_VROUGHNESS_SPIN             1022
 #define IDC_KA                          1023
 #define IDC_KA_SPIN                     1024
+#define IDC_EMISSION_POWER              1025
+#define IDC_EMISSION_POWER_SPIN         1026
+#define IDC_EMISSION_EFFICENCY          1027
+#define IDC_EMISSION_EFFICENCY_SPIN     1028
+#define IDC_EMISSION_GAMMA              1029
+#define IDC_EMISSION_GAMMA_SPIN         1030
+#define IDC_EMISSION_SAMPLES            1031
+#define IDC_EMISSION_SAMPLES_SPIN       1032
+#define IDC_EMISSION_MAP_WIDTH          1033
+#define IDC_EMISSION_MAP_WIDTH_SPIN     1034
+#define IDC_EMISSION_MAP_HEIGHT         1035
+#define IDC_EMISSION_MAP_HEIGHT_SPIN    1036
+#define IDC_EMISSION_ID                 1037
+#define IDC_EMISSION_ID_SPIN            1038
 #define IDC_COLOR                       1456
 #define IDC_EDIT                        1490
 #define IDC_SAMP_COLOR                  1491
@@ -48,7 +90,7 @@
 #define IDC_SAMP_COLOR4                 1493
 #define IDC_TRANSLUCENT_COLOR           1493
 #define IDC_KS_COLOR                    1493
-#define IDC_KD_COLOR2                   1494
+#define IDC_EMISSION_COLOR              1494
 #define IDC_EDIT4                       1495
 #define IDC_SPIN                        1496
 #define IDC_MTL1                        1497
@@ -71,12 +113,16 @@
 #define IDC_EDIT6                       1504
 #define IDC_D_MAP                       1504
 #define IDC_SPIN6                       1505
+#define IDC_EMISSION_MAP                1505
+#define IDC_EMISSION_MAPFILE            1506
+#define IDC_EMISSION_IESFILE            1507
+#define IDC_EMISSION_FLIPZ              1508
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        101
+#define _APS_NEXT_RESOURCE_VALUE        102
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101

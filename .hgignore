@@ -6,3 +6,9 @@ Shaders/LR_Template/obj/
 *.sdf
 *.opensdf
 intermidiate/
+*.tlog*
+*/obj/*
+*.ipch
+*.msi
+*.exe
+*.zip

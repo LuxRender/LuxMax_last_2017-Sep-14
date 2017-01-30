@@ -12,24 +12,24 @@
 // AUTHOR:
 //***************************************************************************/
 
-#include "LR_Glossy2.h"
+#include "LR_Carpaint.h"
 #include <maxscript\maxscript.h>
 
-#define LR_Glossy2_CLASS_ID	Class_ID(0x67b86e70, 0x7de456e1)
+#define LR_Carpaint_CLASS_ID	Class_ID(0x12b48e28, 0x5de432e3)
 
 
-#define NUM_SUBMATERIALS 7 // TODO: number of sub-materials supported by this plug-in
-#define NUM_SUBTEXTURES 9 //was 7 before emission
-#define Num_REF 8 //Has to be the same as number of 'texture' slots in the scene (if not it will not save the params).
+#define NUM_SUBMATERIALS 15 // TODO: number of sub-materials supported by this plug-in
+#define NUM_SUBTEXTURES 15
+#define Num_REF 4
 // Reference Indexes
 // 
 #define PBLOCK_REF 1
 
-class LR_Glossy2 : public Mtl {
+class LR_Carpaint : public Mtl {
 public:
-	LR_Glossy2();
-	LR_Glossy2(BOOL loading);
-	~LR_Glossy2();
+	LR_Carpaint();
+	LR_Carpaint(BOOL loading);
+	~LR_Carpaint();
 
 
 	ParamDlg* CreateParamDlg(HWND hwMtlEdit, IMtlParams* imp);
@@ -80,7 +80,7 @@ public:
 	virtual IOResult Save(ISave *isave);
 
 	// From Animatable
-	virtual Class_ID ClassID() {return LR_Glossy2_CLASS_ID;}
+	virtual Class_ID ClassID() {return LR_Carpaint_CLASS_ID;}
 	virtual SClass_ID SuperClassID() { return MATERIAL_CLASS_ID; }
 	virtual void GetClassName(TSTR& s) {s = GetString(IDS_CLASS_NAME);}
 
@@ -117,237 +117,212 @@ private:
 
 
 
-class LR_Glossy2ClassDesc : public ClassDesc2 
+class LR_CarpaintClassDesc : public ClassDesc2 
 {
 public:
 	virtual int IsPublic() 							{ return TRUE; }
-	virtual void* Create(BOOL loading = FALSE) 		{ return new LR_Glossy2(loading); }
+	virtual void* Create(BOOL loading = FALSE) 		{ return new LR_Carpaint(loading); }
 	virtual const TCHAR *	ClassName() 			{ return GetString(IDS_CLASS_NAME); }
 	virtual SClass_ID SuperClassID() 				{ return MATERIAL_CLASS_ID; }
-	virtual Class_ID ClassID() 						{ return LR_Glossy2_CLASS_ID; }
+	virtual Class_ID ClassID() 						{ return LR_Carpaint_CLASS_ID; }
 	virtual const TCHAR* Category() 				{ return GetString(IDS_CATEGORY); }
 
-	virtual const TCHAR* InternalName() 			{ return _T("LR_Glossy2"); }	// returns fixed parsable name (scripter-visible name)
+	virtual const TCHAR* InternalName() 			{ return _T("LR_Carpaint"); }	// returns fixed parsable name (scripter-visible name)
 	virtual HINSTANCE HInstance() 					{ return hInstance; }					// returns owning module handle
 	
 
 };
 
 
-ClassDesc2* GetLR_Glossy2Desc() { 
-	static LR_Glossy2ClassDesc LR_Glossy2Desc;
-	return &LR_Glossy2Desc; 
+ClassDesc2* GetLR_CarpaintDesc() { 
+	static LR_CarpaintClassDesc LR_CarpaintDesc;
+	return &LR_CarpaintDesc; 
 }
 
 
 
 
 
-enum { LR_Glossy2_params };
+enum { LR_Carpaint_params };
 
 
 //TODO: Add enums for various parameters
 enum 
 {
-	kdMap,			/*texture or constant diffuse color of the material */
-	kd,
-	ksMap ,			/* texture or constant specular color of the material */
-	ks,
-	uroughnessMap,  /* texture or constant roughness value along u coordinate of the material */
-	uroughness,
-	vroughnessMap,  /* texture or constant roughness value along v coordinate of the material */
-	vroughness,
-	kaMap,		    /* texture or constant value of coefficient of absorption of the coating layer */
+	preset,
 	ka,
-	dMap,		    /* texture or constant value of the depth (thickness) of the coating layer for absorption effects. (0 = disables) */
+	ka_map,
 	d,
-	index,
-	multibounce,			/* simulation of asperity (velvet-like reflection) on the glossy surface */
-
-	/*light emission params begin*/
-	emission,
-	emission_map,
-	emission_power,
-	emission_efficency,
-	emission_mapfile,
-	emission_gamma,
-	emission_iesfile,
-	emission_flipz,
-	emission_samples,
-	emission_map_width,
-	emission_map_height,
-	emission_id,
-	enableemission,
-	/*light emission params end*/
+	d_map,
+	kd,
+	kd_map,
+	ks1,
+	ks1_map,
+	ks2,
+	ks2_map,
+	ks3,
+	ks3_map,
+	r1,
+	r1_map,
+	r2,
+	r2_map,
+	r3,
+	r3_map,
+	m1,
+	m1_map,
+	m2,
+	m2_map,
+	m3,
+	m3_map,
 };
 
 
 
 
-static ParamBlockDesc2 LR_Glossy2_param_blk (
-	LR_Glossy2_params, _T("params"),  0, GetLR_Glossy2Desc(),	P_AUTO_CONSTRUCT + P_AUTO_UI, PBLOCK_REF, 
+static ParamBlockDesc2 LR_Carpaint_param_blk (
+	LR_Carpaint_params, _T("params"),  0, GetLR_CarpaintDesc(),	P_AUTO_CONSTRUCT + P_AUTO_UI, PBLOCK_REF, 
 	//rollout
 	IDD_PANEL, IDS_PARAMS, 0, 0, NULL,
 	// params
-	kd,			_T("kdColor"),			TYPE_RGBA,	P_ANIMATABLE,		IDS_KD,
-		p_default,		Color(0.5f, 0.5f, 0.5f),
-		p_ui,			TYPE_COLORSWATCH,		IDC_KD_COLOR,
-		p_end,
+
+	preset, _T("preset"), TYPE_RADIOBTN_INDEX, P_ANIMATABLE, IDS_PRESET,
+	p_default, 0,
+	p_range, 1, 9,
+	p_ui, TYPE_RADIO, 9, IDC_PRESET1, IDC_PRESET2, IDC_PRESET3, IDC_PRESET4, IDC_PRESET5, IDC_PRESET6, IDC_PRESET7, IDC_PRESET8, IDC_PRESET9,
+	p_end,
+
+	ka, _T("ka"), TYPE_RGBA, P_ANIMATABLE, IDS_KA,
+	p_default, Color(0.0f, 0.0f, 0.0f),
+	p_ui, TYPE_COLORSWATCH, IDC_KA,
+	p_end,
 	
-		kdMap, _T("kdMap"), TYPE_TEXMAP, P_OWNERS_REF, IDS_KDMAP,
-		p_refno, 2, /*Figure out why it crashes if you start on lower number.*/
-		p_subtexno, 0,
-		p_ui, TYPE_TEXMAPBUTTON, IDC_KD_MAP,
-		p_end,
+	ka_map, _T("ka_map"), TYPE_TEXMAP, P_OWNERS_REF, IDS_KA_MAP,
+	p_refno, 2,
+	p_subtexno, 0,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_KA_MAP,
+	p_end,
 
-		ks, _T("ks"), TYPE_RGBA, P_ANIMATABLE, IDS_KS,
-		p_default, Color(0.5f, 0.5f, 0.5f),
-		p_ui, TYPE_COLORSWATCH, IDC_KS_COLOR,
-		p_end,
+	d, _T("d"), TYPE_FLOAT, P_ANIMATABLE, IDS_D,
+	p_default, 0.0f,
+	p_range, 0.0f, 9999.0f,
+	p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_D, IDC_D_SPIN, 0.1f,
+	p_end,
 
-		ksMap, _T("ksMap"), TYPE_TEXMAP, P_OWNERS_REF, IDS_KSMAP,
-		p_refno, 3, /*Figure out why it crashes if you start on lower number.*/
-		p_subtexno, 1,
-		p_ui, TYPE_TEXMAPBUTTON, IDC_KS_MAP,
-		p_end,
+	d_map, _T("d_map"), TYPE_TEXMAP, P_OWNERS_REF, IDS_D_MAP,
+	p_refno, 3,
+	p_subtexno, 1,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_D_MAP,
+	p_end,
 
-		uroughnessMap, _T("uroughnessMap"), TYPE_TEXMAP, P_OWNERS_REF, IDS_UROUGHNESSMAP,
-		p_refno, 4, /*Figure out why it crashes if you start on lower number.*/
-		p_subtexno, 2,
-		p_ui, TYPE_TEXMAPBUTTON, IDC_UROUGHNESS_MAP,
-		p_end,
+	kd, _T("kd"), TYPE_RGBA, P_ANIMATABLE, IDS_KD,
+	p_default, Color(0.0f, 0.0f, 0.0f),
+	p_ui, TYPE_COLORSWATCH, IDC_KD,
+	p_end,
 
-		uroughness, _T("uroughness"), TYPE_FLOAT, P_ANIMATABLE, IDS_UROUGHNESS,
-		p_default, 0.1f,
-		p_range, 0.0f, 9999.0f,
-		p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_UROUGHNESS, IDC_UROUGHNESS_SPIN, 0.1f,
-		p_end,
+	kd_map, _T("kd_map"), TYPE_TEXMAP, P_OWNERS_REF, IDS_KD_MAP,
+	p_refno, 4,
+	p_subtexno, 2,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_KD_MAP,
+	p_end,
 
-		vroughnessMap, _T("vroughnessMap"), TYPE_TEXMAP, P_OWNERS_REF, IDS_VROUGHNESSMAP,
-		p_refno, 5, /*Figure out why it crashes if you start on lower number.*/
-		p_subtexno, 3,
-		p_ui, TYPE_TEXMAPBUTTON, IDC_VROUGHNESS_MAP,
-		p_end,
+	ks1, _T("ks1"), TYPE_RGBA, P_ANIMATABLE, IDS_KS1,
+	p_default, Color(0.0f, 0.0f, 0.0f),
+	p_ui, TYPE_COLORSWATCH, IDC_KS1,
+	p_end,
 
-		vroughness, _T("vroughness"), TYPE_FLOAT, P_ANIMATABLE, IDS_VROUGHNESS,
-		p_default, 0.1f,
-		p_range, 0.0f, 9999.0f,
-		p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_VROUGHNESS, IDC_VROUGHNESS_SPIN, 0.1f,
-		p_end,
+	ks1_map, _T("ks1_map"), TYPE_TEXMAP, P_OWNERS_REF, IDS_KS1_MAP,
+	p_refno, 5,
+	p_subtexno, 3,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_KS1_MAP,
+	p_end,
 
-		kaMap, _T("KaMap"), TYPE_TEXMAP, P_OWNERS_REF, IDS_KAMAP,
-		p_refno, 6, /*Figure out why it crashes if you start on lower number.*/
-		p_subtexno, 4,
-		p_ui, TYPE_TEXMAPBUTTON, IDC_KA_MAP,
-		p_end,
+	ks2, _T("ks2"), TYPE_RGBA, P_ANIMATABLE, IDS_KS2,
+	p_default, Color(0.0f, 0.0f, 0.0f),
+	p_ui, TYPE_COLORSWATCH, IDC_KS2,
+	p_end,
 
-		ka, _T("ka"), TYPE_FLOAT, P_ANIMATABLE, IDS_KA,
-		p_default, 0.0f,
-		p_range, 0.0f, 9999.0f,
-		p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_KA, IDC_KA_SPIN, 0.1f,
-		p_end,
+	ks2_map, _T("ks2_map"), TYPE_TEXMAP, P_OWNERS_REF, IDS_KS2_MAP,
+	p_refno, 6,
+	p_subtexno, 4,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_KS2_MAP,
+	p_end,
 
-		dMap, _T("DMap"), TYPE_TEXMAP, P_OWNERS_REF, IDS_DMAP,
-		p_refno, 7, /*Figure out why it crashes if you start on lower number.*/
-		p_subtexno, 5,
-		p_ui, TYPE_TEXMAPBUTTON, IDC_D_MAP,
-		p_end,
+	ks3, _T("ks3"), TYPE_RGBA, P_ANIMATABLE, IDS_KS3,
+	p_default, Color(0.0f, 0.0f, 0.0f),
+	p_ui, TYPE_COLORSWATCH, IDC_KS3,
+	p_end,
 
-		d, _T("d"), TYPE_FLOAT, P_ANIMATABLE, IDS_D,
-		p_default, 0.0f,
-		p_range, 0.0f, 9999.0f,
-		p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_D, IDC_D_SPIN, 0.1f,
-		p_end,
+	ks3_map, _T("ks3_map"), TYPE_TEXMAP, P_OWNERS_REF, IDS_KS3_MAP,
+	p_refno, 7,
+	p_subtexno, 5,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_KS3_MAP,
+	p_end,
 
-		// IOR overrides color Ks if both are specified
-		index, _T("index"), TYPE_FLOAT, P_ANIMATABLE, IDS_INDEX,
-		p_default, 0.0f,
-		p_range, 0.0f, 9999.0f,
-		p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_INDEX, IDC_INDEX_SPIN, 0.1f,
-		p_end,
+	r1, _T("r1"), TYPE_RGBA, P_ANIMATABLE, IDS_R1,
+	p_default, Color(0.0f, 0.0f, 0.0f),
+	p_ui, TYPE_COLORSWATCH, IDC_R1,
+	p_end,
 
-		multibounce, _T("Multibounce"), TYPE_BOOL, 0, IDS_MULTIBOUNCE,
-		p_default, FALSE,
-		p_ui, TYPE_SINGLECHEKBOX, IDC_MULTIBOUNCE_ON,
-		p_end,
+	r1_map, _T("r1_map"), TYPE_TEXMAP, P_OWNERS_REF, IDS_R1_MAP,
+	p_refno, 8,
+	p_subtexno, 6,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_R1_MAP,
+	p_end,
 
-		/*Light emmission begin*/
-		emission, _T("emission_color"), TYPE_RGBA, P_ANIMATABLE, IDS_EMISSION,
-		p_default, Color(0.5f, 0.5f, 0.5f),
-		p_ui, TYPE_COLORSWATCH, IDC_EMISSION_COLOR,
-		p_end,
+	r2, _T("r2"), TYPE_RGBA, P_ANIMATABLE, IDS_R2,
+	p_default, Color(0.0f, 0.0f, 0.0f),
+	p_ui, TYPE_COLORSWATCH, IDC_R2,
+	p_end,
 
-		emission_map, _T("emission_map"), TYPE_TEXMAP, P_OWNERS_REF, IDS_EMISSION_MAP,
-		p_refno, 8,
-		p_subtexno, 6,
-		p_ui, TYPE_TEXMAPBUTTON, IDC_EMISSION_MAP,
-		p_end,
+	r2_map, _T("r2_map"), TYPE_TEXMAP, P_OWNERS_REF, IDS_R2_MAP,
+	p_refno, 9,
+	p_subtexno, 7,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_R2_MAP,
+	p_end,
 
-		emission_power, _T("emission_power"), TYPE_FLOAT, P_ANIMATABLE, IDS_EMISSION_POWER,
-		p_default, 0.0f,
-		p_range, 0.0f, 999.0f,
-		p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_EMISSION_POWER, IDC_EMISSION_POWER_SPIN, 0.1f,
-		p_end,
+	r3, _T("r3"), TYPE_RGBA, P_ANIMATABLE, IDS_R3,
+	p_default, Color(0.0f, 0.0f, 0.0f),
+	p_ui, TYPE_COLORSWATCH, IDC_R3,
+	p_end,
 
-		emission_efficency, _T("emission_efficency"), TYPE_FLOAT, P_ANIMATABLE, IDS_EMISSION_EFFICENCY,
-		p_default, 0.0f,
-		p_range, 0.0f, 999.0f,
-		p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_EMISSION_EFFICENCY, IDC_EMISSION_EFFICENCY_SPIN, 0.1f,
-		p_end,
+	r3_map, _T("r3_map"), TYPE_TEXMAP, P_OWNERS_REF, IDS_R3_MAP,
+	p_refno, 10,
+	p_subtexno, 8,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_R3_MAP,
+	p_end,
 
-		emission_mapfile, _T("emission_mapfile"), TYPE_TEXMAP, P_OWNERS_REF, IDS_EMISSION_MAPFILE,
-		p_refno, 9,
-		p_subtexno, 7,
-		p_ui, TYPE_TEXMAPBUTTON, IDC_EMISSION_MAPFILE,
-		p_end,
+	m1, _T("m1"), TYPE_RGBA, P_ANIMATABLE, IDS_M1,
+	p_default, Color(0.0f, 0.0f, 0.0f),
+	p_ui, TYPE_COLORSWATCH, IDC_M1,
+	p_end,
 
-		emission_gamma, _T("emission_gamma"), TYPE_FLOAT, P_ANIMATABLE, IDS_EMISSION_GAMMA,
-		p_default, 2.2f,
-		p_range, 0.0f, 999.0f,
-		p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_EMISSION_GAMMA, IDC_EMISSION_GAMMA_SPIN, 0.1f,
-		p_end,
+	m1_map, _T("m1_map"), TYPE_TEXMAP, P_OWNERS_REF, IDS_M1_MAP,
+	p_refno, 11,
+	p_subtexno, 9,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_M1_MAP,
+	p_end,
 
-		emission_iesfile, _T("emission_iesfile"), TYPE_TEXMAP, P_OWNERS_REF, IDS_EMISSION_IESFILE,
-		p_refno, 10,
-		p_subtexno, 8,
-		p_ui, TYPE_TEXMAPBUTTON, IDC_EMISSION_IESFILE,
-		p_end,
+	m2, _T("m2"), TYPE_RGBA, P_ANIMATABLE, IDS_M2,
+	p_default, Color(0.0f, 0.0f, 0.0f),
+	p_ui, TYPE_COLORSWATCH, IDC_M2,
+	p_end,
 
-		emission_flipz, _T("emission_flipz"), TYPE_BOOL, 0, IDS_FLIPZ,
-		p_default, FALSE,
-		p_ui, TYPE_SINGLECHEKBOX, IDC_EMISSION_FLIPZ,
-		p_end,
+	m2_map, _T("m2_map"), TYPE_TEXMAP, P_OWNERS_REF, IDS_M2_MAP,
+	p_refno, 12,
+	p_subtexno, 10,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_M2_MAP,
+	p_end,
 
-		emission_samples, _T("emission_samples"), TYPE_INT, P_ANIMATABLE, IDS_EMISSION_SAMPLES,
-		p_default, -1,
-		p_range, -1, 9999,
-		p_ui, TYPE_SPINNER, EDITTYPE_INT, IDC_EMISSION_SAMPLES, IDC_EMISSION_SAMPLES_SPIN, 1,
-		p_end,
+	m3, _T("m3"), TYPE_RGBA, P_ANIMATABLE, IDS_M3,
+	p_default, Color(0.0f, 0.0f, 0.0f),
+	p_ui, TYPE_COLORSWATCH, IDC_M3,
+	p_end,
 
-		emission_map_width, _T("emission_map_width"), TYPE_INT, P_ANIMATABLE, IDS_EMISSION_MAP_WIDTH,
-		p_default, 0,
-		p_range, 0, 9999,
-		p_ui, TYPE_SPINNER, EDITTYPE_INT, IDC_EMISSION_MAP_WIDTH, IDC_EMISSION_MAP_WIDTH_SPIN, 1,
-		p_end,
-
-		emission_map_height, _T("emission_map_height"), TYPE_INT, P_ANIMATABLE, IDS_EMISSION_MAP_HEIGHT,
-		p_default, 0,
-		p_range, 0, 9999,
-		p_ui, TYPE_SPINNER, EDITTYPE_INT, IDC_EMISSION_MAP_HEIGHT, IDC_EMISSION_MAP_HEIGHT_SPIN, 1,
-		p_end,
-
-		emission_id, _T("emission_id"), TYPE_INT, P_ANIMATABLE, IDS_EMISSION_ID,
-		p_default, 0,
-		p_range, 0, 9999,
-		p_ui, TYPE_SPINNER, EDITTYPE_INT, IDC_EMISSION_ID, IDC_EMISSION_ID_SPIN, 1,
-		p_end,
-
-		enableemission, _T("enableemission"), TYPE_BOOL, 0, IDS_ENABLEEMISSION,
-		p_default, FALSE,
-		p_refno, 11,
-		p_ui, TYPE_SINGLECHEKBOX, IDC_ENABLEEMISSION,
-		p_end,
-		/*Light emmission end*/
+	m3_map, _T("m3_map"), TYPE_TEXMAP, P_OWNERS_REF, IDS_M3_MAP,
+	p_refno, 13,
+	p_subtexno, 11,
+	p_ui, TYPE_TEXMAPBUTTON, IDC_M3_MAP,
+	p_end,
 
 	p_end
 	);
@@ -355,7 +330,7 @@ static ParamBlockDesc2 LR_Glossy2_param_blk (
 
 
 
-LR_Glossy2::LR_Glossy2()
+LR_Carpaint::LR_Carpaint()
 	: pblock(nullptr)
 {
 	for (int i = 0; i < NUM_SUBMATERIALS; i++)
@@ -369,7 +344,7 @@ LR_Glossy2::LR_Glossy2()
 	Reset();
 }
 
-LR_Glossy2::LR_Glossy2(BOOL loading)
+LR_Carpaint::LR_Carpaint(BOOL loading)
 	: pblock(nullptr)
 {
 	for (int i = 0; i < NUM_SUBMATERIALS; i++)
@@ -385,13 +360,13 @@ LR_Glossy2::LR_Glossy2(BOOL loading)
 		Reset();
 }
 
-LR_Glossy2::~LR_Glossy2()
+LR_Carpaint::~LR_Carpaint()
 {
 	DeleteAllRefs();
 }
 
 
-void LR_Glossy2::Reset()
+void LR_Carpaint::Reset()
 {
 	ivalid.SetEmpty();
 	mapValid.SetEmpty();
@@ -418,25 +393,25 @@ void LR_Glossy2::Reset()
 	}
 	DeleteReference(PBLOCK_REF);
 
-	GetLR_Glossy2Desc()->MakeAutoParamBlocks(this);
+	GetLR_CarpaintDesc()->MakeAutoParamBlocks(this);
 }
 
 
 
-ParamDlg* LR_Glossy2::CreateParamDlg(HWND hwMtlEdit, IMtlParams *imp)
+ParamDlg* LR_Carpaint::CreateParamDlg(HWND hwMtlEdit, IMtlParams *imp)
 {
-	IAutoMParamDlg* masterDlg = GetLR_Glossy2Desc()->CreateParamDlgs(hwMtlEdit, imp, this);
+	IAutoMParamDlg* masterDlg = GetLR_CarpaintDesc()->CreateParamDlgs(hwMtlEdit, imp, this);
 	// TODO: Set param block user dialog if necessary
 	return masterDlg;
 	
 }
 
-BOOL LR_Glossy2::SetDlgThing(ParamDlg* /*dlg*/)
+BOOL LR_Carpaint::SetDlgThing(ParamDlg* /*dlg*/)
 {
 	return FALSE;
 }
 
-Interval LR_Glossy2::Validity(TimeValue t)
+Interval LR_Carpaint::Validity(TimeValue t)
 {
 	Interval valid = FOREVER;
 
@@ -450,8 +425,8 @@ Interval LR_Glossy2::Validity(TimeValue t)
 		if (subtexture[i])
 			valid &= subtexture[i]->Validity(t);
 	}
-	float u;
-	pblock->GetValue(d, t, u, valid);
+	//float u;
+	//pblock->GetValue(pb_spin,t,u,valid);
 	return valid;
 }
 
@@ -459,7 +434,7 @@ Interval LR_Glossy2::Validity(TimeValue t)
  |	Sub-anim & References support
 \*===========================================================================*/
 
-RefTargetHandle LR_Glossy2::GetReference(int i)
+RefTargetHandle LR_Carpaint::GetReference(int i)
 {
 	switch (i)
 	{
@@ -471,7 +446,7 @@ RefTargetHandle LR_Glossy2::GetReference(int i)
 
 }
 
-void LR_Glossy2::SetReference(int i, RefTargetHandle rtarg)
+void LR_Carpaint::SetReference(int i, RefTargetHandle rtarg)
 {
 	//mprintf(_T("\n SetReference Nubmer is ------->>>>: %i \n"), i);
 	switch (i)
@@ -483,7 +458,7 @@ void LR_Glossy2::SetReference(int i, RefTargetHandle rtarg)
 	}
 }
 
-TSTR LR_Glossy2::SubAnimName(int i)
+TSTR LR_Carpaint::SubAnimName(int i)
 {
 	if ((i >= 0) && (i < NUM_SUBTEXTURES))
 		return GetSubTexmapTVName(i);
@@ -491,7 +466,7 @@ TSTR LR_Glossy2::SubAnimName(int i)
 		return GetSubTexmapTVName(i-2);
 }
 
-Animatable* LR_Glossy2::SubAnim(int i)
+Animatable* LR_Carpaint::SubAnim(int i)
 {
 	switch (i)
 	{
@@ -501,7 +476,7 @@ Animatable* LR_Glossy2::SubAnim(int i)
 	}
 }
 
-RefResult LR_Glossy2::NotifyRefChanged(const Interval& /*changeInt*/, RefTargetHandle hTarget, 
+RefResult LR_Carpaint::NotifyRefChanged(const Interval& /*changeInt*/, RefTargetHandle hTarget, 
 	PartID& /*partID*/, RefMessage message, BOOL /*propagate*/ ) 
 {
 	switch (message) {
@@ -512,7 +487,7 @@ RefResult LR_Glossy2::NotifyRefChanged(const Interval& /*changeInt*/, RefTargetH
 			if (hTarget == pblock)
 			{
 				ParamID changing_param = pblock->LastNotifyParamID();
-				LR_Glossy2_param_blk.InvalidateUI(changing_param);
+				LR_Carpaint_param_blk.InvalidateUI(changing_param);
 			}
 		}
 		break;
@@ -551,7 +526,7 @@ RefResult LR_Glossy2::NotifyRefChanged(const Interval& /*changeInt*/, RefTargetH
  |	SubMtl get and set
 \*===========================================================================*/
 
-Mtl* LR_Glossy2::GetSubMtl(int i)
+Mtl* LR_Carpaint::GetSubMtl(int i)
 {
 	if ((i >= 0) && (i < NUM_SUBMATERIALS))
 		return submtl[i];
@@ -559,65 +534,25 @@ Mtl* LR_Glossy2::GetSubMtl(int i)
 		nullptr;
 }
 
-void LR_Glossy2::SetSubMtl(int i, Mtl* m)
+void LR_Carpaint::SetSubMtl(int i, Mtl* m)
 {
 	//mprintf(_T("\n SetSubMtl Nubmer is : %i \n"), i);
 	ReplaceReference(i , m);
 	if (i == 0)
 	{
-		LR_Glossy2_param_blk.InvalidateUI(kdMap);
-		mapValid.SetEmpty();
-	}
-	if (i == 1)
-	{
-		LR_Glossy2_param_blk.InvalidateUI(ksMap);
-		mapValid.SetEmpty();
-	}
-	if (i == 2)
-	{
-		LR_Glossy2_param_blk.InvalidateUI(uroughnessMap);
-		mapValid.SetEmpty();
-	}
-	if (i == 3)
-	{
-		LR_Glossy2_param_blk.InvalidateUI(vroughnessMap);
-		mapValid.SetEmpty();
-	}
-	if (i == 4)
-	{
-		LR_Glossy2_param_blk.InvalidateUI(kaMap);
-		mapValid.SetEmpty();
-	}
-	if (i == 5)
-	{
-		LR_Glossy2_param_blk.InvalidateUI(dMap);
-		mapValid.SetEmpty();
-	}
-	if (i == 6)
-	{
-		LR_Glossy2_param_blk.InvalidateUI(emission_map);
-		mapValid.SetEmpty();
-	}
-	if (i == 7)
-	{
-		LR_Glossy2_param_blk.InvalidateUI(emission_mapfile);
-		mapValid.SetEmpty();
-	}
-	if (i == 8)
-	{
-		LR_Glossy2_param_blk.InvalidateUI(emission_iesfile);
+		LR_Carpaint_param_blk.InvalidateUI(ka);
 		mapValid.SetEmpty();
 	}
 }
 
-TSTR LR_Glossy2::GetSubMtlSlotName(int i)
+TSTR LR_Carpaint::GetSubMtlSlotName(int i)
 {
 	// Return i'th sub-material name
 	return submtl[i]->GetName();
 	//return _T("");
 }
 
-TSTR LR_Glossy2::GetSubMtlTVName(int i)
+TSTR LR_Carpaint::GetSubMtlTVName(int i)
 {
 	return GetSubMtlSlotName(i);
 }
@@ -626,7 +561,7 @@ TSTR LR_Glossy2::GetSubMtlTVName(int i)
  |	Texmap get and set
 \*===========================================================================*/
 
-Texmap* LR_Glossy2::GetSubTexmap(int i)
+Texmap* LR_Carpaint::GetSubTexmap(int i)
 {
 	//mprintf(_T("\n GetSubTexmap Nubmer ::::::::::::===>>>  is : Get %i \n"), i);
 	if ((i >= 0) && (i < NUM_SUBTEXTURES))
@@ -635,86 +570,107 @@ Texmap* LR_Glossy2::GetSubTexmap(int i)
 		nullptr;
 }
 
-void LR_Glossy2::SetSubTexmap(int i, Texmap* tx)
+void LR_Carpaint::SetSubTexmap(int i, Texmap* tx)
 {
 	//mprintf(_T("\n SetSubTexmap Nubmer ============>>>  is : %i \n"), i);
 	ReplaceReference(i +2, tx);
 	if (i == 0)
 	{
-		LR_Glossy2_param_blk.InvalidateUI(kdMap);
+		LR_Carpaint_param_blk.InvalidateUI(ka_map);
 		mapValid.SetEmpty();
 	}
 	if (i == 1)
-		{
-			LR_Glossy2_param_blk.InvalidateUI(ksMap);
-			mapValid.SetEmpty();
-		}
+	{
+		LR_Carpaint_param_blk.InvalidateUI(d_map);
+		mapValid.SetEmpty();
+	}
 	if (i == 2)
 	{
-		LR_Glossy2_param_blk.InvalidateUI(uroughnessMap);
+		LR_Carpaint_param_blk.InvalidateUI(kd_map);
 		mapValid.SetEmpty();
 	}
 	if (i == 3)
 	{
-		LR_Glossy2_param_blk.InvalidateUI(vroughnessMap);
+		LR_Carpaint_param_blk.InvalidateUI(ks1_map);
 		mapValid.SetEmpty();
 	}
 	if (i == 4)
 	{
-		LR_Glossy2_param_blk.InvalidateUI(kaMap);
+		LR_Carpaint_param_blk.InvalidateUI(ks2_map);
 		mapValid.SetEmpty();
 	}
 	if (i == 5)
 	{
-		LR_Glossy2_param_blk.InvalidateUI(dMap);
+		LR_Carpaint_param_blk.InvalidateUI(ks3_map);
 		mapValid.SetEmpty();
 	}
 	if (i == 6)
 	{
-		LR_Glossy2_param_blk.InvalidateUI(emission_map);
+		LR_Carpaint_param_blk.InvalidateUI(r1_map);
 		mapValid.SetEmpty();
 	}
 	if (i == 7)
 	{
-		LR_Glossy2_param_blk.InvalidateUI(emission_mapfile);
+		LR_Carpaint_param_blk.InvalidateUI(r2_map);
 		mapValid.SetEmpty();
 	}
 	if (i == 8)
 	{
-		LR_Glossy2_param_blk.InvalidateUI(emission_iesfile);
+		LR_Carpaint_param_blk.InvalidateUI(r3_map);
 		mapValid.SetEmpty();
 	}
+	if (i == 9)
+	{
+		LR_Carpaint_param_blk.InvalidateUI(m1_map);
+		mapValid.SetEmpty();
+	}
+	if (i == 10)
+	{
+		LR_Carpaint_param_blk.InvalidateUI(m2_map);
+		mapValid.SetEmpty();
+	}
+	if (i == 11)
+	{
+		LR_Carpaint_param_blk.InvalidateUI(m3_map);
+		mapValid.SetEmpty();
+	}
+
 }
 
-TSTR LR_Glossy2::GetSubTexmapSlotName(int i)
+TSTR LR_Carpaint::GetSubTexmapSlotName(int i)
 {
 	switch (i)
 	{
 		case 0:
-			return _T("KdMap");
+			return _T("ka_map");
 		case 1:
-			return _T("KsMap");
+			return _T("d_map");
 		case 2:
-			return _T("uroughnessMap");
+			return _T("kd_map");
 		case 3:
-			return _T("vroughnessMap");
+			return _T("ks1_map");
 		case 4:
-			return _T("kaMap");
+			return _T("ks2_map");
 		case 5:
-			return _T("dMap");
+			return _T("ks3_map");
 		case 6:
-			return _T("emission_map");
+			return _T("r1_map");
 		case 7:
-			return _T("emission_mapfile");
+			return _T("r2_map");
 		case 8:
-			return _T("emission_iesfile");
-
+			return _T("r3_map");
+		case 9:
+			return _T("m1_map");
+		case 10:
+			return _T("m2_map");
+		case 11:
+			return _T("m3_map");
 		default:
 			return _T("");
 	}
 }
 
-TSTR LR_Glossy2::GetSubTexmapTVName(int i)
+TSTR LR_Carpaint::GetSubTexmapTVName(int i)
 {
 	// Return i'th sub-texture name
 	return GetSubTexmapSlotName(i);
@@ -729,7 +685,7 @@ TSTR LR_Glossy2::GetSubTexmapTVName(int i)
 #define MTL_HDR_CHUNK 0x4000
 #define PARAM2_CHUNK 0x1010
 
-IOResult LR_Glossy2::Save(ISave* isave)
+IOResult LR_Carpaint::Save(ISave* isave)
 {
 	IOResult res;
 	isave->BeginChunk(MTL_HDR_CHUNK);
@@ -741,7 +697,7 @@ IOResult LR_Glossy2::Save(ISave* isave)
 	return IO_OK;
 }
 
-IOResult LR_Glossy2::Load(ILoad* iload)
+IOResult LR_Carpaint::Load(ILoad* iload)
 {
 	IOResult res;
 	while (IO_OK==(res=iload->OpenChunk()))
@@ -767,9 +723,9 @@ IOResult LR_Glossy2::Load(ILoad* iload)
  |	Updating and cloning
 \*===========================================================================*/
 
-RefTargetHandle LR_Glossy2::Clone(RemapDir &remap)
+RefTargetHandle LR_Carpaint::Clone(RemapDir &remap)
 {
-	LR_Glossy2 *mnew = new LR_Glossy2(FALSE);
+	LR_Carpaint *mnew = new LR_Carpaint(FALSE);
 	*((MtlBase*)mnew) = *((MtlBase*)this);
 	// First clone the parameter block
 	mnew->ReplaceReference(PBLOCK_REF,remap.CloneRef(pblock));
@@ -794,12 +750,12 @@ RefTargetHandle LR_Glossy2::Clone(RemapDir &remap)
 	return (RefTargetHandle)mnew;
 	}
 
-void LR_Glossy2::NotifyChanged()
+void LR_Carpaint::NotifyChanged()
 {
 	NotifyDependents(FOREVER, PART_ALL, REFMSG_CHANGE);
 }
 
-void LR_Glossy2::Update(TimeValue t, Interval& valid)
+void LR_Carpaint::Update(TimeValue t, Interval& valid)
 {
 	if (!ivalid.InInterval(t))
 	{
@@ -807,8 +763,7 @@ void LR_Glossy2::Update(TimeValue t, Interval& valid)
 		ivalid.SetInfinite();
 		//pblock->GetValue( mtl_mat1_on, t, mapOn[0], ivalid);
 		//pblock->GetValue( pb_spin, t, spin, ivalid);
-		pblock->GetValue(d, t, spin, ivalid);
-		
+
 		for (int i=0; i < NUM_SUBMATERIALS; i++)
 		{
 			if (submtl[i])
@@ -833,54 +788,54 @@ void LR_Glossy2::Update(TimeValue t, Interval& valid)
  |	Determine the characteristics of the material
 \*===========================================================================*/
 
-void LR_Glossy2::SetAmbient(Color /*c*/, TimeValue /*t*/) {}		
-void LR_Glossy2::SetDiffuse(Color /*c*/, TimeValue /*t*/) {}		
-void LR_Glossy2::SetSpecular(Color /*c*/, TimeValue /*t*/) {}
-void LR_Glossy2::SetShininess(float /*v*/, TimeValue /*t*/) {}
+void LR_Carpaint::SetAmbient(Color /*c*/, TimeValue /*t*/) {}		
+void LR_Carpaint::SetDiffuse(Color /*c*/, TimeValue /*t*/) {}		
+void LR_Carpaint::SetSpecular(Color /*c*/, TimeValue /*t*/) {}
+void LR_Carpaint::SetShininess(float /*v*/, TimeValue /*t*/) {}
 
-Color LR_Glossy2::GetAmbient(int mtlNum, BOOL backFace)
+Color LR_Carpaint::GetAmbient(int mtlNum, BOOL backFace)
 {
 	Point3 p;
 	//TimeValue t; //Zero for first frame //GetCOREInterface()->GetTime() for every frame
-	//pblock->GetValue(prm_color, GetCOREInterface()->GetTime(), p, ivalid);
+	pblock->GetValue(ka, GetCOREInterface()->GetTime(), p, ivalid);
 	return submtl[0] ? submtl[0]->GetAmbient(mtlNum, backFace) : Color(p.x, p.y, p.z);//Bound(Color(p.x, p.y, p.z));
 }
 
-Color LR_Glossy2::GetDiffuse(int mtlNum, BOOL backFace)
+Color LR_Carpaint::GetDiffuse(int mtlNum, BOOL backFace)
 {
 	Point3 p;
 	//TimeValue t; //Zero for first frame //GetCOREInterface()->GetTime() for every frame
-	pblock->GetValue(kd, 0, p, ivalid);
+	pblock->GetValue(ka, 0, p, ivalid);
 	return submtl[0] ? submtl[0]->GetDiffuse(mtlNum, backFace) : Color(p.x, p.y, p.z);
 }
 
-Color LR_Glossy2::GetSpecular(int mtlNum, BOOL backFace)
+Color LR_Carpaint::GetSpecular(int mtlNum, BOOL backFace)
 {
 	Point3 p;
-	pblock->GetValue(kd, 0, p, ivalid);
+	pblock->GetValue(ka, 0, p, ivalid);
 	return submtl[0] ? submtl[0]->GetSpecular(mtlNum,backFace): Color(p.x, p.y, p.z);
 }
 
-float LR_Glossy2::GetXParency(int mtlNum, BOOL backFace)
+float LR_Carpaint::GetXParency(int mtlNum, BOOL backFace)
 {
 	float t = 0.0f;
 	//pblock->GetValue(pb_opacity, 0, t, ivalid);
 	return submtl[0] ? submtl[0]->GetXParency(mtlNum,backFace): t;
 }
 
-float LR_Glossy2::GetShininess(int mtlNum, BOOL backFace)
+float LR_Carpaint::GetShininess(int mtlNum, BOOL backFace)
 {
 	float sh = 1.0f;
 	//pblock->GetValue(pb_shin, 0, sh, ivalid);
 	return submtl[0] ? submtl[0]->GetShininess(mtlNum,backFace): sh;
 }
 
-float LR_Glossy2::GetShinStr(int mtlNum, BOOL backFace)
+float LR_Carpaint::GetShinStr(int mtlNum, BOOL backFace)
 {
 	return submtl[0] ? submtl[0]->GetShinStr(mtlNum,backFace): 0.0f;
 }
 
-float LR_Glossy2::WireSize(int mtlNum, BOOL backFace)
+float LR_Carpaint::WireSize(int mtlNum, BOOL backFace)
 {
 	float wf = 0.0f;
 	//pblock->GetValue(pb_wiresize, 0, wf, ivalid);
@@ -892,7 +847,7 @@ float LR_Glossy2::WireSize(int mtlNum, BOOL backFace)
  |	Actual shading takes place
 \*===========================================================================*/
 
-void LR_Glossy2::Shade(ShadeContext& sc)
+void LR_Carpaint::Shade(ShadeContext& sc)
 {
 	Mtl* subMaterial = mapOn[0] ? submtl[0] : nullptr;
 	if (gbufID)
@@ -903,13 +858,13 @@ void LR_Glossy2::Shade(ShadeContext& sc)
 	// TODO: compute the color and transparency output returned in sc.out.
 }
 
-float LR_Glossy2::EvalDisplacement(ShadeContext& sc)
+float LR_Carpaint::EvalDisplacement(ShadeContext& sc)
 {
 	Mtl* subMaterial = mapOn[0] ? submtl[0] : nullptr;
 	return (subMaterial) ? subMaterial->EvalDisplacement(sc) : 0.0f;
 }
 
-Interval LR_Glossy2::DisplacementValidity(TimeValue t)
+Interval LR_Carpaint::DisplacementValidity(TimeValue t)
 {
 	Mtl* subMaterial = mapOn[0] ? submtl[0] : nullptr;
 

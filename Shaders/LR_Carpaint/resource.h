@@ -1,0 +1,124 @@
+//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++ generated include file.
+// Used by LR_Carpaint.rc
+//
+#define IDS_LIBDESCRIPTION              1
+#define IDS_CATEGORY                    2
+#define IDS_CLASS_NAME                  3
+#define IDS_PARAMS                      4
+#define IDS_SPIN                        5
+#define IDS_COLOR                       6
+#define IDS_MTL1                        7
+#define IDS_MTL1ON                      8
+#define IDS_DIFFUSE_MAP_ON              8
+#define IDS_TEXTUREPATH                 9
+#define IDS_MAP                         9
+#define IDS_DIFFUSE_MAP                 9
+#define IDS_COLOR2                      10
+#define IDS_COLOR3                      11
+#define IDS_SPIN2                       12
+#define IDS_SPIN4                       13
+#define IDS_SPIN6                       14
+#define IDS_BUMP_MAP                    15
+#define IDS_BUMP_MAP_ON                 16
+#define IDS_PRESET                      17
+#define IDS_KA                          18
+#define IDS_KA_MAP                      19
+#define IDS_D                           20
+#define IDS_D_MAP                       21
+#define IDS_KD                          22
+#define IDS_KD_MAP                      23
+#define IDS_KS1                         24
+#define IDS_KS1_MAP                     25
+#define IDS_KS2                         26
+#define IDS_KS2_MAP                     27
+#define IDS_KS3                         28
+#define IDS_KS3_MAP                     29
+#define IDS_R1                          30
+#define IDS_R1_MAP                      31
+#define IDS_R2                          32
+#define IDS_R2_MAP                      33
+#define IDS_R3                          34
+#define IDS_R3_MAP                      35
+#define IDS_M1                          36
+#define IDS_M1_MAP                      37
+#define IDS_M2                          38
+#define IDS_M2_MAP                      39
+#define IDS_M3                          40
+#define IDS_M3_MAP                      41
+#define IDD_PANEL                       101
+#define IDC_CLOSEBUTTON                 1000
+#define IDC_DOSTUFF                     1000
+#define IDC_PRESET1                     1001
+#define IDC_PRESET2                     1002
+#define IDC_PRESET3                     1003
+#define IDC_PRESET4                     1004
+#define IDC_PRESET5                     1005
+#define IDC_PRESET6                     1006
+#define IDC_PRESET7                     1007
+#define IDC_PRESET8                     1008
+#define IDC_RADIO9                      1009
+#define IDC_PRESET9                     1009
+#define IDC_SIGMA                       1013
+#define IDC_LENSRADIUS_SPIN             1014
+#define IDC_SIGMA_SPIN                  1014
+#define IDC_D                           1015
+#define IDC_D_SPIN                      1016
+#define IDC_COLOR                       1456
+#define IDC_EDIT                        1490
+#define IDC_SAMP_COLOR                  1491
+#define IDC_KA                          1491
+#define IDC_SAMP_MAP                    1492
+#define IDC_DIFFUSE_MAP                 1492
+#define IDC_KA_MAP                      1492
+#define IDC_EDIT2                       1493
+#define IDC_SAMP_COLOR4                 1493
+#define IDC_TRANSLUCENT_COLOR           1493
+#define IDC_EDIT4                       1495
+#define IDC_D_MAP                       1495
+#define IDC_SPIN                        1496
+#define IDC_KD                          1496
+#define IDC_MTL1                        1497
+#define IDC_BUMP_MAP                    1497
+#define IDC_KD_MAP                      1497
+#define IDC_MTLON1                      1498
+#define IDC_DIFFUSE_MAP_ON              1498
+#define IDC_KS1                         1498
+#define IDC_SPIN2                       1499
+#define IDC_BUMP_MAP_ON2                1499
+#define IDC_BUMP_MAP_ON                 1499
+#define IDC_KS1_MAP                     1499
+#define IDC_TRANCLUCENT_MAP             1500
+#define IDC_SPIN4                       1501
+#define IDC_TRANSLUCENT_MAP_ON          1501
+#define IDC_KS2                         1501
+#define IDC_SAMP_COLOR2                 1502
+#define IDC_KS2_MAP                     1502
+#define IDC_SAMP_COLOR3                 1503
+#define IDC_KS3                         1503
+#define IDC_EDIT6                       1504
+#define IDC_KS3_MAP                     1504
+#define IDC_SPIN6                       1505
+#define IDC_R1                          1505
+#define IDC_R1_MAP                      1506
+#define IDC_R2                          1507
+#define IDC_R2_MAP                      1508
+#define IDC_R3                          1509
+#define IDC_R3_MAP                      1510
+#define IDC_M1                          1511
+#define IDC_M1_MAP                      1512
+#define IDC_M2                          1513
+#define IDC_M2_MAP                      1514
+#define IDC_M3                          1519
+#define IDC_M3_MAP                      1520
+
+// Next default values for new objects
+// 
+#ifdef APSTUDIO_INVOKED
+#ifndef APSTUDIO_READONLY_SYMBOLS
+#define _APS_NEXT_RESOURCE_VALUE        101
+#define _APS_NEXT_COMMAND_VALUE         40001
+#define _APS_NEXT_CONTROL_VALUE         1002
+#define _APS_NEXT_SYMED_VALUE           101
+#endif
+#endif

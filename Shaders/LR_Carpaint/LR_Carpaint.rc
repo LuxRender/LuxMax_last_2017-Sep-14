@@ -1,0 +1,198 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PANEL DIALOGEX 0, 0, 176, 308
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_KA,"ColorSwatch",WS_TABSTOP,36,78,35,12
+    CONTROL         "",IDC_KA_MAP,"CustButton",WS_TABSTOP,78,78,84,13
+    LTEXT           "Ka",IDC_STATIC,6,78,10,8
+    CONTROL         "",IDC_D_MAP,"CustButton",WS_TABSTOP,78,96,84,13
+    LTEXT           "D",IDC_STATIC,6,96,8,8
+    CONTROL         "",IDC_KD,"ColorSwatch",WS_TABSTOP,36,114,35,12
+    CONTROL         "",IDC_KD_MAP,"CustButton",WS_TABSTOP,78,114,84,13
+    LTEXT           "Kd",IDC_STATIC,6,114,18,8
+    CONTROL         "",IDC_KS1,"ColorSwatch",WS_TABSTOP,36,132,35,12
+    CONTROL         "",IDC_KS1_MAP,"CustButton",WS_TABSTOP,78,132,84,13
+    LTEXT           "Ks1",IDC_STATIC,6,132,18,8
+    CONTROL         "",IDC_KS2,"ColorSwatch",WS_TABSTOP,36,150,35,12
+    CONTROL         "",IDC_KS2_MAP,"CustButton",WS_TABSTOP,78,150,84,13
+    LTEXT           "Ks2",IDC_STATIC,6,150,18,8
+    CONTROL         "",IDC_KS3,"ColorSwatch",WS_TABSTOP,36,168,35,12
+    CONTROL         "",IDC_KS3_MAP,"CustButton",WS_TABSTOP,78,168,84,13
+    LTEXT           "Ks3",IDC_STATIC,6,168,18,8
+    CONTROL         "",IDC_R1,"ColorSwatch",WS_TABSTOP,36,186,35,12
+    CONTROL         "",IDC_R1_MAP,"CustButton",WS_TABSTOP,78,186,84,13
+    LTEXT           "R1",IDC_STATIC,6,186,18,8
+    CONTROL         "",IDC_R2,"ColorSwatch",WS_TABSTOP,36,204,35,12
+    CONTROL         "",IDC_R2_MAP,"CustButton",WS_TABSTOP,78,204,84,13
+    LTEXT           "R2",IDC_STATIC,6,204,18,8
+    CONTROL         "",IDC_R3,"ColorSwatch",WS_TABSTOP,36,222,35,12
+    CONTROL         "",IDC_R3_MAP,"CustButton",WS_TABSTOP,78,222,84,13
+    LTEXT           "R3",IDC_STATIC,6,222,18,8
+    CONTROL         "",IDC_M1,"ColorSwatch",WS_TABSTOP,36,240,35,12
+    CONTROL         "",IDC_M1_MAP,"CustButton",WS_TABSTOP,78,240,84,13
+    LTEXT           "M1",IDC_STATIC,6,240,18,8
+    CONTROL         "",IDC_M2,"ColorSwatch",WS_TABSTOP,36,258,35,12
+    CONTROL         "",IDC_M2_MAP,"CustButton",WS_TABSTOP,78,258,84,13
+    LTEXT           "M2",IDC_STATIC,6,258,18,8
+    CONTROL         "",IDC_M3,"ColorSwatch",WS_TABSTOP,36,276,35,12
+    CONTROL         "",IDC_M3_MAP,"CustButton",WS_TABSTOP,78,276,84,13
+    LTEXT           "M3",IDC_STATIC,6,276,18,8
+    CONTROL         "",IDC_D,"CustEdit",WS_TABSTOP,36,96,30,11
+    CONTROL         "",IDC_D_SPIN,"SpinnerControl",0x0,66,96,9,11
+    GROUPBOX        "Preset",IDC_STATIC,6,6,156,66
+    CONTROL         "Custom",IDC_PRESET1,"Button",BS_AUTORADIOBUTTON,12,18,39,10
+    CONTROL         "ford f8",IDC_PRESET2,"Button",BS_AUTORADIOBUTTON,54,18,36,10
+    CONTROL         "polaris silber",IDC_PRESET3,"Button",BS_AUTORADIOBUTTON,102,18,54,10
+    CONTROL         "opel titan",IDC_PRESET4,"Button",BS_AUTORADIOBUTTON,12,36,42,10
+    CONTROL         "bmw339",IDC_PRESET5,"Button",BS_AUTORADIOBUTTON,54,36,43,10
+    CONTROL         "2k acrylack",IDC_PRESET6,"Button",BS_AUTORADIOBUTTON,102,36,53,10
+    CONTROL         "white",IDC_PRESET7,"Button",BS_AUTORADIOBUTTON,12,54,33,10
+    CONTROL         "blue",IDC_PRESET8,"Button",BS_AUTORADIOBUTTON,54,54,29,10
+    CONTROL         "blue matte",IDC_PRESET9,"Button",BS_AUTORADIOBUTTON,102,54,49,10
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_PANEL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 166
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 301
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_LIBDESCRIPTION      "LuxMax Integrated Shaders"
+    IDS_CATEGORY            "LRI Shaders"
+    IDS_CLASS_NAME          "LR_Carpaint"
+    IDS_PARAMS              "Parameters"
+    IDS_SPIN                "Spin"
+    IDS_COLOR               "Color"
+    IDS_MTL1                "Material"
+    IDS_DIFFUSE_MAP_ON      "Diffuse map status"
+    IDS_DIFFUSE_MAP         "Diffuse Map"
+    IDS_COLOR2              "Ambient Color"
+    IDS_COLOR3              "Specular Color"
+    IDS_SPIN2               "Opacity"
+    IDS_SPIN4               "Shine"
+    IDS_SPIN6               "Wire Size"
+    IDS_BUMP_MAP            "Bump Map"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_BUMP_MAP_ON         "Bump map status"
+    IDS_PRESET              "Preset"
+    IDS_KA                  "Ka"
+    IDS_KA_MAP              "Ka_map"
+    IDS_D                   "D"
+    IDS_D_MAP               "D_map"
+    IDS_KD                  "Kd"
+    IDS_KD_MAP              "Kd_map"
+    IDS_KS1                 "Ks1"
+    IDS_KS1_MAP             "Ks1_map"
+    IDS_KS2                 "Ks2"
+    IDS_KS2_MAP             "Ks2_map"
+    IDS_KS3                 "Ks3"
+    IDS_KS3_MAP             "Ks3_map"
+    IDS_R1                  "R1"
+    IDS_R1_MAP              "R1_map"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_R2                  "R2"
+    IDS_R2_MAP              "R2_map"
+    IDS_R3                  "R3"
+    IDS_R3_MAP              "R3_map"
+    IDS_M1                  "M1"
+    IDS_M1_MAP              "M1_map"
+    IDS_M2                  "M2"
+    IDS_M2_MAP              "M2_map"
+    IDS_M3                  "M3"
+    IDS_M3_MAP              "M3_map"
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

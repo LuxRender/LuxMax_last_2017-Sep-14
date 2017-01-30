@@ -18,9 +18,9 @@
 #define LR_Matte_CLASS_ID	Class_ID(0x31b54e60, 0x1de956e4)
 
 
-#define NUM_SUBMATERIALS 3 // TODO: number of sub-materials supported by this plug-in
-#define NUM_SUBTEXTURES 2
-#define Num_REF 3
+#define NUM_SUBMATERIALS 14 //was 16 TODO: number of sub-materials supported by this plug-in
+#define NUM_SUBTEXTURES 6
+#define Num_REF 4
 // Reference Indexes
 // 
 #define PBLOCK_REF 1
@@ -149,14 +149,27 @@ enum { LR_Matte_params };
 //TODO: Add enums for various parameters
 enum 
 {
-	pb_spin,
-	mtl_mat1,
-	mtl_mat1_on,
 	prm_color,
 	mtl_diffuse_map,
 	mtl_diffuse_map_on,
 	mtl_bump_map,
 	mtl_bump_map_on,
+
+	/*light emission params begin*/
+	emission,
+	emission_map,
+	emission_power,
+	emission_efficency,
+	emission_mapfile,
+	emission_gamma,
+	emission_iesfile,
+	emission_flipz,
+	emission_samples,
+	emission_map_width,
+	emission_map_height,
+	emission_id,
+	enableemission,
+	/*light emission params end*/
 };
 
 
@@ -189,6 +202,85 @@ static ParamBlockDesc2 LR_Matte_param_blk (
 		p_default,		TRUE,
 		p_ui,			TYPE_SINGLECHEKBOX,		IDC_BUMP_MAP_ON,
 		p_end,
+
+		/*Light emmission begin*/
+		emission, _T("emission_color"), TYPE_RGBA, P_ANIMATABLE, IDS_EMISSION,
+		p_default, Color(0.5f, 0.5f, 0.5f),
+		p_ui, TYPE_COLORSWATCH, IDC_EMISSION_COLOR,
+		p_end,
+		
+		emission_map, _T("emission_map"), TYPE_TEXMAP, P_OWNERS_REF, IDS_EMISSION_MAP,
+		p_refno, 4,
+		p_subtexno, 2,
+		p_ui, TYPE_TEXMAPBUTTON, IDC_EMISSION_MAP,
+		p_end,
+
+		emission_power, _T("emission_power"), TYPE_FLOAT, P_ANIMATABLE, IDS_EMISSION_POWER,
+		p_default, 0.0f,
+		p_range, 0.0f, 999.0f,
+		p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_EMISSION_POWER, IDC_EMISSION_POWER_SPIN, 0.1f,
+		p_end,
+		
+		emission_efficency, _T("emission_efficency"), TYPE_FLOAT, P_ANIMATABLE, IDS_EMISSION_EFFICENCY,
+		p_default, 0.0f,
+		p_range, 0.0f, 999.0f,
+		p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_EMISSION_EFFICENCY, IDC_EMISSION_EFFICENCY_SPIN, 0.1f,
+		p_end,
+
+		emission_mapfile, _T("emission_mapfile"), TYPE_TEXMAP, P_OWNERS_REF, IDS_EMISSION_MAPFILE,
+		p_refno, 5,
+		p_subtexno, 3,
+		p_ui, TYPE_TEXMAPBUTTON, IDC_EMISSION_MAPFILE,
+		p_end,
+
+		emission_gamma, _T("emission_gamma"), TYPE_FLOAT, P_ANIMATABLE, IDS_EMISSION_GAMMA,
+		p_default, 2.2f,
+		p_range, 0.0f, 999.0f,
+		p_ui, TYPE_SPINNER, EDITTYPE_FLOAT, IDC_EMISSION_GAMMA, IDC_EMISSION_GAMMA_SPIN, 0.1f,
+		p_end,
+
+		emission_iesfile, _T("emission_iesfile"), TYPE_TEXMAP, P_OWNERS_REF, IDS_EMISSION_IESFILE,
+		p_refno, 6,
+		p_subtexno, 4,
+		p_ui, TYPE_TEXMAPBUTTON, IDC_EMISSION_IESFILE,
+		p_end,
+
+		emission_flipz, _T("emission_flipz"), TYPE_BOOL, 0, IDS_FLIPZ,
+		p_default, FALSE,
+		p_ui, TYPE_SINGLECHEKBOX, IDC_EMISSION_FLIPZ,
+		p_end,
+
+		emission_samples, _T("emission_samples"), TYPE_INT, P_ANIMATABLE, IDS_EMISSION_SAMPLES,
+		p_default, -1,
+		p_range, -1, 9999,
+		p_ui, TYPE_SPINNER, EDITTYPE_INT, IDC_EMISSION_SAMPLES, IDC_EMISSION_SAMPLES_SPIN, 1,
+		p_end,
+
+		emission_map_width, _T("emission_map_width"), TYPE_INT, P_ANIMATABLE, IDS_EMISSION_MAP_WIDTH,
+		p_default, 0,
+		p_range, 0, 9999,
+		p_ui, TYPE_SPINNER, EDITTYPE_INT, IDC_EMISSION_MAP_WIDTH, IDC_EMISSION_MAP_WIDTH_SPIN, 1,
+		p_end,
+
+		emission_map_height, _T("emission_map_height"), TYPE_INT, P_ANIMATABLE, IDS_EMISSION_MAP_HEIGHT,
+		p_default, 0,
+		p_range, 0, 9999,
+		p_ui, TYPE_SPINNER, EDITTYPE_INT, IDC_EMISSION_MAP_HEIGHT, IDC_EMISSION_MAP_HEIGHT_SPIN, 1,
+		p_end,
+
+		emission_id, _T("emission_id"), TYPE_INT, P_ANIMATABLE, IDS_EMISSION_ID,
+		p_default, 0,
+		p_range, 0, 9999,
+		p_ui, TYPE_SPINNER, EDITTYPE_INT, IDC_EMISSION_ID, IDC_EMISSION_ID_SPIN, 1,
+		p_end,
+
+		enableemission, _T("enableemission"), TYPE_BOOL, 0, IDS_ENABLEEMISSION,
+		p_default, FALSE,
+		p_refno, 7,
+		p_ui, TYPE_SINGLECHEKBOX, IDC_ENABLEEMISSION,
+		p_end,
+		/*Light emmission end*/
+
 	p_end
 	);
 
@@ -405,8 +497,8 @@ void LR_Matte::SetSubMtl(int i, Mtl* m)
 	ReplaceReference(i , m);
 	if (i == 0)
 	{
-		LR_Matte_param_blk.InvalidateUI(mtl_mat1);
-		mapValid.SetEmpty();
+		//LR_Matte_param_blk.InvalidateUI(mtl_mat1);
+		//mapValid.SetEmpty();
 	}
 }
 
@@ -444,9 +536,24 @@ void LR_Matte::SetSubTexmap(int i, Texmap* tx)
 		LR_Matte_param_blk.InvalidateUI(mtl_diffuse_map);
 		mapValid.SetEmpty();
 	}
-	else
+	if (i == 1)
 	{
 		LR_Matte_param_blk.InvalidateUI(mtl_bump_map);
+		mapValid.SetEmpty();
+	}
+	if (i == 2)
+	{
+		LR_Matte_param_blk.InvalidateUI(emission_map);
+		mapValid.SetEmpty();
+	}
+	if (i == 3)
+	{
+		LR_Matte_param_blk.InvalidateUI(emission_mapfile);
+		mapValid.SetEmpty();
+	}
+	if (i == 4)
+	{
+		LR_Matte_param_blk.InvalidateUI(emission_iesfile);
 		mapValid.SetEmpty();
 	}
 }
@@ -459,8 +566,13 @@ TSTR LR_Matte::GetSubTexmapSlotName(int i)
 			return _T("Diffuse Map");
 		case 1:
 			return _T("Bump Map");
-		default:
-			return _T("Diffuse Map");
+		case 2:
+			return _T("emission_map");
+		case 3:
+			return _T("emission_mapfile");
+		case 4:
+			return _T("emission_iesfile");
+		default: return _T("");
 	}
 }
 

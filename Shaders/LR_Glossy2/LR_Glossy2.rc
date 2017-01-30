@@ -24,7 +24,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Dialog
 //
 
-IDD_PANEL DIALOGEX 0, 0, 205, 195
+IDD_PANEL DIALOGEX 0, 0, 228, 407
 STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
@@ -34,8 +34,6 @@ BEGIN
     CONTROL         "",IDC_KS_COLOR,"ColorSwatch",WS_TABSTOP,72,30,35,12
     LTEXT           "Specular (ks)",IDC_STATIC,0,30,48,8
     LTEXT           "Diffuse (kd)",IDC_STATIC,0,12,37,8
-    CONTROL         "",IDC_SIGMA,"CustEdit",NOT WS_VISIBLE | WS_TABSTOP,138,168,36,11
-    CONTROL         "",IDC_SIGMA_SPIN,"SpinnerControl",NOT WS_VISIBLE,174,168,9,11
     CONTROL         "Custom1",IDC_UROUGHNESS_MAP,"CustButton",WS_TABSTOP,114,48,84,13
     LTEXT           "U roughness",IDC_STATIC,0,54,48,8
     CONTROL         "Custom1",IDC_VROUGHNESS_MAP,"CustButton",WS_TABSTOP,114,66,84,13
@@ -57,6 +55,38 @@ BEGIN
     CONTROL         "",IDC_VROUGHNESS_SPIN,"SpinnerControl",0x0,102,66,9,11
     CONTROL         "",IDC_KA,"CustEdit",WS_TABSTOP,72,84,30,11
     CONTROL         "",IDC_KA_SPIN,"SpinnerControl",0x0,102,84,9,11
+    GROUPBOX        "Emission",IDC_STATIC,0,175,216,210
+    CONTROL         "Custom1",IDC_EMISSION_MAP,"CustButton",WS_TABSTOP,122,187,84,13
+    CONTROL         "",IDC_EMISSION_COLOR,"ColorSwatch",WS_TABSTOP,84,187,35,12
+    LTEXT           "Emission",IDC_STATIC,6,187,42,8
+    LTEXT           "Emission pwr",IDC_STATIC,6,205,48,8
+    CONTROL         "",IDC_EMISSION_POWER,"CustEdit",WS_TABSTOP,84,205,36,11
+    CONTROL         "",IDC_EMISSION_POWER_SPIN,"SpinnerControl",0x0,120,205,9,11
+    LTEXT           "Emission efficency",IDC_STATIC,6,223,66,8
+    CONTROL         "",IDC_EMISSION_EFFICENCY,"CustEdit",WS_TABSTOP,84,223,36,11
+    CONTROL         "",IDC_EMISSION_EFFICENCY_SPIN,"SpinnerControl",0x0,120,223,9,11
+    CONTROL         "Custom1",IDC_EMISSION_MAPFILE,"CustButton",WS_TABSTOP,122,242,84,13
+    LTEXT           "Emission mapfile",IDC_STATIC,6,242,60,8
+    LTEXT           "Emission gamma",IDC_STATIC,6,259,60,8
+    CONTROL         "",IDC_EMISSION_GAMMA,"CustEdit",WS_TABSTOP,84,259,36,11
+    CONTROL         "",IDC_EMISSION_GAMMA_SPIN,"SpinnerControl",0x0,120,259,9,11
+    CONTROL         "Custom1",IDC_EMISSION_IESFILE,"CustButton",WS_DISABLED | WS_TABSTOP,122,277,84,13
+    LTEXT           "Emission IES file (not supported yet)",IDC_STATIC,6,277,115,8
+    LTEXT           "Flip Z",IDC_STATIC,6,295,30,11
+    CONTROL         "",IDC_EMISSION_FLIPZ,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,84,295,10,10
+    LTEXT           "Emission samples",IDC_STATIC,6,314,66,8
+    CONTROL         "",IDC_EMISSION_SAMPLES,"CustEdit",WS_TABSTOP,84,314,36,11
+    CONTROL         "",IDC_EMISSION_SAMPLES_SPIN,"SpinnerControl",0x0,120,314,9,11
+    LTEXT           "Map widht",IDC_STATIC,6,331,66,8
+    CONTROL         "",IDC_EMISSION_MAP_WIDTH,"CustEdit",WS_TABSTOP,84,331,36,11
+    CONTROL         "",IDC_EMISSION_MAP_WIDTH_SPIN,"SpinnerControl",0x0,120,331,9,11
+    LTEXT           "Map height",IDC_STATIC,6,349,66,8
+    CONTROL         "",IDC_EMISSION_MAP_HEIGHT,"CustEdit",WS_TABSTOP,84,349,36,11
+    CONTROL         "",IDC_EMISSION_MAP_HEIGHT_SPIN,"SpinnerControl",0x0,120,349,9,11
+    LTEXT           "Emission ID",IDC_STATIC,6,367,66,8
+    CONTROL         "",IDC_EMISSION_ID,"CustEdit",WS_TABSTOP,84,367,36,11
+    CONTROL         "",IDC_EMISSION_ID_SPIN,"SpinnerControl",0x0,120,367,9,11
+    CONTROL         "",IDC_ENABLEEMISSION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,40,174,10,10
 END
 
 
@@ -71,9 +101,9 @@ BEGIN
     IDD_PANEL, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 195
+        RIGHTMARGIN, 218
         TOPMARGIN, 7
-        BOTTOMMARGIN, 188
+        BOTTOMMARGIN, 400
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -132,6 +162,41 @@ END
 STRINGTABLE
 BEGIN
     IDS_BUMP_MAP_ON         "Bump map status"
+    IDS_EMISSION            "emission"
+    IDS_EMISSION_MAP        "emission_map"
+    IDS_EMISSION_POWER      "emission_power"
+    IDS_EMISSION_EFFICENCY  "emission_efficency"
+    IDS_EMISSION_MAPFILE    "emission_mapfile"
+    IDS_EMISSION_GAMMA      "emission_gamma"
+    IDS_EMISSION_IESFILE    "emission_iesfile"
+    IDS_FLIPZ               "emission_flipz"
+    IDS_EMISSION_SAMPLES    "emission_samples"
+    IDS_EMISSION_MAP_WIDTH  "emission_map_width"
+    IDS_EMISSION_MAP_HEIGHT "emission_map_height"
+    IDS_EMISSION_ID         "emission_id"
+    IDS_ENABLEEMISSION      "enableemission"
+    IDS_MULTIBOUNCE         "multibounce"
+    IDS_INDEX               "index"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_DMAP                "dmap"
+    IDS_KA                  "ka"
+    IDS_KAMAP               "kamap"
+    IDS_VROUGHNESS          "vroughness"
+    IDS_VROUGHNESSMAP       "vroughnessmap"
+    IDS_D                   "d"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_UROUGHNESS          "uroughness"
+    IDS_UROUGHNESSMAP       "uroughnessmap"
+    IDS_KSMAP               "ksmap"
+    IDS_KS                  "ks"
+    IDS_KDMAP               "kdmap"
+    IDS_KD                  "kd"
 END
 
 #endif    // English (United States) resources
