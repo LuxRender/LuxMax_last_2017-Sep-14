@@ -86,9 +86,18 @@ class LuxMax : public Renderer {
 		TSTR LensRadiusstr; // = L"0";
 		//int FilterIndex;
 		TSTR FilterIndexWstr;
-		TSTR FilterXWidthWst;
-		TSTR FilterYWidthWst;
+		TSTR FilterXWidthWst = L"1.0";
+		TSTR FilterYWidthWst = L"1.0";
 		TSTR RenderTypeWstr;
+		TSTR FilterGuassianAlphaWstr = L"0.1";
+		TSTR FilterMitchellAWstr = L"1.0";
+		TSTR FilterMitchellBWstr = L"1.0";
+		TSTR LightStrategyIndexWstr;
+		TSTR MetropolisLargestEpRateWstr = L"0.4";
+		TSTR MetropolisMaxConsecutiveRejectWstr = L"512";
+		TSTR MetrolpolisImageMutationRateWstr = L"0.1";
+		TSTR SamplerIndexWstr;
+
 		//float LensRadiusfloat;
 		//string rendertype = "";
 		bool defaultlightchk = true;

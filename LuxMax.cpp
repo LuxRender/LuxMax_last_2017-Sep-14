@@ -665,8 +665,8 @@ int LuxMax::Render(
 		}
 		
 		std::string filterName = "";
-
-		switch (((int)_wtoi(FilterIndexWstr)))
+		filterIndex = (int)_wtoi(FilterIndexWstr);
+		switch (filterIndex)
 		{
 		case 0:
 			filterName = "NONE";
@@ -690,33 +690,83 @@ int LuxMax::Render(
 			break;
 		}
 
-		RenderConfig *config = new RenderConfig(
-			//filesaver
-			//Property("renderengine.type")("FILESAVER") <<
-			//Property("filesaver.directory")("C:/tmp/filesaveroutput/") <<
-			//Property("filesaver.renderengine.type")("engine") <<
-			//Filesaver
-			
-			Property("renderengine.type")(tmprendtype) <<
-			Property("sampler.type")("SOBOL") <<
-			//Property("sampler.type")("METROPOLIS") <<
-			Property("opencl.platform.index")(-1) <<
-			Property("opencl.cpu.use")(true) <<
-			Property("opencl.gpu.use")(true) <<
-			Property("batch.halttime")(halttime) <<
-			Property("film.outputs.1.type")("RGBA_TONEMAPPED") <<
-			Property("film.outputs.1.filename")(tmpFilename) <<
-			Property("film.imagepipeline.0.type")("TONEMAP_AUTOLINEAR") <<
-			Property("film.imagepipeline.1.type")("GAMMA_CORRECTION") <<
-			Property("film.height")(renderHeight) <<
-			Property("film.width")(renderWidth) <<
-			Property("film.filter.type")(filterName)<<
-			Property("film.filter.xwidth")((int)_wtof(FilterXWidthWst)) <<
-			Property("film.filter.ywidth")((int)_wtof(FilterYWidthWst)) <<
-			Property("film.imagepipeline.1.value")(1.0f),
-			scene);
-		RenderSession *session = new RenderSession(config);
+		luxrays::Properties renderConfigProp;
+		std::string tmpRenderConfig;
 
+		tmpRenderConfig.append("renderengine.type = " + tmprendtype + "\n");
+		tmpRenderConfig.append("batch.halttime = " + std::to_string(halttime) + "\n");
+		tmpRenderConfig.append("film.imagepipeline.0.type = TONEMAP_AUTOLINEAR\n");
+		
+		tmpRenderConfig.append("film.imagepipeline.1.type = GAMMA_CORRECTION\n");
+		tmpRenderConfig.append("film.imagepipeline.1.value = 1.0\n");
+		//tmpRenderConfig.append("film.imagepipeline.0.table.size = 4096\n"); 
+		tmpRenderConfig.append("film.height = " + std::to_string(renderHeight) + "\n");
+		tmpRenderConfig.append("film.width = " + std::to_string(renderWidth) + "\n");
+		tmpRenderConfig.append("film.filter.type = " + filterName + "\n");
+		tmpRenderConfig.append("film.filter.xwidth = " + lxmUtils.ToNarrow(FilterXWidthWst) + "\n");
+		tmpRenderConfig.append("film.filter.ywidth = " + lxmUtils.ToNarrow(FilterYWidthWst) + "\n");
+		if (filterIndex == 3)
+		{
+			tmpRenderConfig.append("film.filter.gaussian.alpha =" + lxmUtils.ToNarrow(FilterGuassianAlphaWstr) + "\n");
+		}
+		if (filterIndex == 4)
+		{
+			tmpRenderConfig.append("film.filter.mitchell.a" + lxmUtils.ToNarrow(FilterMitchellAWstr) + "\n");
+			tmpRenderConfig.append("film.filter.mitchell.b" + lxmUtils.ToNarrow(FilterMitchellBWstr) + "\n");
+		}
+		if (filterIndex == 5)
+		{
+			tmpRenderConfig.append("film.filter.mitchellss.b" + lxmUtils.ToNarrow(FilterMitchellAWstr) + "\n");
+			tmpRenderConfig.append("film.filter.mitchellss.c" + lxmUtils.ToNarrow(FilterMitchellBWstr) + "\n");
+		}
+		
+		
+		
+		int lightStrategyIndex = (int)_wtoi(LightStrategyIndexWstr);
+		switch (lightStrategyIndex)
+		{
+			case 0:
+				tmpRenderConfig.append("lightstrategy.type = UNIFORM\n");
+				break;
+			case 1:
+				tmpRenderConfig.append("lightstrategy.type = POWER\n");
+				break;
+			case 2:
+				tmpRenderConfig.append("lightstrategy.type = LOG_POWER\n");
+				break;
+		}
+
+		int samplerindex = (int)_wtoi(SamplerIndexWstr);
+		
+		switch (samplerindex)
+		{
+			case 0:
+			{
+				tmpRenderConfig.append("sampler.type = METROPOLIS\n");
+				tmpRenderConfig.append("sampler.metropolis.largesteprate = " + lxmUtils.ToNarrow(MetropolisLargestEpRateWstr) + "\n");
+				tmpRenderConfig.append("sampler.metropolis.maxconsecutivereject = " + lxmUtils.ToNarrow(MetropolisMaxConsecutiveRejectWstr) + "\n");
+				tmpRenderConfig.append("sampler.metropolis.imagemutationrate = " + lxmUtils.ToNarrow(MetrolpolisImageMutationRateWstr) + "\n");
+				break;
+			}
+			case 1:
+			{
+				tmpRenderConfig.append("sampler.type = RANDOM\n");
+				break;
+			}
+			case 2:
+			{
+				tmpRenderConfig.append("sampler.type = SOBOL\n");
+				
+				break;
+			}	
+		}
+
+		renderConfigProp.SetFromString(tmpRenderConfig);
+
+		RenderConfig *config = new RenderConfig(renderConfigProp, scene);
+		RenderSession *session = new RenderSession(config);
+		session->Parse(renderConfigProp);
+		
 		session->Start();
 		DoRendering(session, prog, tobm);
 		session->Stop();
@@ -740,7 +790,13 @@ RefTargetHandle LuxMax::Clone(RemapDir &remap) {
 	newRend->FilterXWidthWst = FilterXWidthWst;
 	newRend->FilterYWidthWst = FilterYWidthWst;
 	newRend->RenderTypeWstr = RenderTypeWstr;
-
+	newRend->FilterGuassianAlphaWstr = FilterGuassianAlphaWstr;
+	newRend->FilterMitchellAWstr = FilterMitchellAWstr;
+	newRend->FilterMitchellBWstr = FilterMitchellBWstr;
+	newRend->MetrolpolisImageMutationRateWstr = MetrolpolisImageMutationRateWstr;
+	newRend->MetropolisLargestEpRateWstr = MetropolisLargestEpRateWstr;
+	newRend->MetropolisMaxConsecutiveRejectWstr = MetropolisMaxConsecutiveRejectWstr;
+	newRend->SamplerIndexWstr = SamplerIndexWstr;
 	BaseClone(this, newRend, remap);
 	return newRend;
 }
@@ -757,6 +813,14 @@ void LuxMax::ResetParams(){
 #define FILTERXWIDTH_CHUNKID 006
 #define FILTERYWIDTH_CHUNKID 007
 #define RENDERTYPE_CHUNKID 8
+#define FILTERGUASSIANALPHA_CHUNKID 011
+#define FILTERMITCHELLA_CHUNKID 012
+#define FILTERMITCHELLB_CHUNKID 013
+#define LIGHTSTRATEGY_CHUNKID 014
+#define METROPOLIS_IMAGE_MUTATION_RATE_CHUNKID 015
+#define METROPOLIS_LARGEST_EP_RATE_CHUNKID 016
+#define METROPOLIS_MAX_CONSECUTIVE_REJECT 017
+#define SAMPLER_INDEX_CHUNKID 19
 
 IOResult LuxMax::Save(ISave *isave) {
 	if (_tcslen(FileName) > 0) {
@@ -785,6 +849,30 @@ IOResult LuxMax::Save(ISave *isave) {
 	isave->EndChunk();
 	isave->BeginChunk(RENDERTYPE_CHUNKID);
 	isave->WriteWString(RenderTypeWstr);
+	isave->EndChunk();
+	isave->BeginChunk(FILTERGUASSIANALPHA_CHUNKID);
+	isave->WriteWString(FilterGuassianAlphaWstr);
+	isave->EndChunk();
+	isave->BeginChunk(FILTERMITCHELLA_CHUNKID);
+	isave->WriteWString(FilterMitchellAWstr);
+	isave->EndChunk();
+	isave->BeginChunk(FILTERMITCHELLB_CHUNKID);
+	isave->WriteWString(FilterMitchellBWstr);
+	isave->EndChunk();
+	isave->BeginChunk(LIGHTSTRATEGY_CHUNKID);
+	isave->WriteWString(LightStrategyIndexWstr);
+	isave->EndChunk();
+	isave->BeginChunk(METROPOLIS_IMAGE_MUTATION_RATE_CHUNKID);
+	isave->WriteWString(MetrolpolisImageMutationRateWstr);
+	isave->EndChunk();
+	isave->BeginChunk(METROPOLIS_LARGEST_EP_RATE_CHUNKID);
+	isave->WriteWString(MetropolisLargestEpRateWstr);
+	isave->EndChunk();
+	isave->BeginChunk(METROPOLIS_MAX_CONSECUTIVE_REJECT);
+	isave->WriteWString(MetropolisMaxConsecutiveRejectWstr);
+	isave->EndChunk();
+	isave->BeginChunk(SAMPLER_INDEX_CHUNKID);
+	isave->WriteWString(SamplerIndexWstr);
 	isave->EndChunk();
 	return IO_OK;
 }
@@ -838,6 +926,63 @@ IOResult LuxMax::Load(ILoad *iload) {
 		{
 			if (IO_OK == iload->ReadWStringChunk(&buf))
 				RenderTypeWstr = buf;
+			break;
+		}
+
+		case FILTERGUASSIANALPHA_CHUNKID:
+		{
+			if (IO_OK == iload->ReadWStringChunk(&buf))
+				FilterGuassianAlphaWstr = buf;
+			break;
+		}
+
+		case FILTERMITCHELLA_CHUNKID:
+		{
+			if (IO_OK == iload->ReadWStringChunk(&buf))
+				FilterMitchellAWstr = buf;
+			break;
+		}
+
+		case FILTERMITCHELLB_CHUNKID:
+		{
+			if (IO_OK == iload->ReadWStringChunk(&buf))
+				FilterMitchellBWstr = buf;
+			break;
+		}
+
+		case LIGHTSTRATEGY_CHUNKID:
+		{
+			if (IO_OK == iload->ReadWStringChunk(&buf))
+				LightStrategyIndexWstr = buf;
+			break;
+		}
+
+		case METROPOLIS_IMAGE_MUTATION_RATE_CHUNKID:
+		{
+			if (IO_OK == iload->ReadWStringChunk(&buf))
+				MetrolpolisImageMutationRateWstr = buf;
+			break;
+		}
+
+		case METROPOLIS_LARGEST_EP_RATE_CHUNKID:
+		{
+			if (IO_OK == iload->ReadWStringChunk(&buf))
+				MetropolisLargestEpRateWstr = buf;
+			break;
+		}
+
+		case METROPOLIS_MAX_CONSECUTIVE_REJECT:
+		{
+			if (IO_OK == iload->ReadWStringChunk(&buf))
+				MetropolisMaxConsecutiveRejectWstr = buf;
+			break;
+		}
+
+		case SAMPLER_INDEX_CHUNKID:
+		{
+			if (IO_OK == iload->ReadWStringChunk(&buf))
+				SamplerIndexWstr = buf;
+			break;
 		}
 
 	}
