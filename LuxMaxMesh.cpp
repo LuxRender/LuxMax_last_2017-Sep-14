@@ -16,6 +16,10 @@
 * limitations under the License.                                          *
 ***************************************************************************/
 
+#include <luxcore/luxcore.h>
+#include <luxrays\utils\utils.h>
+#include <luxrays\utils\properties.h>
+#include <luxrays\utils\exportdefs.h>
 #include <algorithm>
 using std::max;
 using std::min;
@@ -42,8 +46,8 @@ using std::min;
 #include <maxscript\maxscript.h>
 #include "LuxMaxMaterials.h"
 #include "LuxMaxUtils.h"
-#include <luxcore/luxcore.h>
-#include <luxrays\luxrays.h>
+
+////#include <luxrays\luxrays.h>
 
 using namespace std;
 using namespace luxcore;
@@ -60,6 +64,62 @@ LuxMaxMesh::~LuxMaxMesh()
 {
 }
 
+class UV {
+public:
+	UV(float _u = 0.f, float _v = 0.f)
+		: u(_u), v(_v) {
+	}
+
+	UV(const float v[2]) : u(v[0]), v(v[1]) {
+	}
+
+	float u, v;
+};
+
+class Point {
+public:
+	Point(float _x = 0.f, float _y = 0.f, float _z = 0.f)
+		: x(_x), y(_y), z(_z) {
+	}
+
+	Point(const float v[3]) : x(v[0]), y(v[1]), z(v[2]) {
+	}
+
+	float x, y, z;
+};
+
+class Triangle {
+public:
+	Triangle() { }
+	Triangle(const unsigned int v0, const unsigned int v1, const unsigned int v2) {
+		v[0] = v0;
+		v[1] = v1;
+		v[2] = v2;
+	}
+
+	unsigned int v[3];
+};
+
+class BBox {
+public:
+	// BBox Public Methods
+
+	BBox() {
+		pMin = Point(numeric_limits<float>::infinity(),
+			numeric_limits<float>::infinity(),
+			numeric_limits<float>::infinity());
+		pMax = Point(-numeric_limits<float>::infinity(),
+			-numeric_limits<float>::infinity(),
+			-numeric_limits<float>::infinity());
+	}
+
+	BBox(const Point &p1, const Point &p2) {
+		pMin = p1;
+		pMax = p2;
+	}
+
+	Point pMin, pMax;
+};
 static int hashPoint3(Point3& p) { return (*(int*)&p.x * 73856093) ^ (*(int*)&p.y * 19349663) ^ (*(int*)&p.z * 83492791); }
 
 struct vertex : public MaxHeapOperators
@@ -184,10 +244,17 @@ vertexPtr CollectRawVerts(::Mesh& mesh, int rawcount)
 	return rawverts;
 }
 
-void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
+void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene , TimeValue t)
 {
+	//for (int a = 0; currNode->NumChildren() > a; a++)
+	//{
+	//	INode* childNode = currNode->GetChildNode(a);
+	//	createMesh(childNode, scene);
+	//	//bool doExport = true;
+	//}
+
 	Object*	obj;
-	ObjectState os = currNode->EvalWorldState(GetCOREInterface()->GetTime());
+	ObjectState os = currNode->EvalWorldState(t);
 	obj = os.obj;
 	Matrix3 nodeInitTM;
 	Point4 nodeRotation;
@@ -197,7 +264,8 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 
 	if (!fConvertedToTriObject || p_triobj->mesh.getNumFaces() < 1)
 	{
-		//mprintf(L"Debug: Did not triangulate object : %s\n", currNode->GetName());
+		OutputDebugStringW(L"Debug: Did not triangulate object :");
+		OutputDebugStringW(currNode->GetName());
 		exit;
 	}
 	else
@@ -229,11 +297,18 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 			indices[i] = i;
 		}
 
-		int numTriangles = p_trimesh->getNumFaces();
+		unsigned int numTriangles = p_trimesh->getNumFaces();
 
-		Point *p = Scene::AllocVerticesBuffer(vertCount);
-		Triangle *vi = Scene::AllocTrianglesBuffer(numTriangles);
-		Normal *n = new Normal[vertCount];
+		//Point *p = Scene::AllocTrianglesBuffer(vertCount);
+		Point *p = (Point *)Scene::AllocVerticesBuffer(vertCount);
+		//Triangle *vi = Scene::AllocTrianglesBuffer(numTriangles);
+		Triangle *vi = (Triangle *)Scene::AllocTrianglesBuffer(numTriangles);
+		//Normal *n = new Normal[vertCount];
+		
+		float *n = new float[vertCount * 3];
+		//int normalCount = rawverts->n.siz * 3;
+		//float *n = new float[normalCount];
+
 		UV *uv = new UV[vertCount];
 
 		for (int vert = 0; vert < vertCount; vert++)
@@ -241,12 +316,13 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 			p[vert] = Point(rawverts[vert].p);
 		}
 
+		int ncounter = 0;
 		for (int norm = 0; norm < vertCount; norm++)
 		{
-			::Point3 tmpNorm = rawverts[norm].n;
-			n[norm].x = tmpNorm.x;
-			n[norm].y = tmpNorm.y;
-			n[norm].z = tmpNorm.z;
+			n[ncounter] = rawverts[norm].n.x;
+			n[ncounter + 1] = rawverts[norm].n.y;
+			n[ncounter + 2] = rawverts[norm].n.z;
+			ncounter += 3;
 		}
 
 		for (int i = 0, fi = 0; fi < numTriangles; i += 3, ++fi)
@@ -266,22 +342,21 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 			}
 		}
 
-		if (numUvs > 1) {
-			// Define the object - with UV
-			scene.DefineMesh(lxmUtils->ToNarrow(objName), vertCount, numTriangles, p, vi, n, uv, NULL, NULL);
+		if (numUvs > 1)
+		{
+			scene.DefineMesh(lxmUtils->ToNarrow(objName), vertCount, numTriangles, (float *)p, (unsigned int *)vi, (float*)n, NULL, NULL, NULL);
 		}
 		else
 		{
-			// Define the object - without UV
-			scene.DefineMesh(lxmUtils->ToNarrow(objName), vertCount, numTriangles, p, vi, n, NULL, NULL, NULL);
+			scene.DefineMesh(lxmUtils->ToNarrow(objName), vertCount, numTriangles, (float *)p, (unsigned int *)vi, (float*)n,(float*)uv, NULL, NULL);
 		}
 
 		delete[] rawverts;
 		delete[] indices;
-
+		//delete[] n;
 		p = NULL;
 		vi = NULL;
-		n = NULL;
+		//n = NULL;
 		uv = NULL;
 
 		Properties props;
@@ -299,7 +374,7 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 
 		if (currNode->GetMtl() == NULL)
 		{
-			//TODO: Call a function here that causes it to create a 'dummy' material
+			//TODO: Call a function here that causes it to create a 'fallback material
 			//inside the material lib..
 			OutputDebugStringW(L"\nLuxMaxMesh -> Creating fallback material for object: ");
 			OutputDebugStringW(objName);
@@ -416,13 +491,13 @@ void LuxMaxMesh::createMesh(INode * currNode, luxcore::Scene &scene)
 		objString.append("scene.objects.");
 		objString.append(lxmUtils->ToNarrow(objName));
 		objString.append(".transformation = ");
-		objString.append(lxmUtils->getMaxNodeTransform(currNode));
+		objString.append(lxmUtils->getMaxNodeTransform(currNode,t));
 		props.SetFromString(objString);
 		scene.Parse(props);
 	}
 }
 
-void LuxMaxMesh::createMeshesInGroup(INode *currNode, luxcore::Scene &scene)
+void LuxMaxMesh::createMeshesInGroup(INode *currNode, luxcore::Scene &scene, TimeValue t)
 {
 	for (size_t i = 0; i < currNode->NumberOfChildren(); i++)
 	{
@@ -432,11 +507,11 @@ void LuxMaxMesh::createMeshesInGroup(INode *currNode, luxcore::Scene &scene)
 		// so we send the node back in and loop further down into the groups.
 		if (groupChild->IsGroupHead())
 		{
-			createMeshesInGroup(groupChild, scene);
+			createMeshesInGroup(groupChild, scene,t);
 		}
 		else
 		{
-			createMesh(groupChild, scene);
+			createMesh(groupChild, scene,t);
 		}
 	}
 }

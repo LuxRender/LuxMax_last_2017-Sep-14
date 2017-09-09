@@ -19,13 +19,13 @@
 #include <algorithm>
 #include "max.h"
 #include <luxcore/luxcore.h>
-#include <luxrays\luxrays.h>
+//#include <luxrays\luxrays.h>
 
 class LuxMaxCamera
 {
 public:
 	LuxMaxCamera();
 	~LuxMaxCamera();
-	bool exportCamera(float lensRadius, luxcore::Scene &scene);
+	bool exportCamera(float lensRadius, luxcore::Scene &scene, TimeValue t);
 };
 

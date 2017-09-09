@@ -62,7 +62,8 @@ public:
 	float MetrolpolisImageMutationRatevalue;
 	//TSTR vbinterval = L"1";
 	bool defaultlightchk = true;
-	bool defaultlightauto = true;
+	bool defaultlightauto = true;	
+	bool enableFileSaverOutput = false;
 	ISpinnerControl *depthSpinner = NULL;
 	ISpinnerControl *filterXSpinner = NULL;
 	ISpinnerControl *filterYSpinner = NULL;
@@ -245,16 +246,20 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 		dlg = (LuxMaxParamDlg*)lParam;
 		DLSetWindowLongPtr(hWnd, lParam);
 		
-		SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"BIASPATHCPU");
+		//BIASPATHCPU does not exist in latest code.
+		//SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"BIASPATHCPU");
 		//SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"BIASPATHOCL");
-		SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"BIDIRCPU");
+		
+		//Bidir cpu crashes with latest build
+		//SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"BIDIRCPU");
 		//SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"BIDIRHYBRID");
 		SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"BIDIRVMCPU");
 		//SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"CBIDIRHYBRID");
 		SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"LIGHTCPU");
 		SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"PATHCPU");
 		//SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"PATHHYBRID");
-		//SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"PATHOCL");
+		SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"TILEPATHCPU");
+		SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"TILEPATHOCL");
 		//SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"PATHOCLBASE");
 		//SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"RTBIASPATHOCL");
 		//SendDlgItemMessage(hWnd, IDC_RENDERTYPE_NEW, CB_ADDSTRING, 0, (LPARAM)L"RTPATHOCL");
@@ -265,7 +270,10 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 		SendDlgItemMessage(hWnd, IDC_SAMPLER_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Random");
 		SendDlgItemMessage(hWnd, IDC_SAMPLER_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Sobol");
 		SendDlgItemMessage(hWnd, IDC_SAMPLER_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"Metropolis");
+		SendDlgItemMessage(hWnd, IDC_SAMPLER_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"TILEPATHSAMPLER");
 		SendDlgItemMessage(hWnd, IDC_SAMPLER_TYPE_COMBO, CB_SELECTSTRING, 0, (LPARAM)L"Sobol");
+		
+		
 
 		//Add filters to the dropdown.
 		SendDlgItemMessage(hWnd, IDC_FILTERS_TYPE_COMBO, CB_ADDSTRING, 0, (LPARAM)L"None");
@@ -293,6 +301,7 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 		CheckDlgButton(hWnd, IDC_CHECK_DEFAULT_LIGHT, BST_CHECKED);
 		CheckDlgButton(hWnd, IDC_CHECK_DEFUALT_LIGHT_DISABLE, BST_CHECKED);
 		CheckDlgButton(hWnd, IDC_CHECK_OVERRIDE_MATTERIALS, BST_UNCHECKED);
+		
 
 		break;
 	}
@@ -312,11 +321,18 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 			{
 			case IDC_BUTTON1:
 			{
-				if (dlg->FileBrowse()) 
-				{
-					SetDlgItemText(hWnd, IDC_FILENAME, dlg->workFileName.data());
-					break;
+				TCHAR	folderName[MAX_PATH] = { 0 };
+
+				GetCOREInterface()->ChooseDirectory(GetCOREInterface()->GetMAXHWnd(), L"Browse for output folder", folderName, NULL);
+				if (_tcscmp(folderName, _T("")) == 0) {
+					// Cancel
+					return FALSE;
 				}
+
+				//_tcscpy(folderName, workFileName);
+				SetDlgItemText(hWnd, IDC_FILENAME, folderName);
+				dlg->workFileName = folderName;
+
 				break;
 			}
 			case IDC_HALTTIME:
@@ -336,16 +352,16 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 			{
 				switch (HIWORD(wParam))
 				{
-					case CBN_SELCHANGE:
-					{
-						HWND filterCombo = GetDlgItem(hWnd, IDC_FILTERS_TYPE_COMBO);
-						dlg->filterIndex = ComboBox_GetCurSel(filterCombo);
-						//mprintf(_T("\n Selected filter index %i \n"), dlg->filterIndex);
-						showHideFilterGUI(hWnd, dlg->filterIndex);
-						SetFocus(hWnd);
-						break;
-					}
-					
+				case CBN_SELCHANGE:
+				{
+					HWND filterCombo = GetDlgItem(hWnd, IDC_FILTERS_TYPE_COMBO);
+					dlg->filterIndex = ComboBox_GetCurSel(filterCombo);
+					//mprintf(_T("\n Selected filter index %i \n"), dlg->filterIndex);
+					showHideFilterGUI(hWnd, dlg->filterIndex);
+					SetFocus(hWnd);
+					break;
+				}
+
 				}
 				break;
 			}
@@ -354,14 +370,14 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 			{
 				switch (HIWORD(wParam))
 				{
-					case CBN_SELCHANGE:
-					{
-						HWND lightStrategyCombo = GetDlgItem(hWnd, IDC_COMBO_LIGHT_STRATEGY);
-						dlg->lightStrategyIndex = ComboBox_GetCurSel(lightStrategyCombo);
-					
-						SetFocus(hWnd);
-						break;
-					}
+				case CBN_SELCHANGE:
+				{
+					HWND lightStrategyCombo = GetDlgItem(hWnd, IDC_COMBO_LIGHT_STRATEGY);
+					dlg->lightStrategyIndex = ComboBox_GetCurSel(lightStrategyCombo);
+
+					SetFocus(hWnd);
+					break;
+				}
 
 				}
 				break;
@@ -371,13 +387,13 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 			{
 				switch (HIWORD(wParam))
 				{
-					case CBN_SELCHANGE:
-					{
-						HWND comboCtl = GetDlgItem(hWnd, IDC_RENDERTYPE_NEW);
-						dlg->rendertype = ComboBox_GetCurSel(comboCtl);
-						SetFocus(hWnd);
-						break;
-					}
+				case CBN_SELCHANGE:
+				{
+					HWND comboCtl = GetDlgItem(hWnd, IDC_RENDERTYPE_NEW);
+					dlg->rendertype = ComboBox_GetCurSel(comboCtl);
+					SetFocus(hWnd);
+					break;
+				}
 				}
 				break;
 
@@ -385,14 +401,14 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 			{
 				switch (HIWORD(wParam))
 				{
-					case CBN_SELCHANGE:
-					{
-						HWND comboCtl = GetDlgItem(hWnd, IDC_SAMPLER_TYPE_COMBO);
-						dlg->samplerIndex = ComboBox_GetCurSel(comboCtl);
-						showHideSamplerGUI(hWnd, dlg->samplerIndex);
-						SetFocus(hWnd);
-						break;
-					}
+				case CBN_SELCHANGE:
+				{
+					HWND comboCtl = GetDlgItem(hWnd, IDC_SAMPLER_TYPE_COMBO);
+					dlg->samplerIndex = ComboBox_GetCurSel(comboCtl);
+					showHideSamplerGUI(hWnd, dlg->samplerIndex);
+					SetFocus(hWnd);
+					break;
+				}
 				}
 			}
 			}
@@ -406,6 +422,14 @@ static INT_PTR CALLBACK LuxMaxParamDlgProc(
 				dlg->defaultlightauto = (GetCheckBox(hWnd, IDC_CHECK_DEFUALT_LIGHT_DISABLE) != 0);
 				break;
 			}
+
+			case IDC_OUTPUTSCENE:
+			{
+				//IDC_OUTPUTSCENE
+				dlg->enableFileSaverOutput = (GetCheckBox(hWnd, IDC_OUTPUTSCENE) != 0);
+				break;
+			}
+			
 		}
 
 		}
@@ -514,6 +538,9 @@ LuxMaxParamDlg::LuxMaxParamDlg(
 
 void LuxMaxParamDlg::InitParamDialog(HWND hWnd) {
 	workFileName = rend->FileName;
+	HWND hwndOutput = GetDlgItem(hWnd, IDC_FILENAME);
+	SetWindowText(hwndOutput, rend->FileName);
+	
 	halttimewstr = rend->halttimewstr;
 	defaultlightchk = rend->defaultlightchk;
 	defaultlightauto = rend->defaultlightauto;
@@ -522,7 +549,7 @@ void LuxMaxParamDlg::InitParamDialog(HWND hWnd) {
 	rendertype = (int)_wtoi(rend->RenderTypeWstr);
 	lightStrategyIndex = (int)_wtoi(rend->LightStrategyIndexWstr);
 	
-	HWND hwndOutput = GetDlgItem(hWnd, IDC_HALTTIME);
+	hwndOutput = GetDlgItem(hWnd, IDC_HALTTIME);
 	SetWindowText(hwndOutput, rend->halttimewstr);
 
 	hwndOutput = GetDlgItem(hWnd, IDC_VBINTERVAL);
@@ -536,7 +563,10 @@ void LuxMaxParamDlg::InitParamDialog(HWND hWnd) {
 
 	hwndOutput = GetDlgItem(hWnd, IDC_COMBO_LIGHT_STRATEGY);
 	ComboBox_SetCurSel(hwndOutput,lightStrategyIndex);
+	enableFileSaverOutput = rend->enableFileSaverOutput;
 
+	int tmpEnableFileSaverOutputValue = (int)_wtoi(rend->enableFileSaverOutoutWstr);
+	SetCheckBox(hWnd, IDC_OUTPUTSCENE, tmpEnableFileSaverOutputValue);
 	//hwndOutput = GetDlgItem(hWnd, IDC_FILTER_GUASSIAN_ALPHA);
 	//SetWindowText(hwndOutput, rend->FilterGuassianAlphaWstr);
 	
@@ -684,6 +714,7 @@ void LuxMaxParamDlg::AcceptParams() {
 	rend->MetropolisLargestEpRateWstr = std::to_wstring(MetropolisLargestEpRatevalue).c_str();
 	rend->MetropolisMaxConsecutiveRejectWstr = std::to_wstring(MetropolisMaxConsecutiveRejectvalue).c_str();
 	rend->SamplerIndexWstr = std::to_wstring(samplerIndex).c_str();
+	rend->enableFileSaverOutoutWstr = std::to_wstring(enableFileSaverOutput).c_str();
 }
 
 RendParamDlg * LuxMax::CreateParamDialog(IRendParams *ir, BOOL prog) {
@@ -704,12 +735,12 @@ BOOL FileExists(const TCHAR *filename) {
 
 BOOL RunningNewShell()
 {
-	OSVERSIONINFO os;
-	os.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	GetVersionEx(&os);
-	if (os.dwPlatformId == VER_PLATFORM_WIN32_NT && os.dwMajorVersion < 4)
+	//OSVERSIONINFO os;
+	//os.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	//GetVersionEx(&os);
+//	if (os.dwPlatformId == VER_PLATFORM_WIN32_NT && os.dwMajorVersion < 4)
 		return FALSE;
-	return TRUE;
+	//return TRUE;
 }
 
 #define FileEXT _T(".png")
@@ -785,7 +816,7 @@ BOOL LuxMaxParamDlg::FileBrowse() {
 	ofn.nMaxFile = _countof(fname);
 
 	Interface *iface = GetCOREInterface();
-
+	
 	if (saveDir[0])
 		ofn.lpstrInitialDir = saveDir;
 	else

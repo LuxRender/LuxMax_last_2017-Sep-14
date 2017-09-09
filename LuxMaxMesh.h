@@ -22,14 +22,14 @@
 using std::max;
 using std::min;
 #include <luxcore/luxcore.h>
-#include <luxrays\luxrays.h>
+//#include <luxrays\luxrays.h>
 
 class LuxMaxMesh
 {
 public:
 	LuxMaxMesh();
 	~LuxMaxMesh();
-	void createMeshesInGroup(INode *currNode, luxcore::Scene &scene);
-	void createMesh(INode *node, luxcore::Scene &scene);
+	void createMeshesInGroup(INode *currNode, luxcore::Scene &scene, TimeValue t);
+	void createMesh(INode *node, luxcore::Scene &scene, TimeValue t);
 };
 

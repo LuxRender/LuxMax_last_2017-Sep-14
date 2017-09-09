@@ -41,7 +41,7 @@ using std::min;
 #include "LuxMaxMaterials.h"
 #include "LuxMaxUtils.h"
 #include <luxcore/luxcore.h>
-#include <luxrays\luxrays.h>
+//#include <luxrays\luxrays.h>
 
 LuxMaxUtils lmutil;
 
@@ -56,6 +56,16 @@ LuxMaxLights::~LuxMaxLights()
 
 luxrays::Properties LuxMaxLights::exportOmni(INode* Omni)
 {
+
+	//for (int a = 0; Omni->NumChildren() > a; a++)
+	//{
+	//	INode* childNode = Omni->GetChildNode(a);
+	//	if (childNode->ClassID == OMNI_LIGHT_CLASS_ID)
+	//	{
+	//		exportOmni(childNode);
+	//	}
+	//}
+
 	::Point3 trans = Omni->GetNodeTM(GetCOREInterface11()->GetTime()).GetTrans();
 	::Point3 color;
 

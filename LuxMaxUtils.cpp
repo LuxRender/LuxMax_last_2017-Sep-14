@@ -35,7 +35,7 @@ using std::min;
 #include <boost/format.hpp>
 
 #include <luxcore/luxcore.h>
-#include <luxrays\luxrays.h>
+//#include <luxrays\luxrays.h>
 
 
 
@@ -136,13 +136,14 @@ std::string LuxMaxUtils::removeUnwatedChars(std::string& str)
 	return str;
 }
 
-std::string LuxMaxUtils::getMaxNodeTransform(INode* node)
+std::string LuxMaxUtils::getMaxNodeTransform(INode* node, TimeValue t)
 {
 	LuxMaxUtils *lmutil;
 	std::string tmpTrans = "";
-	Matrix3 nodeTransformPos = node->GetObjTMAfterWSM(GetCOREInterface()->GetTime());
+	Matrix3 nodeTransformPos = node->GetObjectTM(t);
 	Matrix3 nodeTransformRot = nodeTransformPos;
 	Matrix3 nodeTransformScale = nodeTransformPos;
+	Point3 trans = nodeTransformPos.GetTrans();
 
 	nodeTransformRot.NoTrans();
 	nodeTransformScale.NoTrans();
@@ -174,11 +175,11 @@ std::string LuxMaxUtils::getMaxNodeTransform(INode* node)
 	tmpTrans.append(" ");
 	tmpTrans.append("0 ");
 
-	tmpTrans.append(floatToString(nodeTransformPos.GetTrans().x));
+	tmpTrans.append(floatToString(trans.x));
 	tmpTrans.append(" ");
-	tmpTrans.append(floatToString(nodeTransformPos.GetTrans().y));
+	tmpTrans.append(floatToString(trans.y));
 	tmpTrans.append(" ");
-	tmpTrans.append(floatToString(nodeTransformPos.GetTrans().z));
+	tmpTrans.append(floatToString(trans.z));
 	tmpTrans.append(" 1.0");
 	tmpTrans.append("\n");
 	return tmpTrans;

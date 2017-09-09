@@ -74,7 +74,7 @@ using namespace luxrays;
 #define LR_Archglass_CLASS_ID	Class_ID(0x34b16e78, 0x3de467e3)
 #define LR_Cloth_CLASS_ID	Class_ID(0x45b18e28, 0x2de456e3)
 #define LR_Carpaint_CLASS_ID	Class_ID(0x12b48e28, 0x5de432e3)
-
+#define LR_Texture_CLASS_ID Class_ID(0x482c6db2, 0x9cb39d3d)
 LuxMaxUtils * lmutil;
 
 LuxMaxMaterials::LuxMaxMaterials()
@@ -85,17 +85,118 @@ LuxMaxMaterials::~LuxMaxMaterials()
 {
 }
 
-std::string LuxMaxMaterials::getFloatFromParamBlockID(int paramID, ::Mtl* mat)
+std::string LuxMaxMaterials::getFloatFromParamBlockID(int paramID, ::Mtl* mat, ::Texmap* tex)
 {
 	std::string stringValue = "";
 	float value = 0.0f;
-	IParamBlock2 *pBlock = mat->GetParamBlock(0);
+	IParamBlock2 *pBlock = NULL;
+
+	if (mat != NULL)
+	{
+		pBlock = mat->GetParamBlock(0);
+	}
+	else
+	{
+		pBlock = tex->GetParamBlock(0);
+	}
 
 	if (pBlock != NULL)
 	{
 		value = pBlock->GetFloat(paramID, GetCOREInterface()->GetTime());
 		stringValue = lmutil->floatToString(value);
 	}
+	return stringValue;
+}
+
+std::string LuxMaxMaterials::exportTexturesInMaterial(::Mtl* mat, std::string texSlotName)
+{
+	std::string stringValue = "";
+
+	Texmap *tex;
+	std::string path = "";
+
+	const wchar_t *matName = L"";
+
+	matName = mat->GetName();
+	std::string tmpMatName = lmutil->ToNarrow(matName);
+	if (tmpMatName == "")
+	{
+		tmpMatName = "undefinedMaterial";
+		matName = L"undefinedMaterial";
+	}
+
+	lmutil->removeUnwatedChars(tmpMatName);
+	std::wstring replacedMaterialName = std::wstring(tmpMatName.begin(), tmpMatName.end());
+	matName = replacedMaterialName.c_str();
+
+
+	IParamBlock2 *pBlock = mat->GetParamBlock(0);
+	for (int i = 0, count = mat->NumParamBlocks(); i < count; ++i)
+	{
+		IParamBlock2 *pBlock = mat->GetParamBlock(i);
+		//for (int currParam = 0, currParam = pBlock->NumParams(); currParam < currParam; ++currParam)
+		for (int a = 0; a < pBlock->NumParams(); a = a + 1) 
+		{
+			{
+				tex = pBlock->GetTexmap(a, GetCOREInterface()->GetTime());
+
+				if (tex != NULL)
+				{
+					if (tex->ClassID() == STANDARDBITMAP_CLASSID)
+					{
+						BitmapTex *bmt = (BitmapTex*)tex;
+
+						if (bmt != NULL)
+						{
+							//Non-Unicode string, we should fix this so that it does not crash with Chinese characters for example.
+							// http://www.luxrender.net/mantis/view.php?id=1624#bugnotes
+							std::string tmpTexName = tex->GetName().ToCStr();
+							lmutil->removeUnwatedChars(tmpTexName);
+							//path = bmt->GetMap().GetFullFilePath().ToUTF8();
+							stringValue.append("scene.textures." + tmpTexName + ".type = imagemap");
+							stringValue.append("\n");
+							stringValue.append("scene.textures." + tmpTexName + ".file = " + "\"" + getMaterialDiffuseTexturePath(mat) + "\"");
+							stringValue.append("\n");
+							stringValue.append("scene.materials." + lmutil->ToNarrow(matName) + ".kd = " + tmpTexName);
+							stringValue.append("\n");
+						}
+					}
+					else if (tex->ClassID() == LR_Texture_CLASS_ID)
+					{
+						std::string tmpTexName = tex->GetName().ToCStr();
+						lmutil->removeUnwatedChars(tmpTexName);
+						
+						stringValue.append("scene.textures." + tmpTexName + ".type = blender_noise");
+						stringValue.append("\n");
+						stringValue.append("scene.textures." + tmpTexName + ".noisedepth =" + getIntFromParamBlockID(2, NULL, tex));
+						stringValue.append("\n");
+						stringValue.append("scene.textures." + tmpTexName + ".bright = " + getFloatFromParamBlockID(3, NULL, tex));
+						stringValue.append("\n");
+						stringValue.append("scene.textures." + tmpTexName + ".contrast = " + getFloatFromParamBlockID(4, NULL, tex));
+						stringValue.append("\n");
+
+						//Currently color diffuse is supported, we need a way to set *any* texture type.
+						//We should set the texture name outside from here..
+						if (texSlotName != "")
+						{
+							stringValue.append("scene.materials." + lmutil->ToNarrow(matName) + "." + texSlotName + "= " + tmpTexName);
+						}
+						
+						stringValue.append("\n");
+					}
+					else
+					{
+						OutputDebugStringW(L"\nUnsupported texture map in material: ");//mprintf(L"ERROR : Unsupported texture in material: '%s' , named: '%s' , will not render texture. standard bitmap is supported.\n", mat->GetName(), tex->GetName());
+						OutputDebugStringW(mat->GetName());
+					}
+				}
+			}
+		}
+	}
+	//tex = pBlock->GetTexmap(0, GetCOREInterface()->GetTime(), 0);
+	
+	
+	//}
 	return stringValue;
 }
 
@@ -248,11 +349,22 @@ std::string LuxMaxMaterials::getLightEmission(::Mtl* mat)
 	return stringValue;
 }
 
-std::string LuxMaxMaterials::getIntFromParamBlockID(int paramID, ::Mtl* mat)
+std::string LuxMaxMaterials::getIntFromParamBlockID(int paramID, ::Mtl* mat, ::Texmap* tex)
 {
+
 	std::string stringValue = "";
-	float value = 0.0f;
-	IParamBlock2 *pBlock = mat->GetParamBlock(0);
+	//float value = 0.0f;
+	int value = 0;
+	IParamBlock2 *pBlock = NULL;
+
+	if (mat != NULL)
+	{
+		pBlock = mat->GetParamBlock(0);
+	}
+	else
+	{
+		pBlock = tex->GetParamBlock(0);
+	}
 
 	if (pBlock != NULL)
 	{
@@ -390,6 +502,9 @@ Point3 LuxMaxMaterials::getMaterialDiffuseColor(::Mtl* mat)
 	std::string objString;
 	::Point3 diffcolor;
 	Interval      ivalid;
+	diffcolor.x = 155;
+	diffcolor.y = 155;
+	diffcolor.z = 155;
 
 	if (mat->ClassID() == LR_INTERNAL_MATTE_CLASSID)
 	{
@@ -556,7 +671,7 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 			);
 		//mprintf(_T("\n Creating Cheker 01 %i \n"));
 	}
-	else if (/*mat->ClassID() == LR_INTERNAL_MAT_TEMPLATE_CLASSID || */(mat->ClassID() == LR_INTERNAL_MATTE_CLASSID))
+	else if ((mat->ClassID() == LR_INTERNAL_MATTE_CLASSID))
 	{
 		luxrays::Properties prop;
 
@@ -591,7 +706,8 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 		}
 
 		//Check if there is a diffuse material assigned.
-		if (getMaterialDiffuseTexturePath(mat) == "")
+		//if (getMaterialDiffuseTexturePath(mat) == "")
+		if (exportTexturesInMaterial(mat) == "")
 		{
 			::Point3 diffcol;
 			diffcol = getMaterialDiffuseColor(mat);
@@ -606,13 +722,13 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 		}
 		else
 		{
-			diffuseMapName = getDiffuseTextureName(mat);
-			tmpTexString.append("scene.textures." + diffuseMapName + ".type = imagemap");
+			tmpTexString.append(exportTexturesInMaterial(mat,"kd"));
+		/*	tmpTexString.append("scene.textures." + diffuseMapName + ".type = imagemap");
 			tmpTexString.append("\n");
 			tmpTexString.append("scene.textures." + diffuseMapName + ".file = " + "\"" + getMaterialDiffuseTexturePath(mat) + "\"");
-			tmpTexString.append("\n");
-			tmpTexString.append("scene.materials." + lmutil->ToNarrow(matName) + ".kd = " + diffuseMapName);
-			tmpTexString.append("\n");
+			tmpTexString.append("\n");*/
+			//tmpTexString.append("scene.materials." + lmutil->ToNarrow(matName) + ".kd = " + diffuseMapName);
+			//tmpTexString.append("\n");
 		}
 
 		if (bumpMapName != "")
@@ -852,7 +968,7 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 		//std::string temp = getIntFromParamBlockID(14, mat);
 		//TODO: We should make a 'rounded' int (0) from the getintFromParamBlockID function.
 		//Then return it as bool value.
-		if (getIntFromParamBlockID( 13,mat) == "0.000000")
+		if (getIntFromParamBlockID( 13,mat) == "0")
 		{
 			//std::string temp = getIntFromParamBlockID(14, mat);
 
@@ -1332,7 +1448,7 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 			tmpmat.append("\n");
 		}
 
-		if (getIntFromParamBlockID(28, mat) == "0.000000")
+		if (getIntFromParamBlockID(28, mat) == "0")
 		{
 			std::string temp = getIntFromParamBlockID(28, mat);
 
@@ -1346,7 +1462,7 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 		}
 
 
-		if (getIntFromParamBlockID(29, mat) == "0.000000")
+		if (getIntFromParamBlockID(29, mat) == "0")
 		{
 			std::string temp = getIntFromParamBlockID(28, mat);
 
@@ -1851,7 +1967,11 @@ void LuxMaxMaterials::exportMaterial(Mtl* mat, luxcore::Scene &scene)
 			);
 
 		::Point3 diffcol;
-		diffcol = getMaterialDiffuseColor(mat);
+		//diffcol = getMaterialDiffuseColor(mat);
+		diffcol.x = 0.5;
+		diffcol.y = 0.5;
+		diffcol.z = 0.5;
+
 		::std::string tmpMatStr;
 		tmpMatStr.append("scene.materials." + lmutil->ToNarrow(matName) + ".kd");
 

@@ -102,7 +102,8 @@ class LuxMax : public Renderer {
 		//string rendertype = "";
 		bool defaultlightchk = true;
 		bool defaultlightauto = true;
-
+		bool enableFileSaverOutput = false;
+		TSTR enableFileSaverOutoutWstr;
 		//int renderType = 4;
 		MaxSDK::Util::TextFile::Writer *file;
 		INode *sceneNode;

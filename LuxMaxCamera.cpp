@@ -34,7 +34,7 @@
 #include <maxscript\maxscript.h>
 #include <Scene/IPhysicalCamera.h>
 #include <luxcore/luxcore.h>
-#include <luxrays\luxrays.h>
+//#include <luxrays\luxrays.h>
 
 #define CAMERAHELPER_CLASSID Class_ID(4128,0)
 #define MAX2016_PHYSICAL_CAMERA Class_ID(1181315608,686293133)
@@ -52,7 +52,7 @@ LuxMaxCamera::~LuxMaxCamera()
 {
 }
 
-bool LuxMaxCamera::exportCamera(float lensRadius, luxcore::Scene &scene)
+bool LuxMaxCamera::exportCamera(float lensRadius, luxcore::Scene &scene, TimeValue t)
 {
 	INode* camNode = GetCOREInterface9()->GetActiveViewExp().GetViewCamera();
 
@@ -63,7 +63,7 @@ bool LuxMaxCamera::exportCamera(float lensRadius, luxcore::Scene &scene)
 	}
 	else
 	{
-		CameraObject*   cameraPtr = (CameraObject *)camNode->EvalWorldState(GetCOREInterface()->GetTime()).obj;
+		CameraObject*   cameraPtr = (CameraObject *)camNode->EvalWorldState(t).obj;
 
 		float v = 0.0f;
 		float FOV = 0;
@@ -80,21 +80,21 @@ bool LuxMaxCamera::exportCamera(float lensRadius, luxcore::Scene &scene)
 
 		if (cameraPtr->ClassID() == MAX2016_PHYSICAL_CAMERA)
 		{
-			IPhysicalCamera* physicalCamera = dynamic_cast<IPhysicalCamera*>(camNode->EvalWorldState(GetCOREInterface()->GetTime()).obj);
+			IPhysicalCamera* physicalCamera = dynamic_cast<IPhysicalCamera*>(camNode->EvalWorldState(t).obj);
 
-			FOV = physicalCamera->GetFOV(GetCOREInterface()->GetTime(), FOREVER) * 180 / PI;
-			focaldistance = physicalCamera->GetTDist(GetCOREInterface()->GetTime(), FOREVER);
+			FOV = physicalCamera->GetFOV(t, FOREVER) * 180 / PI;
+			focaldistance = physicalCamera->GetTDist(t, FOREVER);
 		}
 		else
 		{
 			FOV = cameraPtr->GetFOV(GetCOREInterface()->GetTime(), FOREVER) * 180 / PI;
-			focaldistance = cameraPtr->GetTDist(GetCOREInterface()->GetTime(), FOREVER);
+			focaldistance = cameraPtr->GetTDist(t, FOREVER);
 		}
 
-		::Point3 camTrans = camNode->GetNodeTM(GetCOREInterface()->GetTime()).GetTrans();
+		::Point3 camTrans = camNode->GetNodeTM(t).GetTrans();
 		INode* NewCam = camNode;
 		::Matrix3 targetPos;
-		NewCam->GetTargetTM(GetCOREInterface()->GetTime(), targetPos);
+		NewCam->GetTargetTM(t, targetPos);
 
 		float aspectratio = GetCOREInterface11()->GetImageAspRatio();
 		if (aspectratio < 1)

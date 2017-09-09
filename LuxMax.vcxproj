@@ -28,7 +28,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B4AA58F2-E1C5-4FB7-94E3-0C26E98DAA5B}</ProjectGuid>
-    <MaxSDK>C:\Program Files\Autodesk\3ds Max 2017 SDK\maxsdk</MaxSDK>
+    <MaxSDK>C:\Program Files\Autodesk\3ds Max 2018 SDK\maxsdk</MaxSDK>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <ProjectName>LuxMax</ProjectName>
   </PropertyGroup>
@@ -51,23 +51,23 @@
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
-  <Import Project="C:\Program Files\Autodesk\3ds Max 2017 SDK\maxsdk\ProjectSettings\propertySheets\3dsmax.general.project.settings.props" />
+  <Import Project="C:\Program Files\Autodesk\3ds Max 2018 SDK\maxsdk\ProjectSettings\propertySheets\3dsmax.general.project.settings.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets">
-    <Import Project="C:\Program Files\Autodesk\3ds Max 2017 SDK\maxsdk\ProjectSettings\propertySheets\3dsmax.cpp.props" />
+    <Import Project="C:\Program Files\Autodesk\3ds Max 2018 SDK\maxsdk\ProjectSettings\propertySheets\3dsmax.cpp.props" />
   </ImportGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir>$(ADSK_3DSMAX_X64_2017)\plugins\</OutDir>
+    <OutDir>$(ADSK_3DSMAX_X64_2018)\plugins\</OutDir>
     <TargetName>LuxMax</TargetName>
     <TargetExt>.dlr</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>C:\Program Files\Autodesk\3ds Max 2017 SDK\maxsdk\lib\x64\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Program Files\Autodesk\3ds Max 2018 SDK\maxsdk\lib\x64\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\development\lux\windows_deps\x64\Release\lib;C:\boost_1_56_0\lib64-msvc-11.0\;C:\development\lux\windows_deps\include\Boost;C:\development\lux\windows\Build_CMake\LuxRays\lib\Release;C:\development\lux\luxrays\include\;C:\development\lux\luxrays\include\luxcore\;$(IncludePath);C:\development\lux\luxrays\include;C:\development\lux\windows_deps\include\OpenImageIO;C:\development\lux\windows_deps\include\OpenEXR;C:\development\lux\windows_deps\include;C:\development\lux\windows_deps\include\Python3</IncludePath>
-    <LibraryPath>C:\development\lux\windows\Build_CMake\LuxRays\lib\Release\;C:\boost_1_56_0\lib64-msvc-11.0;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\development\luxcore-sdk\include\;C:\boost_1_56_0\lib64-msvc-11.0\;C:\development\lux\windows_deps\include\Boost;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\development\lux\windows_deps\x64\Release\lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x64;C:\Program Files (x86)\AMD APP SDK\3.0\lib\x86_64\;C:\development\lux\windows\Build_CMake\LuxRays\lib\Release\;C:\boost_1_56_0\lib64-msvc-11.0;$(LibraryPath)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <IntDir>$(LocalDebuggerWorkingDirectory)\intermidiate\</IntDir>
     <LinkIncremental>true</LinkIncremental>
@@ -83,8 +83,8 @@
       <AdditionalIncludeDirectories>$(MaxSdkInc);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>IGame.lib;gfx.lib;bmm.lib;embree.lib;paramblk2.lib;fftw3.lib;freeglut_static.lib;FreeImage.lib;glew32.lib;Half.lib;Iex.lib;IlmImf.lib;IlmThread.lib;Imath.lib;jpeg.lib;libboost_bzip2-vc120-mt-1_56.lib;libboost_chrono-vc120-mt-1_56.lib;libboost_date_time-vc120-mt-1_56.lib;libboost_filesystem-vc120-mt-1_56.lib;libboost_iostreams-vc120-mt-1_56.lib;libboost_locale-vc120-mt-1_56.lib;libboost_program_options-vc120-mt-1_56.lib;libboost_python-vc120-mt-1_56.lib;libboost_python3-vc120-mt-1_56.lib;libboost_regex-vc120-mt-1_56.lib;libboost_serialization-vc120-mt-1_56.lib;libboost_system-vc120-mt-1_56.lib;libboost_thread-vc120-mt-1_56.lib;libboost_wserialization-vc120-mt-1_56.lib;libboost_zlib-vc120-mt-1_56.lib;libpng.lib;libtiff.lib;OpenImageIO.lib;openjpeg.lib;python34.lib;QtCore4.lib;QtGui4.lib;qtmain.lib;QtNetwork4.lib;zlib1.lib;smallluxgpu.lib;luxrays.lib;luxcore.lib;maxscrpt.lib;comctl32.lib;core.lib;geom.lib;maxutil.lib;mesh.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\development\lux\windows\Build_CMake\LuxRender\RELEASE\;C:\Program Files (x86)\AMD APP SDK\3.0-0-Beta\lib\x86_64;C:\boost_1_56_0\lib64-msvc-11.0;C:\development\lux\windows\Build_CMake\LuxRays\lib\Release;C:\development\lux\windows_deps\x64\Release\lib;$(MaxSdkLib);$(MaxLib);C:\development\lux\windows_deps\x86\Release\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>luxcore.lib;IGame.lib;gfx.lib;bmm.lib;embree.lib;paramblk2.lib;fftw3.lib;FreeImage.lib;Half.lib;Iex.lib;IlmImf.lib;IlmThread.lib;Imath.lib;jpeg.lib;libboost_bzip2-vc120-mt-1_56.lib;libboost_chrono-vc120-mt-1_56.lib;libboost_date_time-vc120-mt-1_56.lib;libboost_filesystem-vc120-mt-1_56.lib;libboost_iostreams-vc120-mt-1_56.lib;libboost_locale-vc120-mt-1_56.lib;libboost_program_options-vc120-mt-1_56.lib;libboost_python-vc120-mt-1_56.lib;libboost_python3-vc120-mt-1_56.lib;libboost_regex-vc120-mt-1_56.lib;libboost_serialization-vc120-mt-1_56.lib;libboost_system-vc120-mt-1_56.lib;libboost_thread-vc120-mt-1_56.lib;libboost_wserialization-vc120-mt-1_56.lib;libboost_zlib-vc120-mt-1_56.lib;libpng.lib;libtiff.lib;OpenImageIO.lib;zlib1.lib;maxscrpt.lib;comctl32.lib;core.lib;geom.lib;maxutil.lib;mesh.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\development\luxcore-sdk\lib\;C:\Program Files (x86)\AMD APP SDK\3.0-0-Beta\lib\x86_64;C:\boost_1_56_0\lib64-msvc-11.0;$(MaxSdkLib);$(MaxLib);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>.\LuxMax.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -122,7 +122,7 @@
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
-      <OutputFile>$(ADSK_3DSMAX_X64_2017)\plugins\LuxMax.dlr</OutputFile>
+      <OutputFile>$(ADSK_3DSMAX_X64_2018)\plugins\LuxMax.dlr</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

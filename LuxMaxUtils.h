@@ -35,7 +35,7 @@ public:
 	::std::string getstring(const wchar_t* wstr);
 	std::string ReplaceAll(std::string str, const std::string& from, const std::string& to);
 	std::string floatToString(float number);
-	std::string getMaxNodeTransform(INode* node);
+	std::string getMaxNodeTransform(INode* node, TimeValue t);
 	float GetMeterMult();
 };
 

@@ -37,6 +37,7 @@ public:
 	std::string getTextureName(int paramID, ::Mtl* mat);
 	std::string getBumpTextureName(::Mtl* mat);
 	std::string getDiffuseTextureName(::Mtl* mat);
+	std::string exportTexturesInMaterial(::Mtl* mat, std::string texSlotName = "");
 
 	//void LuxMaxMaterials::defineTexture(BitmapTex* bmTex, luxcore::Scene &scene, std::string textureName);
 	Point3 getMaterialDiffuseColor(::Mtl* mat);
@@ -44,8 +45,9 @@ public:
 	std::string getLightEmission(::Mtl* mat);
 	bool isSupportedMaterial(::Mtl* mat);
 	std::string getTexturePathFromParamBlockID(int id, ::Mtl* mat);
-	std::string getFloatFromParamBlockID(int paramID, ::Mtl* mat);
-	std::string LuxMaxMaterials::getIntFromParamBlockID(int paramID, ::Mtl* mat);
+	std::string getFloatFromParamBlockID(int paramID, ::Mtl* mat = NULL, ::Texmap* tex = NULL);
+	//std::string LuxMaxMaterials::getIntFromParamBlockID(int paramID, ::Mtl* mat);
+	std::string LuxMaxMaterials::getIntFromParamBlockID(int paramID, ::Mtl* mat = NULL, ::Texmap* tex = NULL);
 	
 };
 

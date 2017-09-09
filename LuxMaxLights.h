@@ -21,7 +21,7 @@
 using std::max;
 using std::min;
 #include <luxcore/luxcore.h>
-#include <luxrays\luxrays.h>
+////#include <luxrays\luxrays.h>
 
 class LuxMaxLights
 {

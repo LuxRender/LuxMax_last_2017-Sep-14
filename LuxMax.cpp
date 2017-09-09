@@ -25,9 +25,19 @@
 #define SKYLIGHT_CLASSID Class_ID(2079724664, 1378764549)
 #define DIRLIGHT_CLASSID Class_ID(4115, 0) // free directional light and sun light classid
 
+#include <limits>
+#include <limits.h>
 #include "LuxMaxpch.h"
 #include "resource.h"
 #include "LuxMax.h"
+
+namespace luxcore
+{
+//#include <luxcore/luxcore.h>
+//#include <luxcoreimpl.h>
+#include <luxcore\luxcore.h>
+}
+
 
 #include "LuxMaxCamera.h"
 #include "LuxMaxUtils.h"
@@ -50,10 +60,7 @@
 #include <iostream>
 #include <IMaterialBrowserEntryInfo.h>
 #include <units.h>
-namespace luxcore
-{
-#include <luxcore/luxcore.h>
-}
+
 #include <boost/filesystem/operations.hpp>
 #include <boost/foreach.hpp>
 #include <boost/assign.hpp>
@@ -78,15 +85,17 @@ using namespace luxrays;
 
 extern BOOL FileExists(const TCHAR *filename);
 float* pixels;
-
+Scene *materialPreviewScene = NULL;
 bool defaultlightset = true;
 int rendertype = 4;
 int renderWidth = 0;
 int renderHeight = 0;
 bool renderingMaterialPreview = false;
 int vfbRefreshRateInt = 1;
-Scene *materialPreviewScene;// = new Scene();
+//luxcore::Scene *materialPreviewScene;// = new Scene();
+
 int filterIndex;
+bool enableFileSaverOutput;
 
 class LuxMaxClassDesc :public ClassDesc2 {
 public:
@@ -123,6 +132,42 @@ p_end,
 p_end
 );*/
 
+class UV {
+public:
+	UV(float _u = 0.f, float _v = 0.f)
+		: u(_u), v(_v) {
+	}
+
+	UV(const float v[2]) : u(v[0]), v(v[1]) {
+	}
+
+	float u, v;
+};
+
+class Point {
+public:
+	Point(float _x = 0.f, float _y = 0.f, float _z = 0.f)
+		: x(_x), y(_y), z(_z) {
+	}
+
+	Point(const float v[3]) : x(v[0]), y(v[1]), z(v[2]) {
+	}
+
+	float x, y, z;
+};
+
+class Triangle {
+public:
+	Triangle() { }
+	Triangle(const unsigned int v0, const unsigned int v1, const unsigned int v2) {
+		v[0] = v0;
+		v[1] = v1;
+		v[2] = v2;
+	}
+
+	unsigned int v[3];
+};
+
 RefResult LuxMax::NotifyRefChanged(const Interval &changeInt, RefTargetHandle hTarget, PartID &partID,
 	RefMessage message, BOOL propagate)
 {
@@ -146,9 +191,32 @@ RefResult LuxMax::NotifyRefChanged(const Interval &changeInt, RefTargetHandle hT
 	return REF_SUCCEED;
 }
 
+
+
+class BBox {
+public:
+	// BBox Public Methods
+
+	BBox() {
+		pMin = ::Point(numeric_limits<float>::infinity(),
+			numeric_limits<float>::infinity(),
+			numeric_limits<float>::infinity());
+		pMax = ::Point(-numeric_limits<float>::infinity(),
+			-numeric_limits<float>::infinity(),
+			-numeric_limits<float>::infinity());
+	}
+
+	BBox(const ::Point &p1, const ::Point &p2) {
+		pMin = p1;
+		pMax = p2;
+	}
+
+	Point pMin, pMax;
+};
+
 static void CreateBox(Scene *scene, const string &objName, const string &meshName,
 	const string &matName, const bool enableUV, const BBox &bbox) {
-	Point *p = Scene::AllocVerticesBuffer(24);
+	Point *p = (Point *)Scene::AllocVerticesBuffer(24);
 	// Bottom face
 	p[0] = Point(bbox.pMin.x, bbox.pMin.y, bbox.pMin.z);
 	p[1] = Point(bbox.pMin.x, bbox.pMax.y, bbox.pMin.z);
@@ -180,7 +248,7 @@ static void CreateBox(Scene *scene, const string &objName, const string &meshNam
 	p[22] = Point(bbox.pMax.x, bbox.pMax.y, bbox.pMax.z);
 	p[23] = Point(bbox.pMax.x, bbox.pMax.y, bbox.pMin.z);
 
-	Triangle *vi = Scene::AllocTrianglesBuffer(12);
+	Triangle *vi = (Triangle *)Scene::AllocTrianglesBuffer(12);
 	// Bottom face
 	vi[0] = Triangle(0, 1, 2);
 	vi[1] = Triangle(2, 3, 0);
@@ -203,7 +271,7 @@ static void CreateBox(Scene *scene, const string &objName, const string &meshNam
 	// Define the Mesh
 	if (!enableUV) {
 		// Define the object
-		scene->DefineMesh(meshName, 24, 12, p, vi, NULL, NULL, NULL, NULL);
+		scene->DefineMesh(meshName, 24, 12, (float *)p, (unsigned int *)vi, NULL, NULL, NULL, NULL);
 	}
 	else {
 		UV *uv = new UV[24];
@@ -239,9 +307,8 @@ static void CreateBox(Scene *scene, const string &objName, const string &meshNam
 		uv[23] = UV(0.f, 1.f);
 
 		// Define the object
-		scene->DefineMesh(meshName, 24, 12, p, vi, NULL, uv, NULL, NULL);
+		scene->DefineMesh(meshName, 24, 12, (float *)p, (unsigned int *)vi, NULL, (float *)uv, NULL, NULL);
 	}
-
 	// Add the object to the scene
 	Properties props;
 	props.SetFromString(
@@ -309,9 +376,10 @@ int LuxMax::Open(
 	if (rp.inMtlEdit)
 	{
 		renderingMaterialPreview = true;
-		materialPreviewScene = new Scene();
+		//Scene* materialPreviewScene = NULL;// *= new Scene();
+		Scene *materialPreviewScene = Scene::Create();
 
-		lxmMesh.createMesh(scene, *materialPreviewScene);
+		lxmMesh.createMesh(scene, *materialPreviewScene,GetCOREInterface()->GetTime());
 	}
 	else
 	{
@@ -322,8 +390,8 @@ int LuxMax::Open(
 }
 
 static void DoRendering(RenderSession *session, RendProgressCallback *prog, Bitmap *tobm) {
-	const u_int haltTime = session->GetRenderConfig().GetProperties().Get(Property("batch.halttime")(0)).Get<u_int>();
-	const u_int haltSpp = session->GetRenderConfig().GetProperties().Get(Property("batch.haltspp")(0)).Get<u_int>();
+	const unsigned int haltTime = session->GetRenderConfig().GetProperties().Get(Property("batch.halttime")(0)).Get<unsigned int>();
+	const unsigned int haltSpp = session->GetRenderConfig().GetProperties().Get(Property("batch.haltspp")(0)).Get<unsigned int>();
 	const float haltThreshold = session->GetRenderConfig().GetProperties().Get(Property("batch.haltthreshold")(-1.f)).Get<float>();
 	const wchar_t *state = NULL;
 	
@@ -331,19 +399,19 @@ static void DoRendering(RenderSession *session, RendProgressCallback *prog, Bitm
 	const Properties &stats = session->GetStats();
 	
 	for (;;) {
-		//boost::this_thread::sleep(boost::posix_time::millisec(1000));
+		//boost::this_thread::sleep(boost::posix_time::millisec(10000));
 
 		session->UpdateStats();
 		const double elapsedTime = stats.Get("stats.renderengine.time").Get<double>();
 		if ((haltTime > 0) && (elapsedTime >= haltTime))
 			break;
 
-		const u_int pass = stats.Get("stats.renderengine.pass").Get<u_int>();
+		const unsigned int pass = stats.Get("stats.renderengine.pass").Get<unsigned int>();
 		if ((haltSpp > 0) && (pass >= haltSpp))
 			break;
 
 		// Convergence test is update inside UpdateFilm()
-		const float convergence = stats.Get("stats.renderengine.convergence").Get<u_int>();
+		const float convergence = stats.Get("stats.renderengine.convergence").Get<unsigned int>();
 		if ((haltThreshold >= 0.f) && (1.f - convergence <= haltThreshold))
 			break;
 
@@ -358,18 +426,21 @@ static void DoRendering(RenderSession *session, RendProgressCallback *prog, Bitm
 		wsprintf(passWstr, L"Rendering pass:%d", pass);
 		prog->SetTitle(passWstr);
 		
-
-		bool renderabort = prog->Progress(elapsedTime + 1, haltTime);
-		if (renderabort == false)
-			break;
 		renderWidth = tobm->Width();
 		renderHeight = tobm->Height();
 		int pixelArraySize = renderWidth * renderHeight * 3;
-
 		float* pixels = new float[pixelArraySize]();
 
-		session->GetFilm().GetOutput(session->GetFilm().OUTPUT_RGB_TONEMAPPED, pixels, 0);
+		bool renderabort = prog->Progress(elapsedTime + 1, haltTime);
+		if (renderabort == false)
+		{
+			delete[] pixels;
+			session->Stop();
+			break;
+		}
 
+		//session->GetFilm().GetOutput(session->GetFilm().OUTPUT_RGB_TONEMAPPED, pixels, 0);
+		session->GetFilm().GetOutput<float>(Film::OUTPUT_RGB_IMAGEPIPELINE, pixels);
 		int i = 0;
 
 		BMM_Color_64 col64;
@@ -384,17 +455,130 @@ static void DoRendering(RenderSession *session, RendProgressCallback *prog, Bitm
 				col64.r = (WORD)floorf(pixels[i] * 65535.f + .5f);
 				col64.g = (WORD)floorf(pixels[i + 1] * 65535.f + .5f);
 				col64.b = (WORD)floorf(pixels[i + 2] * 65535.f + .5f);
-
+				
 				tobm->PutPixels(h, w, 1, &col64);
-
+				
 				i += 3;
 			}
 		}
 		tobm->RefreshWindow(NULL);
-
+		
 		col64 = NULL;
-		delete[] pixels;
+		delete pixels;
+		
 		//SLG_LOG(buf);
+	}
+	
+}
+
+
+void parseObjects(INode *currNode, luxcore::Scene &scene , TimeValue &t)
+{
+	Object*	obj;
+	ObjectState os = currNode->EvalWorldState(t);
+	obj = os.obj;
+	bool doExport = true;
+
+	for (int a = 0; currNode->NumChildren() > a; a++)
+	{
+		INode *childNode = currNode->GetChildNode(a);
+		if (childNode != NULL)
+		{
+			parseObjects(childNode, scene,t);
+		}
+	}
+
+	if (currNode->IsHidden(0, true))
+	{
+		doExport = false;
+	}
+
+	switch (os.obj->SuperClassID())
+	{
+	case HELPER_CLASS_ID:
+	{
+		doExport = false;
+
+		//If the helper is a group header we loop through and export all objects inside the group.
+		if (currNode->IsGroupHead())
+		{
+			lxmMesh.createMeshesInGroup(currNode, scene,t);
+		}
+		break;
+	}
+
+	if (doExport)
+	{
+	case LIGHT_CLASS_ID:
+	{
+		//Properties props;
+		std::string objString;
+		//bool lightsupport = false;
+
+		//if (defaultlightchk == true)
+		//{
+		//	if (defaultlightauto == true)
+		//	{
+		//		defaultlightset = false;
+		//	}
+		//}
+		//else
+		//{
+		//	defaultlightset = false;
+		//	//mprintf(_T("\n Default Light Deactive Automaticlly %i \n"));
+		//	OutputDebugStringW(L"Default Light deactivate automatically.");
+		//}
+
+		if (os.obj->ClassID() == OMNI_CLASSID)
+		{
+			scene.Parse(lxmLights.exportOmni(currNode));
+
+			//lightsupport = true;
+		}
+		if (os.obj->ClassID() == SPOTLIGHT_CLASSID)
+		{
+			scene.Parse(lxmLights.exportSpotLight(currNode));
+			//lightsupport = true;
+		}
+		if (os.obj->ClassID() == SKYLIGHT_CLASSID)
+		{
+			scene.Parse(lxmLights.exportSkyLight(currNode));
+			//lightsupport = true;
+		}
+		if (os.obj->ClassID() == DIRLIGHT_CLASSID)
+		{
+			scene.Parse(lxmLights.exportDiright(currNode));
+			//lightsupport = true;
+		}
+		//if (lightsupport == false)
+		//{
+		//	if (defaultlightchk == true)
+		//	{
+		//		//mprintf(_T("\n There is No Suported light in scene %i \n"));
+		//		OutputDebugStringW(L"No supported light in the scene.");
+		//		defaultlightset = true;
+		//	}
+		//}
+
+		break;
+	}
+	}
+
+	if (os.obj->ClassID() == XREFOBJ_CLASS_ID)
+	{
+		//mprintf(_T("\n There is a xref node in the scene, will not render yet. please merge scene. \n"));
+		OutputDebugStringW(L"Xref is unsupported, merge scene instead.");
+		break;
+	}
+
+	case GEOMOBJECT_CLASS_ID:
+	{
+		if (doExport)
+		{
+			lxmMesh.createMesh(currNode, scene,t);
+		}
+		break;
+	}
 	}
 }
 
@@ -410,7 +594,7 @@ int LuxMax::Render(
 	UNREFERENCED_PARAMETER(vp);
 	UNREFERENCED_PARAMETER(hwnd);
 	UNREFERENCED_PARAMETER(frp);
-	UNREFERENCED_PARAMETER(t);
+	//UNREFERENCED_PARAMETER(t);
 	UNREFERENCED_PARAMETER(prog);
 	
 	using namespace std;
@@ -423,9 +607,8 @@ int LuxMax::Render(
 
 	if (renderingMaterialPreview)
 	{
-		//Here we create a dummy mesh and dummy material, if we do not do this the renderer crashes.
-		//It's very small and should not be visible in the material previews.
-		//We also create and assign a dummy material.
+		materialPreviewScene = Scene::Create();
+
 		materialPreviewScene->Parse(
 			Property("scene.materials.mat_dummy.type")("matte") <<
 			Property("scene.materials.mat_dummy.kd")(1.0f, 1.f, 1.f)
@@ -437,7 +620,7 @@ int LuxMax::Render(
 		renderHeight = tobm->Height();
 
 		float previewCameraDistance = 6 / lxmUtils.GetMeterMult();
-
+		
 		materialPreviewScene->Parse(
 			Property("scene.camera.lookat.orig")(previewCameraDistance, previewCameraDistance, previewCameraDistance) <<
 			Property("scene.camera.lookat.target")(0.f, 0.f, 0.f) <<
@@ -447,36 +630,42 @@ int LuxMax::Render(
 		//Instead of the preview sky light, we should fetch max's internal lights for material previews.
 		lxmLights.exportDefaultSkyLight(materialPreviewScene);
 
-		RenderConfig *config = new RenderConfig(
-			Property("renderengine.type")("PATHCPU") <<
-			Property("sampler.type")("SOBOL") <<
-			Property("opencl.platform.index")(-1) <<
-			Property("opencl.cpu.use")(true) <<
-			Property("opencl.gpu.use")(true) <<
-			Property("batch.halttime")(3) <<
-			Property("film.outputs.1.type")("RGBA_TONEMAPPED") <<
-			Property("film.outputs.1.filename")("tmp.png") <<
-			Property("film.imagepipeline.0.type")("TONEMAP_AUTOLINEAR") <<
-			Property("film.imagepipeline.1.type")("GAMMA_CORRECTION") <<
-			Property("film.height")(renderHeight) <<
-			Property("film.width")(renderWidth) <<
-			Property("film.imagepipeline.1.value")(1.0f),
-			materialPreviewScene);
-		RenderSession *session = new RenderSession(config);
+		
+		//PATHCPU was default here.. 
+	
+		std::string tmpRenderConfig;
+		
+		tmpRenderConfig.append("opencl.cpu.use = 0\n");
+		tmpRenderConfig.append("opencl.gpu.use = 0\n");
+		tmpRenderConfig.append("batch.halttime = " + std::to_string(3) + "\n");
+		tmpRenderConfig.append("film.imagepipeline.0.type = TONEMAP_AUTOLINEAR\n");
+		tmpRenderConfig.append("film.opencl.enable = 0\n");
+		tmpRenderConfig.append("film.opencl.platform = -1\n");
+		tmpRenderConfig.append("film.imagepipeline.1.type = GAMMA_CORRECTION\n");
+		tmpRenderConfig.append("film.imagepipeline.1.value = 1.0\n");
+		tmpRenderConfig.append("film.height = " + std::to_string(renderHeight) + "\n");
+		tmpRenderConfig.append("film.width = " + std::to_string(renderWidth) + "\n");
+		//tmpRenderConfig.append("sampler.type = SOBOL\n");
+		tmpRenderConfig.append("sampler.type = TILEPATHSAMPLER\n");
+		//tmpRenderConfig.append("film.filter.type = Box\n");
 
+		luxrays::Properties renderConfigProp;
+		renderConfigProp.SetFromString(tmpRenderConfig);
+		RenderConfig *config = RenderConfig::Create(renderConfigProp, materialPreviewScene);
+		RenderSession *session = RenderSession::Create(config);
 		session->Start();
-
 		DoRendering(session, prog, tobm);
 		session->Stop();
+		delete session;
 		return 1;
 	}
 	else
-
 	{
 		
-		Scene *scene = new Scene();
+		//Scene *scene = NULL;
+		Scene *scene = Scene::Create();
 		//In the camera 'export' function we check for supported camera, it returns false if something is not right.
-		if (!lxmCamera.exportCamera((float)atof(LensRadiusstr.ToCStr()), *scene))
+		if (!lxmCamera.exportCamera((float)atof(LensRadiusstr.ToCStr()), *scene,t))
 		{
 			return false;
 		}
@@ -486,121 +675,16 @@ int LuxMax::Render(
 		for (int a = 0; maxscene->NumChildren() > a; a++)
 		{
 			INode* currNode = maxscene->GetChildNode(a);
-			bool doExport = true;
-
-			if (currNode->IsHidden(0,true))
-			{
-				doExport = false;
-			}
-			//prog->SetCurField(1);
 			renderProgTitle = (L"Translating object: %s", currNode->GetName());
 			prog->SetTitle(renderProgTitle);
 			//	mprintf(_T("\n Total Rendering elements number: %i"), maxscene->NumChildren());
 			//		mprintf(_T("   ::   Current elements number: %i \n"), a + 1);
 			prog->Progress(a + 1, maxscene->NumChildren());
 
-			Object*	obj;
-			ObjectState os = currNode->EvalWorldState(GetCOREInterface()->GetTime());
-			obj = os.obj;
-			
-
-			switch (os.obj->SuperClassID())
-			{
-			case HELPER_CLASS_ID:
-			{
-				doExport = false;
-
-				//If the helper is a group header we loop through and export all objects inside the group.
-				if (currNode->IsGroupHead())
-				{
-					lxmMesh.createMeshesInGroup(currNode, *scene);
-				}
-				break;
-			}
-
-			if (doExport)
-			{ 
-			case LIGHT_CLASS_ID:
-			{
-				//Properties props;
-				std::string objString;
-				bool lightsupport = false;
-
-				if (defaultlightchk == true)
-				{
-					if (defaultlightauto == true)
-					{
-						defaultlightset = false;
-					}
-				}
-				else
-				{
-					defaultlightset = false;
-					//mprintf(_T("\n Default Light Deactive Automaticlly %i \n"));
-					OutputDebugStringW(L"Default Light deactivate automatically.");
-				}
-
-				if (os.obj->ClassID() == OMNI_CLASSID)
-				{
-					scene->Parse(lxmLights.exportOmni(currNode));
-					lightsupport = true;
-				}
-				if (os.obj->ClassID() == SPOTLIGHT_CLASSID)
-				{
-					scene->Parse(lxmLights.exportSpotLight(currNode));
-					lightsupport = true;
-				}
-				if (os.obj->ClassID() == SKYLIGHT_CLASSID)
-				{
-					scene->Parse(lxmLights.exportSkyLight(currNode));
-					lightsupport = true;
-				}
-				if (os.obj->ClassID() == DIRLIGHT_CLASSID)
-				{
-					scene->Parse(lxmLights.exportDiright(currNode));
-					lightsupport = true;
-				}
-				if (lightsupport == false)
-				{
-					if (defaultlightchk == true)
-					{
-						//mprintf(_T("\n There is No Suported light in scene %i \n"));
-						OutputDebugStringW(L"No supported light in the scene.");
-						defaultlightset = true;
-					}
-				}
-
-				break;
-			}
-			}
-
-			if (os.obj->ClassID() == XREFOBJ_CLASS_ID)
-			{
-				//mprintf(_T("\n There is a xref node in the scene, will not render yet. please merge scene. \n"));
-				OutputDebugStringW(L"Xref is unsupported, merge scene instead.");
-				break;
-			}
-
-			case GEOMOBJECT_CLASS_ID:
-				{
-					if (doExport)
-					{
-						lxmMesh.createMesh(currNode, *scene);
-					}
-					break;
-				}
-			}
-		}
-
-		if (defaultlightchk == true)
-		{
-			if (defaultlightset == true)
-			{
-				lxmLights.exportDefaultSkyLight(scene);
-			}
+			parseObjects(currNode, *scene,t);
 		}
 		
-		std::string tmpFilename = FileName.ToCStr();
+		//std::string tmpFilename = FileName.ToCStr();
 		int halttime = (int)_wtof(halttimewstr);
 		vfbRefreshRateInt = (int)_wtof(vbinterval);
 		
@@ -621,43 +705,37 @@ int LuxMax::Render(
 		{
 			case 0:
 			{
-				tmprendtype = "BIASPATHCPU";
-				break;
+				//Crashes with latest build
+				//tmprendtype = "BIDIRCPU";
 			}
+
 			case 1:
 			{
-				//tmprendtype = "BIASPATHOCL";
-				tmprendtype = "BIDIRCPU";
+				tmprendtype = "BIDIRVMCPU";
 				break;
 			}
 			case 2:
 			{
-				//tmprendtype = "BIDIRCPU";
-				tmprendtype = "BIDIRVMCPU";
+				tmprendtype = "LIGHTCPU";
 				break;
 			}
 			case 3:
 			{
-				//tmprendtype = "BIDIRVMCPU";
-				tmprendtype = "LIGHTCPU";
+				tmprendtype = "PATHCPU";
 				break;
 			}
 			case 4:
 			{
-				tmprendtype = "PATHCPU";
+				tmprendtype = "TILEPATHCPU";
 				break;
 			}
 			case 5:
 			{
-				//tmprendtype = "PATHOCL";
+				//tmprendtype = "RTBIASPATHOCL";
+				tmprendtype = "TILEPATHOCL"; 
 				break;
 			}
 			case 6:
-			{
-				//tmprendtype = "RTBIASPATHOCL";
-				break;
-			}
-			case 7:
 			{
 				//tmprendtype = "RTPATHOCL";
 				break;
@@ -669,22 +747,22 @@ int LuxMax::Render(
 		switch (filterIndex)
 		{
 		case 0:
-			filterName = "NONE";
-			break;
-		case 1:
 			filterName = "BLACKMANHARRIS";
 			break;
-		case 2:
+		case 1:
 			filterName = "BOX";
 			break;
-		case 3:
+		case 2:
 			filterName = "GAUSSIAN";
 			break;
-		case 4:
+		case 3:
 			filterName = "MITCHELL";
 			break;
-		case 5:
+		case 4:
 			filterName = "MITCHELL_SS";
+			break;
+		case 5:
+			filterName = "NONE";
 			break;
 
 			break;
@@ -692,29 +770,56 @@ int LuxMax::Render(
 
 		luxrays::Properties renderConfigProp;
 		std::string tmpRenderConfig;
-
-		tmpRenderConfig.append("renderengine.type = " + tmprendtype + "\n");
+		if ((int)_wtoi(enableFileSaverOutoutWstr))
+		{
+			tmpRenderConfig.append("renderengine.type = FILESAVER\n");
+			std::string filenameString = lxmUtils.ToNarrow(FileName);
+			std::replace(filenameString.begin(), filenameString.end(), '\\', '/');
+			OutputDebugStringW(L"Filesaver output path:\n");
+			OutputDebugStringA(filenameString.c_str());
+			tmpRenderConfig.append("filesaver.directory = " + filenameString +"\n");
+			
+			MessageBox(0, L"Files have been written do disk (Filesaver output).\nPress 'Cancel' in the render dialog to stop, browse to folder to view output files..", L"FileSaver output!", MB_OK);
+			
+		}
+		else
+		{
+			tmpRenderConfig.append("renderengine.type = " + tmprendtype + "\n");
+		}
+		
+		//GeForce GTX 1060 3GB
+		tmpRenderConfig.append("opencl.cpu.use = 0\n");
+		tmpRenderConfig.append("opencl.gpu.use = 0\n");
+		//tmpRenderConfig.append("opencl.devices.select = 1\n");
 		tmpRenderConfig.append("batch.halttime = " + std::to_string(halttime) + "\n");
 		tmpRenderConfig.append("film.imagepipeline.0.type = TONEMAP_AUTOLINEAR\n");
-		
+		tmpRenderConfig.append("film.opencl.enable = 0\n");
+		tmpRenderConfig.append("film.opencl.platform = -1\n");
+		//tmpRenderConfig.append("opencl.gpu.workgroup.size = 64\n");
+		//tmpRenderConfig.append("opencl.cpu.workgroup.size = 64\n");
+		//tmpRenderConfig.append("film.opencl.device = -1\n");
 		tmpRenderConfig.append("film.imagepipeline.1.type = GAMMA_CORRECTION\n");
 		tmpRenderConfig.append("film.imagepipeline.1.value = 1.0\n");
 		//tmpRenderConfig.append("film.imagepipeline.0.table.size = 4096\n"); 
 		tmpRenderConfig.append("film.height = " + std::to_string(renderHeight) + "\n");
 		tmpRenderConfig.append("film.width = " + std::to_string(renderWidth) + "\n");
 		tmpRenderConfig.append("film.filter.type = " + filterName + "\n");
-		tmpRenderConfig.append("film.filter.xwidth = " + lxmUtils.ToNarrow(FilterXWidthWst) + "\n");
-		tmpRenderConfig.append("film.filter.ywidth = " + lxmUtils.ToNarrow(FilterYWidthWst) + "\n");
-		if (filterIndex == 3)
+		if (filterIndex != 5)
+		{
+			tmpRenderConfig.append("film.filter.xwidth = " + lxmUtils.ToNarrow(FilterXWidthWst) + "\n");
+			tmpRenderConfig.append("film.filter.ywidth = " + lxmUtils.ToNarrow(FilterYWidthWst) + "\n");
+		}
+		
+		if (filterIndex == 2)
 		{
 			tmpRenderConfig.append("film.filter.gaussian.alpha =" + lxmUtils.ToNarrow(FilterGuassianAlphaWstr) + "\n");
 		}
-		if (filterIndex == 4)
+		if (filterIndex == 3)
 		{
 			tmpRenderConfig.append("film.filter.mitchell.a" + lxmUtils.ToNarrow(FilterMitchellAWstr) + "\n");
 			tmpRenderConfig.append("film.filter.mitchell.b" + lxmUtils.ToNarrow(FilterMitchellBWstr) + "\n");
 		}
-		if (filterIndex == 5)
+		if (filterIndex == 4)
 		{
 			tmpRenderConfig.append("film.filter.mitchellss.b" + lxmUtils.ToNarrow(FilterMitchellAWstr) + "\n");
 			tmpRenderConfig.append("film.filter.mitchellss.c" + lxmUtils.ToNarrow(FilterMitchellBWstr) + "\n");
@@ -737,7 +842,6 @@ int LuxMax::Render(
 		}
 
 		int samplerindex = (int)_wtoi(SamplerIndexWstr);
-		
 		switch (samplerindex)
 		{
 			case 0:
@@ -759,17 +863,28 @@ int LuxMax::Render(
 				
 				break;
 			}	
+			case 3:
+			{
+				tmpRenderConfig.append("sampler.type = TILEPATHSAMPLER\n");
+				break;
+			}
 		}
 
 		renderConfigProp.SetFromString(tmpRenderConfig);
-
-		RenderConfig *config = new RenderConfig(renderConfigProp, scene);
-		RenderSession *session = new RenderSession(config);
-		session->Parse(renderConfigProp);
 		
+		scene->RemoveUnusedImageMaps();
+		scene->RemoveUnusedMaterials();
+		scene->RemoveUnusedMeshes();
+		scene->RemoveUnusedTextures();
+		scene->SetDeleteMeshData(true);
+		RenderConfig *config = RenderConfig::Create(renderConfigProp, scene);
+		RenderSession *session = RenderSession::Create(config);
 		session->Start();
 		DoRendering(session, prog, tobm);
 		session->Stop();
+		delete scene;
+		delete config;
+		delete session;
 	}
 }
 
@@ -797,6 +912,7 @@ RefTargetHandle LuxMax::Clone(RemapDir &remap) {
 	newRend->MetropolisLargestEpRateWstr = MetropolisLargestEpRateWstr;
 	newRend->MetropolisMaxConsecutiveRejectWstr = MetropolisMaxConsecutiveRejectWstr;
 	newRend->SamplerIndexWstr = SamplerIndexWstr;
+	newRend->enableFileSaverOutoutWstr = enableFileSaverOutoutWstr;
 	BaseClone(this, newRend, remap);
 	return newRend;
 }
@@ -821,6 +937,7 @@ void LuxMax::ResetParams(){
 #define METROPOLIS_LARGEST_EP_RATE_CHUNKID 016
 #define METROPOLIS_MAX_CONSECUTIVE_REJECT 017
 #define SAMPLER_INDEX_CHUNKID 19
+#define ENABLE_FILE_SAVER_OUTPUT_CHUNKID 20
 
 IOResult LuxMax::Save(ISave *isave) {
 	if (_tcslen(FileName) > 0) {
@@ -874,6 +991,10 @@ IOResult LuxMax::Save(ISave *isave) {
 	isave->BeginChunk(SAMPLER_INDEX_CHUNKID);
 	isave->WriteWString(SamplerIndexWstr);
 	isave->EndChunk();
+	isave->BeginChunk(ENABLE_FILE_SAVER_OUTPUT_CHUNKID);
+	isave->WriteWString(enableFileSaverOutoutWstr);
+	isave->EndChunk();
+		
 	return IO_OK;
 }
 
@@ -984,7 +1105,12 @@ IOResult LuxMax::Load(ILoad *iload) {
 				SamplerIndexWstr = buf;
 			break;
 		}
-
+		case ENABLE_FILE_SAVER_OUTPUT_CHUNKID:
+		{
+			if (IO_OK == iload->ReadWStringChunk(&buf))
+				enableFileSaverOutoutWstr = buf;
+			break;
+		}
 	}
 		iload->CloseChunk();
 		if (res != IO_OK)
