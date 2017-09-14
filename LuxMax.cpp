@@ -377,8 +377,8 @@ int LuxMax::Open(
 	{
 		renderingMaterialPreview = true;
 		//Scene* materialPreviewScene = NULL;// *= new Scene();
-		Scene *materialPreviewScene = Scene::Create();
-
+		//Scene *materialPreviewScene = Scene::Create();
+		materialPreviewScene = Scene::Create();
 		lxmMesh.createMesh(scene, *materialPreviewScene,GetCOREInterface()->GetTime());
 	}
 	else
@@ -607,7 +607,7 @@ int LuxMax::Render(
 
 	if (renderingMaterialPreview)
 	{
-		materialPreviewScene = Scene::Create();
+		//materialPreviewScene = Scene::Create();
 
 		materialPreviewScene->Parse(
 			Property("scene.materials.mat_dummy.type")("matte") <<
@@ -627,6 +627,7 @@ int LuxMax::Render(
 			Property("scene.camera.fieldofview")(35.f)
 			);
 
+		//Property("scene.camera.fieldofview")(35.f)
 		//Instead of the preview sky light, we should fetch max's internal lights for material previews.
 		lxmLights.exportDefaultSkyLight(materialPreviewScene);
 
@@ -645,8 +646,9 @@ int LuxMax::Render(
 		tmpRenderConfig.append("film.imagepipeline.1.value = 1.0\n");
 		tmpRenderConfig.append("film.height = " + std::to_string(renderHeight) + "\n");
 		tmpRenderConfig.append("film.width = " + std::to_string(renderWidth) + "\n");
+		tmpRenderConfig.append("renderengine.type = PATHCPU\n");
 		//tmpRenderConfig.append("sampler.type = SOBOL\n");
-		tmpRenderConfig.append("sampler.type = TILEPATHSAMPLER\n");
+		tmpRenderConfig.append("sampler.type = RANDOM\n");
 		//tmpRenderConfig.append("film.filter.type = Box\n");
 
 		luxrays::Properties renderConfigProp;
